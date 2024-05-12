@@ -16,11 +16,12 @@ class Core(Tk):
         self.new_player = None
         self.new_player2 = None
 
-        self.new_tournament = None
+        self.new_tour = None
 
         self.menu_listing = None
         self.widjets_menu1 = False
         self.widjets_menu2 = False
+        self.widjets_menu3 = False
 
         self.frame = None
         self.frame_list = None
@@ -64,34 +65,47 @@ class Core(Tk):
 
     @staticmethod
     def number_verif(arg_type, number) -> False:
-        new_nbr = re.search(r"[a-zA-Z]+", number)
-        if new_nbr:
-            return f"{arg_type} doit comporter uniquement des chiffres"
-        else:
-            match arg_type:
-                case "Le jour":
-                    if int(number) < 1 or int(number) > 31 or not len(number) == 2:
-                        return f"{arg_type} doit comporter un nombre entre 01 et 31"
-                case "Le mois":
-                    if int(number) < 1 or int(number) > 12 or not len(number) == 2:
-                        return f"{arg_type} doit comporter un nombre entre 01 et 12"
-                case "L'année joueur":
-                    if int(number) < 1900 or int(number) > 2016 or not len(number) == 4:
-                        return f"{arg_type} doit comporter un nombre entre 1900 et 2016"
-                case "L'année tournoi":
-                    if int(number) < 2024 or int(number) > 2100 or not len(number) == 4:
-                        return f"{arg_type} doit comporter un nombre entre 2024 et 2100"
+        if number:
+            number = number.replace(" ", "").strip()
+            new_nbr = re.search(r"[a-zA-Z]+", number)
+            if new_nbr:
+                return f"{arg_type} doit comporter uniquement des chiffres"
+            else:
+                match arg_type:
+                    case "Le jour":
+                        if int(number) < 1 or int(number) > 31 or not len(number) == 2:
+                            return f"{arg_type} doit comporter un nombre entre 01 et 31"
+                    case "Le mois":
+                        if int(number) < 1 or int(number) > 12 or not len(number) == 2:
+                            return f"{arg_type} doit comporter un nombre entre 01 et 12"
+                    case "L'année joueur":
+                        if int(number) < 1900 or int(number) > 2016 or not len(number) == 4:
+                            return f"{arg_type} doit comporter un nombre entre 1900 et 2016"
+                    case "L'année tournoi":
+                        if int(number) < 2024 or int(number) > 2100 or not len(number) == 4:
+                            return f"{arg_type} doit comporter un nombre entre 2024 et 2100"
 
     @staticmethod
     def string_verif(arg_type, text) -> False:
-        new_text = re.search(r"[0-9]+", text)
-        if new_text:
-            return f"{arg_type} doit comporter uniquement du texte"
+        if text:
+            text = text.replace(" ", "").strip()
+            new_text = re.search(r"[0-9]+", text)
+            if new_text:
+                return f"{arg_type} doit comporter uniquement du texte"
 
     @staticmethod
     def long_string_verif(arg_type, min_txt, max_txt, text) -> False:
-        if len(text) < min_txt or len(text) > max_txt:
-            return f"{arg_type} doit comporter entre {min_txt} et {max_txt} caractères"
+        if text:
+            text = text.replace(" ", "").strip()
+            if len(text) < min_txt or len(text) > max_txt:
+                return f"{arg_type} doit comporter entre {min_txt} et {max_txt} caractères"
+
+    @staticmethod
+    def identity_verif(text) -> False:
+        if text:
+            text = text.replace(" ", "").strip()
+            if not len(text) == 7 or not text[:2].isalpha() or not text[2:].isdigit():
+                return f"Le numéro national d'identité '{text}' n'est pas valide"
 
     @staticmethod
     def clear_frame(frame: any) -> None:
@@ -102,12 +116,13 @@ class Core(Tk):
     @staticmethod
     def create_error(errors_dict):
         ctrl_errors = []
-        number_error = 0
-        for txt in errors_dict.values():
-            if txt is not None:
-                number_error += 1
-                name = f"error{number_error}"
-                ctrl_errors.append([name, txt])
+        if len(errors_dict) > 0:
+            number_error = 0
+            for txt in errors_dict.values():
+                if txt is not None:
+                    number_error += 1
+                    name = f"error{number_error}"
+                    ctrl_errors.append([name, txt])
 
         return ctrl_errors
 
@@ -119,6 +134,22 @@ class Core(Tk):
                 if child.winfo_name() == name:
                     ctrl_number_error += 1
                     child.destroy()
+
+    @staticmethod
+    def instance_player(data_player, key=None, value=None):
+        if key and value:
+            match key:
+                case 'Identité':
+                    data_player[key] = value
+                case 'Nom':
+                    data_player[key] = value
+                case 'Prénom':
+                    data_player[key] = value
+                case 'Date de naissance':
+                    data_player[key] = value
+                case _:
+                    pass
+        return data_player
 
     def listing_canvas(self, curent_frame):
 

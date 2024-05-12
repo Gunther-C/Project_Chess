@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import font, Entry
+from tkinter import font, Entry, Radiobutton
 from tkinter import ttk
 
 
@@ -45,6 +45,16 @@ class ExtendViews:
 
         return {'day': new_day, 'month': new_month, 'year': new_year}
 
+    def radio_button(self, **kwargs: any) -> Radiobutton:
+        label = Label(kwargs['mst'], bg=kwargs['bg'], text=kwargs['text'], justify=kwargs['justify'])
+        radio = Radiobutton(kwargs['mst'], bg='red', justify=kwargs['justify'], variable=kwargs['variable'],
+                            value=kwargs['value'], indicatoron=False, offrelief="flat", overrelief="ridge",
+                            selectcolor='black')
+        label.grid(column=kwargs['cols'], row=kwargs['lb_row'], sticky=kwargs['sticky'])
+        radio.grid(column=kwargs['cols'], row=kwargs['ip_row'], sticky=kwargs['sticky'])
+        radio.update()
+        return radio
+
     def title(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
                             slant=kwargs['slant'], underline=kwargs['underline'])
@@ -57,5 +67,6 @@ class ExtendViews:
     def label(self, **kwargs: any) -> any:
         label = Label(kwargs['mst'], width=kwargs['width'], height=kwargs['height'], bg=kwargs['bg'],
                       justify=kwargs['justify'], text=kwargs['text'])
-        label.grid(row=kwargs['row'], ipadx=kwargs['padx'], ipady=kwargs['pady'], column=kwargs['cols'], columnspan=kwargs['colspan'], sticky=kwargs['sticky'])
+        label.grid(row=kwargs['row'], ipadx=kwargs['ipadx'], ipady=kwargs['ipady'], column=kwargs['cols'],
+                   columnspan=kwargs['colspan'], sticky=kwargs['sticky'])
 

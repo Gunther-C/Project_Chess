@@ -1,4 +1,7 @@
 from controlers import ctrl_players
+# from controlers import ctrl_tournaments
+
+
 def cmd():
     print("[J] Joueurs")
     print("[T] Tournois")

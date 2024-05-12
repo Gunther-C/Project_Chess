@@ -9,6 +9,7 @@ class PlayersData:
         if data:
             self.data = {
                 'id': int(1),
+                'Identité': str(data['Identité']),
                 'Nom': str(data['Nom']).capitalize(),
                 'Prénom': str(data['Prénom']).capitalize(),
                 'Date de naissance': str(data['Date de naissance']),
