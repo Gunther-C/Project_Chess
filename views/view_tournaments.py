@@ -5,7 +5,7 @@ from core import extend_view
 
 
 class TournamentsViews(extend_view.ExtendViews):
-    def __init__(self, new_self: any):
+    def __init__(self, new_self):
 
         self.se = new_self
 
@@ -15,17 +15,17 @@ class TournamentsViews(extend_view.ExtendViews):
         super().__init__(self.frame)
 
     def new_menu(self):
-        self.se.menu_players = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
-        self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_players)
-        self.se.menu.add_command(label="Quitter", command=self.se.quit)
+        self.se.menu_tour = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
+        self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_tour)
+        self.se.menu.add_command(label="Quitter", command=self.se.destroy)
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):
         if not self.se.widjets_menu1:
             self.se.menu_listing = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_list())
-            self.se.menu_players.add_command(label="Ajouter un tournoi", command=lambda: self.se.result_menu('create'))
-            self.se.menu_players.add_command(label="Chercher un tournoi", command=lambda: self.se.result_menu('search'))
-            self.se.menu_players.add_cascade(label="Liste des tournois par:", menu=self.se.menu_listing)
+            self.se.menu_tour.add_command(label="Ajouter un tournoi", command=lambda: self.se.result_menu('create'))
+            self.se.menu_tour.add_command(label="Chercher un tournoi", command=lambda: self.se.result_menu('search'))
+            self.se.menu_tour.add_cascade(label="Liste des tournois par:", menu=self.se.menu_listing)
             self.se.widjets_menu1 = True
 
     def menu_list(self):
@@ -38,10 +38,9 @@ class TournamentsViews(extend_view.ExtendViews):
             self.se.widjets_menu2 = True
 
     def new_tournament(self):
-
-        self.se.maxsize(width=0, height=0)
-        self.se.minsize(width=420, height=450)
         self.se.clear_frame(self.frame)
+        self.se.master_window(50, 60)
+        self.se.minsize(width=420, height=450)
         self.frame.place(relx=0.5, rely=0.4, anchor='center')
 
         self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True, mst=self.frame,
@@ -62,7 +61,6 @@ class TournamentsViews(extend_view.ExtendViews):
         list_choice_round = ttk.Combobox(self.frame, values=number_round, state='readonly', background='#ffffff')
         list_choice_round.current(2)
         list_choice_round.grid(row=12, column=1, columnspan=6, sticky='w')
-
 
         def result(event):
             select_t = list_choice_round.get()
@@ -92,10 +90,6 @@ class TournamentsViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=(space_x[2] - 30), ipady=None,
                    justify=None, text="", row=9, cols=6, colspan=None, sticky=None)
 
-        """self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                   justify=None, text="", row=7, cols=0, colspan=None, sticky=None)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                   justify=None, text="", row=10, cols=6, colspan=None, sticky=None)"""
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],

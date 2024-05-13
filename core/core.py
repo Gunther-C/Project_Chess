@@ -16,7 +16,7 @@ class Core(Tk):
         self.new_player = None
         self.new_player2 = None
 
-        self.new_tour = None
+        # self.new_tour = None
 
         self.menu_listing = None
         self.widjets_menu1 = False
@@ -26,14 +26,13 @@ class Core(Tk):
         self.frame = None
         self.frame_list = None
 
-        self.view_x: list = self.window_x(self.winfo_screenwidth(), 50)
-        self.view_y: list = self.window_y(self.winfo_screenheight(), 60)
-
-        self.geometry('{}x{}+{}+{}'.format(self.view_x[0], self.view_y[0], self.view_x[1], self.view_y[1]))
+        self.master_window(50, 60)
         self.minsize(width=420, height=450)
+
         self.title(" Echec")
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
+
         self.menu = Menu(self)
 
         """
@@ -46,6 +45,16 @@ class Core(Tk):
         self.new_self.iconbitmap("views/pictures/horse.ico")
         self.menu = Menu(self.new_self)
         """
+
+    def master_window(self, child_width, child_height):
+        """
+        Placement / dimension fenêtre principale
+        """
+        view_x: list = self.window_x(self.winfo_screenwidth(), child_width)
+        view_y: list = self.window_y(self.winfo_screenheight(), child_height)
+        self.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], view_x[1], view_y[1]))
+
+        return [view_x[0], view_y[0]]
 
     @staticmethod
     def window_x(parent, child_width) -> list:
@@ -151,16 +160,15 @@ class Core(Tk):
                     pass
         return data_player
 
-    def listing_canvas(self, curent_frame):
+    def listing_canvas(self, curent_frame, bg_color, master_x, master_y):
 
-        self.minsize(width=(self.view_x[0] + 100), height=(self.view_y[0] + 25))
-        self.maxsize(width=(self.view_x[0] + 200), height=(self.view_y[0] + 25))
+        dimension = self.master_window(master_x, master_y)
 
         canvas = Canvas(curent_frame)
-        self.frame_list = Frame(canvas, bg="#ffffff", padx=10, pady=15)
+        self.frame_list = Frame(canvas, bg=bg_color, padx=10, pady=15)
         scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
 
-        canvas.configure(yscrollcommand=scrollbar.set, bg="#ffffff", width=self.view_x[0], height=self.view_y[0])
+        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension[0], height=dimension[1])
         canvas.create_window((0, 0), window=self.frame_list, anchor='nw')
 
         canvas.grid(row=0, column=0)
@@ -169,5 +177,5 @@ class Core(Tk):
         def mouse_move(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-        return self.frame_list, canvas, mouse_move
+        return self.frame_list, canvas, mouse_move, dimension[0], dimension[1]
 

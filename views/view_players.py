@@ -17,7 +17,7 @@ class PlayersViews(extend_view.ExtendViews):
     def new_menu(self):
         self.se.menu_players = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Joueurs", menu=self.se.menu_players)
-        self.se.menu.add_command(label="Quitter", command=self.se.quit)
+        self.se.menu.add_command(label="Quitter", command=self.se.destroy)
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):
@@ -44,9 +44,9 @@ class PlayersViews(extend_view.ExtendViews):
             self.se.widjets_menu3 = True
 
     def new_player(self):
-        self.se.maxsize(width=0, height=0)
-        self.se.minsize(width=420, height=450)
         self.se.clear_frame(self.frame)
+        self.se.master_window(50, 60)
+        self.se.minsize(width=420, height=450)
         self.frame.place(relx=0.5, rely=0.4, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
@@ -120,9 +120,9 @@ class PlayersViews(extend_view.ExtendViews):
 
     def search_player(self, choice_type):
         # Recherche par nom
-        self.se.maxsize(width=0, height=0)
-        self.se.minsize(width=420, height=450)
         self.se.clear_frame(self.frame)
+        self.se.master_window(50, 60)
+        self.se.minsize(width=420, height=450)
         self.frame.place(relx=0.5, rely=0.3, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
@@ -146,31 +146,46 @@ class PlayersViews(extend_view.ExtendViews):
 
     def matching_multi_players(self, multi_players: list):
         self.se.clear_frame(self.frame)
-        self.frame.place(relx=0.5, rely=0.4, anchor='center')
+        list_system = self.se.listing_canvas(self.frame, '#FEF9E7', 50, 60)
+        frame = list_system[0]
+        canvas = list_system[1]
+        scroll_mouse = list_system[2]
+        view_x = list_system[3]
+        view_y = list_system[4]
+        self.frame.place(relx=0.5, rely=0, anchor='n')
 
         def player_button(last_n, first_n, plr, next_row):
-            button = ttk.Button(self.frame, text=f" {last_n} {first_n} ", command=lambda: self.matching_player(plr))
+            button = ttk.Button(frame, text=f" {last_n} {first_n} ", command=lambda: self.matching_player(plr))
             button.grid(row=next_row, columnspan=5, pady=10)
 
-        self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=self.frame, bg="#FEF9E7",
+        self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
                    justify=None, text="Plusieurs résultats : ", width=None, row=0, cols=None, colspan=5, sticky=None,
                    padx=10, pady=None)
 
         next_line = 2
-        for player in multi_players:
-            last_name = None
-            first_name = None
-            for keys in player:
-                if keys == 'Nom':
-                    last_name = player[keys]
-                if keys == 'Prénom':
-                    first_name = player[keys]
+        for x in range(10):
+            for player in multi_players:
+                last_name = None
+                first_name = None
+                for keys in player:
+                    if keys == 'Nom':
+                        last_name = player[keys]
+                    if keys == 'Prénom':
+                        first_name = player[keys]
 
-            player_button(last_name, first_name, player, next_line)
-            next_line += 1
+                player_button(last_name, first_name, player, next_line)
+                next_line += 1
 
-        annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
+        annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
         annule.grid(row=next_line, columnspan=5)
+
+        canvas.update()
+        frame.update()
+        space_x: list = self.adjust_x(canvas, frame)
+        frame.config(padx=space_x[2])
+
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 50), height=(view_y - 25)))
+        canvas.bind_all("<MouseWheel>", scroll_mouse)
 
     def matching_player(self, data_player: dict):
         self.se.clear_frame(self.frame)
@@ -215,10 +230,13 @@ class PlayersViews(extend_view.ExtendViews):
     def list_player(self, title: str, data_player: list):
 
         self.se.clear_frame(self.frame)
-        list_system = self.se.listing_canvas(self.frame)
+        list_system = self.se.listing_canvas(self.frame, '#ffffff', 70, 70)
         frame = list_system[0]
         canvas = list_system[1]
         scroll_mouse = list_system[2]
+        view_x = list_system[3]
+        view_y = list_system[4]
+        self.se.minsize(width=view_x, height=view_y)
         self.frame.place(relx=0.5, rely=0, anchor='n')
 
         self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
@@ -230,8 +248,8 @@ class PlayersViews(extend_view.ExtendViews):
             for keys, values in player.items():
                 if not keys == 'id':
                     self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
-                               bg="#ffffff", justify="center", text=keys, width=None, child_w=300, row=1, cols=title_cols,
-                               colspan=None, sticky=None, padx=15, pady=5)
+                               bg="#ffffff", justify="center", text=keys, width=None, child_w=300, row=1,
+                               cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
                     title_cols += 1
             break
 
@@ -246,8 +264,7 @@ class PlayersViews(extend_view.ExtendViews):
             next_line += 1
 
         frame.update()
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=self.se.view_x[0],
-                                                   height=self.se.view_y[0]))
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100), height=(view_y - 25)))
         canvas.bind_all("<MouseWheel>", scroll_mouse)
 
     def message(self, **kwargs: any) -> any:

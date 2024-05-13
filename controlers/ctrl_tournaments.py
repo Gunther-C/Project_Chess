@@ -1,9 +1,9 @@
 from tkinter import *
 from tkinter import font, Entry
 from tkinter import ttk
-import time
 
 from core import core
+from rotate import rotation
 from database import data_tournament as data
 from models import mdl_tournament as model
 from views import view_tournaments as view
@@ -57,11 +57,16 @@ class TournamentsCtrl(core.Core):
     def __init__(self, data_transfer=None):
         super().__init__()
 
+        print('TournamentsCtrl', data_transfer)
+
         self.vue = view.TournamentsViews(self)
 
         self.vue.new_menu()
         self.vue.menu_choice()
 
+        if data_transfer:
+            self.new_player = data_transfer
+            self.vue.new_tournament()
 
     def result_menu(self, result: str | None = None):
         match result:
@@ -82,8 +87,6 @@ class TournamentsCtrl(core.Core):
         month = plr_data['birth_start']['month'].get()
         year = plr_data['birth_start']['year'].get()
         tour_type = plr_data['tour_type']
-
-        # print('retour à ctrl tournois', name, address, day, month, year, tour_type)
 
         if name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, name)
@@ -124,5 +127,3 @@ class TournamentsCtrl(core.Core):
         print('ROUND1 =>', tr['Round1'])
 
 
-window = TournamentsCtrl()
-window.mainloop()

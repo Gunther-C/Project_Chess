@@ -1,10 +1,9 @@
 from tkinter import *
 from tkinter import font, Entry
 from tkinter import ttk
-import time
-import subprocess
 
 from core import core
+from rotate import rotation
 from database import data_players as data
 from models import mdl_players as model
 from views import view_players as view
@@ -22,10 +21,10 @@ def searching(**kwargs: any) -> False:
         Recherchée correspondance
         si le joueur est déja dans la bdd à l'inscription
         recherche si un joueur éxiste retourne ses infos en cas de success
+        Si plusieurs joueurs ont le mème nom retourne une list des joueurs
     """
     file_players = players_list()
     if file_players:
-
         multi_player = []
         type_search = 1
         last_name = None
@@ -40,6 +39,11 @@ def searching(**kwargs: any) -> False:
             birth = kwargs['birth']
         if 'identity' in kwargs:
             identity = kwargs['identity']
+            id_last = identity[:2]
+            if not id_last.isupper():
+                id_last = id_last.upper()
+                id_first = identity[2:]
+                identity = id_last + id_first
 
         for player in file_players:
 
@@ -71,14 +75,19 @@ def searching(**kwargs: any) -> False:
 
         return multi_player
 
+
 class PlayersCtrl(core.Core):
+
     def __init__(self, data_transfer=None):
         super().__init__()
 
         self.vue = view.PlayersViews(self)
-
         self.vue.new_menu()
         self.vue.menu_choice()
+
+        if data_transfer:
+            self.new_player = data_transfer
+            self.vue.new_player()
 
     def new_player_ctrl(self, new_frame, plr_data):
         errors_dict = {}
@@ -240,11 +249,9 @@ class PlayersCtrl(core.Core):
         else:
             pass
 
-
     def search_choice(self, result: str, data_player: dict):
 
         if len(data_player) == 4:
-            print(data_player)
             data_pl = model.PlayersMdl(
                 identity=data_player['Identité'],
                 last_name=data_player['Nom'],
@@ -273,30 +280,8 @@ class PlayersCtrl(core.Core):
                              bg="#FEF9E7", name="error1", fg="red", pady=10, text="La création du joueur à échoué")
 
     def create_new_tournament(self):
-
-        print('create_new_tournament', self.new_player)
-
-        """
-        if self.quit():
-            from controlers import ctrl_tournaments
-            ctrl_tournaments.TournamentsCtrl(self.new_player)
-
-        self.menu.destroy()
-        self.frame.destroy()
-        self.new_self.destroy()
-        self.quit()"""
-        """
-        
-        from controlers import ctrl_tournaments
-        ctrl_tournaments.TournamentsCtrl(self.new_player)
-        """
-
-        # exec(open(f"controlers/ctrl_tournaments/TournamentsCtrl({self.new_player})").read())
-        # subprocess.run(["python", f"controlers/ctrl_tournaments/TournamentsCtrl({self.new_player})"])
-        """from controlers import ctrl_tournaments
-        time.sleep(2)
-        ctrl_tournaments.TournamentsCtrl(self.new_player)"""
-        # core.start_tournament(self.new_player)
+        self.destroy()
+        rotation('t', self.new_player)
 
     def recover_list(self, type_list=None):
 
@@ -322,9 +307,3 @@ class PlayersCtrl(core.Core):
                 self.vue.list_player('Liste par partie(s) gagnée(s)', ordered)
 
 
-"""if __name__ == '__main__':
-    window = PlayersCtrl()
-    window.mainloop()"""
-
-window = PlayersCtrl()
-window.mainloop()
