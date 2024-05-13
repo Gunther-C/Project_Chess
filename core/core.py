@@ -3,6 +3,7 @@ from tkinter import font, Entry
 from tkinter import ttk
 import re
 
+from database import data_players as dt_players
 
 class Core(Tk):
 
@@ -13,38 +14,28 @@ class Core(Tk):
         print(self.master_id)
         self.data_transfer = None
 
-        self.new_player = None
-        self.new_player2 = None
-
-        # self.new_tour = None
-
         self.menu_listing = None
+        self.frame = None
+        self.frame_list = None
         self.widjets_menu1 = False
         self.widjets_menu2 = False
         self.widjets_menu3 = False
 
-        self.frame = None
-        self.frame_list = None
-
         self.master_window(50, 60)
         self.minsize(width=420, height=450)
-
         self.title(" Echec")
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
-
         self.menu = Menu(self)
 
-        """
-        self.new_self = Toplevel(self)
-        self.withdraw()
-        self.new_self.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], view_x[1], view_y[1]))
-        self.new_self.minsize(width=350, height=400)
-        self.new_self.title(" Echec")
-        self.new_self.config(bg="#FEF9E7")
-        self.new_self.iconbitmap("views/pictures/horse.ico")
-        self.menu = Menu(self.new_self)
-        """
+        self.new_player = None
+        self.new_player2 = None
+
+        self.new_tournoi = None
+
+        self.new_w = None
+        # self.new_fr = None
+
 
     def master_window(self, child_width, child_height):
         """
@@ -55,6 +46,25 @@ class Core(Tk):
         self.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], view_x[1], view_y[1]))
 
         return [view_x[0], view_y[0]]
+
+
+    def listing_window(self):
+        new_window = Toplevel(self)
+        view_x: list = self.window_x(self.winfo_screenwidth(), 70)
+        view_y: list = self.window_y(self.winfo_screenheight(), 70)
+        new_window.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], 30, 30))
+        new_window.minsize(width=view_x[0], height=view_y[0])
+        new_window.title(" Liste des joueurs")
+        new_window.config(bg="#FEF9E7")
+        new_window.iconbitmap("views/pictures/horse.ico")
+        return new_window, view_x[0], view_y[0]
+
+    @staticmethod
+    def players_list():
+        # fichier json des joueurs
+        file_players = dt_players.PlayersData().load_players_file()
+        if file_players:
+            return file_players
 
     @staticmethod
     def window_x(parent, child_width) -> list:
@@ -160,9 +170,9 @@ class Core(Tk):
                     pass
         return data_player
 
-    def listing_canvas(self, curent_frame, bg_color, master_x, master_y):
+    def listing_canvas(self, curent_frame, bg_color, dimension):
 
-        dimension = self.master_window(master_x, master_y)
+        # dimension = self.master_window(master_x, master_y)
 
         canvas = Canvas(curent_frame)
         self.frame_list = Frame(canvas, bg=bg_color, padx=10, pady=15)

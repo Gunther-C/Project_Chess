@@ -146,7 +146,8 @@ class PlayersViews(extend_view.ExtendViews):
 
     def matching_multi_players(self, multi_players: list):
         self.se.clear_frame(self.frame)
-        list_system = self.se.listing_canvas(self.frame, '#FEF9E7', 50, 60)
+        master_geometrie = self.se.master_window(50, 60)
+        list_system = self.se.listing_canvas(self.frame, '#FEF9E7', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
         scroll_mouse = list_system[2]
@@ -230,7 +231,8 @@ class PlayersViews(extend_view.ExtendViews):
     def list_player(self, title: str, data_player: list):
 
         self.se.clear_frame(self.frame)
-        list_system = self.se.listing_canvas(self.frame, '#ffffff', 70, 70)
+        master_geometrie = self.se.master_window(70, 70)
+        list_system = self.se.listing_canvas(self.frame, '#ffffff', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
         scroll_mouse = list_system[2]

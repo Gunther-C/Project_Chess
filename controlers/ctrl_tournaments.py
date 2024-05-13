@@ -80,6 +80,14 @@ class TournamentsCtrl(core.Core):
                 pass
 
     def tournament_ctrl(self, new_frame, plr_data):
+
+        if 'listing' in plr_data:
+            file_players = self.players_list()
+            ordered = sorted(file_players, key=lambda x: x['Nom'])
+            self.vue.list_player('Liste par ordre alphabétique', ordered)
+
+
+
         errors_dict = {}
         name = plr_data['name'].get()
         address = plr_data['address'].get()
@@ -112,7 +120,7 @@ class TournamentsCtrl(core.Core):
 
             # instance tournoi
             dt_tour = model.TournamentMdl(name=name, address=address, birth=birth, tour_type=tour_type).instance_tournament()
-            self.new_tour = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2], 'Joueurs': dt_tour[3], 'Round1': dt_tour[4]}
+            self.new_tournoi = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2], 'Joueurs': dt_tour[3], 'Round1': dt_tour[4]}
             self.new_tour_choice_view()
         else:
             pass

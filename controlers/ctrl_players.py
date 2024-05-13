@@ -9,71 +9,14 @@ from models import mdl_players as model
 from views import view_players as view
 
 
-def players_list():
+"""def players_list():
     # fichier json des joueurs
     file_players = data.PlayersData().load_players_file()
     if file_players:
-        return file_players
+        return file_players"""
 
 
-def searching(**kwargs: any) -> False:
-    """
-        Recherchée correspondance
-        si le joueur est déja dans la bdd à l'inscription
-        recherche si un joueur éxiste retourne ses infos en cas de success
-        Si plusieurs joueurs ont le mème nom retourne une list des joueurs
-    """
-    file_players = players_list()
-    if file_players:
-        multi_player = []
-        type_search = 1
-        last_name = None
-        first_name = None
-        birth = None
-        identity = None
-        if 'last_name' in kwargs:
-            last_name = kwargs['last_name'].strip().replace(' ', '').lower()
-        if 'first_name' in kwargs:
-            first_name = kwargs['first_name'].strip().replace(' ', '').lower()
-        if 'birth' in kwargs:
-            birth = kwargs['birth']
-        if 'identity' in kwargs:
-            identity = kwargs['identity']
-            id_last = identity[:2]
-            if not id_last.isupper():
-                id_last = id_last.upper()
-                id_first = identity[2:]
-                identity = id_last + id_first
 
-        for player in file_players:
-
-            data_user = []
-            for keys, values in player.items():
-                if keys == 'Nom':
-                    values = values.strip().replace(' ', '').lower()
-                    if last_name == values:
-                        data_user.append(values)
-
-                if keys == 'Prénom':
-                    values = values.strip().replace(' ', '').lower()
-                    if first_name == values:
-                        data_user.append(values)
-
-                if keys == 'Date de naissance':
-                    if birth == values:
-                        data_user.append(values)
-
-                if keys == 'Identité':
-                    if identity == values:
-                        data_user.append(values)
-
-            if kwargs['search_type'] == 'compare':
-                type_search = 3
-
-            if len(data_user) == type_search:
-                multi_player.append(player)
-
-        return multi_player
 
 
 class PlayersCtrl(core.Core):
@@ -127,8 +70,8 @@ class PlayersCtrl(core.Core):
         elif identity and last_name and first_name and day and month and year:
             birth = year + '-' + month + '-' + day
 
-            result = searching(search_type="compare", last_name=last_name, first_name=first_name, birth=birth)
-            result2 = searching(search_type="searching", identity=identity)
+            result = self.searching(search_type="compare", last_name=last_name, first_name=first_name, birth=birth)
+            result2 = self.searching(search_type="searching", identity=identity)
 
             if len(result) > 0:
                 self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
@@ -211,7 +154,7 @@ class PlayersCtrl(core.Core):
                                      name=er[0], fg="red", pady=None, text=er[1])
             else:
 
-                new_search = searching(search_type="searching", last_name=last_name)
+                new_search = self.searching(search_type="searching", last_name=last_name)
 
                 if len(new_search) > 1:
                     self.vue.matching_multi_players(new_search)
@@ -239,7 +182,7 @@ class PlayersCtrl(core.Core):
                     self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
                                      name=er[0], fg="red", pady=None, text=er[1])
             else:
-                new_search = searching(search_type="searching", identity=identity)
+                new_search = self.searching(search_type="searching", identity=identity)
                 if len(new_search) > 0:
                     self.vue.matching_player(new_search[0])
 
@@ -285,7 +228,7 @@ class PlayersCtrl(core.Core):
 
     def recover_list(self, type_list=None):
 
-        file_players = players_list()
+        file_players = self.players_list()
 
         match type_list:
             case 'names':
@@ -306,4 +249,61 @@ class PlayersCtrl(core.Core):
                 ordered = sorted(file_players, key=lambda x: x['partie gagnée'], reverse=True)
                 self.vue.list_player('Liste par partie(s) gagnée(s)', ordered)
 
+    def searching(self, **kwargs: any) -> False:
+        """
+            Recherchée correspondance
+            si le joueur est déja dans la bdd à l'inscription
+            recherche si un joueur éxiste retourne ses infos en cas de success
+            Si plusieurs joueurs ont le mème nom retourne une list des joueurs
+        """
+        file_players = self.players_list()
+        if file_players:
+            multi_player = []
+            type_search = 1
+            last_name = None
+            first_name = None
+            birth = None
+            identity = None
+            if 'last_name' in kwargs:
+                last_name = kwargs['last_name'].strip().replace(' ', '').lower()
+            if 'first_name' in kwargs:
+                first_name = kwargs['first_name'].strip().replace(' ', '').lower()
+            if 'birth' in kwargs:
+                birth = kwargs['birth']
+            if 'identity' in kwargs:
+                identity = kwargs['identity']
+                id_last = identity[:2]
+                if not id_last.isupper():
+                    id_last = id_last.upper()
+                    id_first = identity[2:]
+                    identity = id_last + id_first
 
+            for player in file_players:
+
+                data_user = []
+                for keys, values in player.items():
+                    if keys == 'Nom':
+                        values = values.strip().replace(' ', '').lower()
+                        if last_name == values:
+                            data_user.append(values)
+
+                    if keys == 'Prénom':
+                        values = values.strip().replace(' ', '').lower()
+                        if first_name == values:
+                            data_user.append(values)
+
+                    if keys == 'Date de naissance':
+                        if birth == values:
+                            data_user.append(values)
+
+                    if keys == 'Identité':
+                        if identity == values:
+                            data_user.append(values)
+
+                if kwargs['search_type'] == 'compare':
+                    type_search = 3
+
+                if len(data_user) == type_search:
+                    multi_player.append(player)
+
+            return multi_player
