@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import font, Entry, Radiobutton
+from tkinter import font, Entry, Radiobutton, Checkbutton
 from tkinter import ttk
 
 
@@ -54,6 +54,15 @@ class ExtendViews:
         radio.grid(column=kwargs['cols'], row=kwargs['ip_row'], sticky=kwargs['sticky'])
         radio.update()
         return radio
+
+    def check_button(self, **kwargs: any) -> Checkbutton:
+        check = Checkbutton(kwargs['mst'], variable=kwargs['variable'], onvalue=kwargs['onvalue'],
+                            offvalue=kwargs['offvalue'], bg=kwargs['bg'], justify=kwargs['justify'],
+                            indicatoron=kwargs['indicatoron'], offrelief="flat", overrelief="ridge",
+                            selectcolor=kwargs['selectcolor'])
+        check.grid(column=kwargs['cols'], row=kwargs['row'], sticky=kwargs['sticky'])
+        check.update()
+        return check
 
     def title(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],

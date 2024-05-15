@@ -9,16 +9,6 @@ from models import mdl_players as model
 from views import view_players as view
 
 
-"""def players_list():
-    # fichier json des joueurs
-    file_players = data.PlayersData().load_players_file()
-    if file_players:
-        return file_players"""
-
-
-
-
-
 class PlayersCtrl(core.Core):
 
     def __init__(self, data_transfer=None):
@@ -107,9 +97,6 @@ class PlayersCtrl(core.Core):
 
             case 'tournament1':
                 self.create_new_tournament()
-
-            case 'tournament2':
-                pass
 
             case _:
                 pass

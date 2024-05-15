@@ -57,7 +57,7 @@ class TournamentsCtrl(core.Core):
     def __init__(self, data_transfer=None):
         super().__init__()
 
-        print('TournamentsCtrl', data_transfer)
+        print('TournamentsCtrl data_transfer', data_transfer)
 
         self.vue = view.TournamentsViews(self)
 
@@ -81,20 +81,14 @@ class TournamentsCtrl(core.Core):
 
     def tournament_ctrl(self, new_frame, plr_data):
 
-        if 'listing' in plr_data:
-            file_players = self.players_list()
-            ordered = sorted(file_players, key=lambda x: x['Nom'])
-            self.vue.list_player('Liste par ordre alphabétique', ordered)
-
-
-
         errors_dict = {}
         name = plr_data['name'].get()
         address = plr_data['address'].get()
         day = plr_data['birth_start']['day'].get()
         month = plr_data['birth_start']['month'].get()
         year = plr_data['birth_start']['year'].get()
-        tour_type = plr_data['tour_type']
+        number_turns = plr_data['numberRound'].get()
+        players = plr_data['players']
 
         if name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, name)
@@ -106,6 +100,8 @@ class TournamentsCtrl(core.Core):
             errors_dict['ctrl_month'] = self.number_verif("Le mois", month)
         if year:
             errors_dict['ctrl_year'] = self.number_verif("L'année tournoi", year)
+        if number_turns:
+            errors_dict['ctrl_round'] = self.number_verif("numberRound", number_turns)
 
         self.destroy_error(new_frame, 1)
 
@@ -119,19 +115,24 @@ class TournamentsCtrl(core.Core):
             birth = year + '-' + month + '-' + day
 
             # instance tournoi
-            dt_tour = model.TournamentMdl(name=name, address=address, birth=birth, tour_type=tour_type).instance_tournament()
-            self.new_tournoi = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2], 'Joueurs': dt_tour[3], 'Round1': dt_tour[4]}
+            dt_tour = model.TournamentMdl(name=name, address=address, birth=birth, number_turns=number_turns,
+                                          players=players).instance_tournament()
+
+            self.new_tournoi = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2],
+                                'number_turns': dt_tour[3], 'Joueurs': dt_tour[4],
+                                'Round': dt_tour[5]}
             self.new_tour_choice_view()
         else:
             pass
 
     def new_tour_choice_view(self):
-        tr = self.new_tour
+        tr = self.new_tournoi
         print(f"new_tour_choice_view =>")
         print(tr['Nom'])
         print(tr['Adresse'])
         print(tr['Date'])
         print('JOUEURS =>', tr['Joueurs'])
-        print('ROUND1 =>', tr['Round1'])
+        print('ROUND =>', tr['number_turns'])
+        print('Match =>', tr['Round'])
 
 

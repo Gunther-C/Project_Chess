@@ -29,13 +29,12 @@ class Core(Tk):
         self.menu = Menu(self)
 
         self.new_player = None
-        self.new_player2 = None
+        # self.new_player2 = None
 
         self.new_tournoi = None
 
-        self.new_w = None
+        # self.new_w = None
         # self.new_fr = None
-
 
     def master_window(self, child_width, child_height):
         """
@@ -47,17 +46,33 @@ class Core(Tk):
 
         return [view_x[0], view_y[0]]
 
-
-    def listing_window(self):
+    def listing_window(self, percent_width, percent_height):
         new_window = Toplevel(self)
-        view_x: list = self.window_x(self.winfo_screenwidth(), 70)
-        view_y: list = self.window_y(self.winfo_screenheight(), 70)
+        view_x: list = self.window_x(self.winfo_screenwidth(), percent_width)
+        view_y: list = self.window_y(self.winfo_screenheight(), percent_height)
         new_window.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], 30, 30))
         new_window.minsize(width=view_x[0], height=view_y[0])
         new_window.title(" Liste des joueurs")
         new_window.config(bg="#FEF9E7")
         new_window.iconbitmap("views/pictures/horse.ico")
         return new_window, view_x[0], view_y[0]
+
+    def listing_canvas(self, curent_frame, bg_color, dimension):
+
+        canvas = Canvas(curent_frame)
+        self.frame_list = Frame(canvas, bg=bg_color, padx=10, pady=15)
+
+        scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
+        scrollbar.grid(row=0, column=1, sticky='ns')
+
+        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension[0], height=dimension[1])
+        canvas.create_window((0, 0), window=self.frame_list, anchor='nw')
+        canvas.grid(row=0, column=0)
+
+        def mouse_move(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        return self.frame_list, canvas, mouse_move, dimension[0], dimension[1]
 
     @staticmethod
     def players_list():
@@ -103,6 +118,9 @@ class Core(Tk):
                     case "L'année tournoi":
                         if int(number) < 2024 or int(number) > 2100 or not len(number) == 4:
                             return f"{arg_type} doit comporter un nombre entre 2024 et 2100"
+                    case "numberRound":
+                        if int(number) < 1 or int(number) > 99:
+                            return f"{arg_type} doit comporter un nombre entre 1 et 99"
 
     @staticmethod
     def string_verif(arg_type, text) -> False:
@@ -155,6 +173,16 @@ class Core(Tk):
                     child.destroy()
 
     @staticmethod
+    def search_name_widget(frame, name: str) -> False:
+        if frame:
+            for child in frame.winfo_children():
+                if child.winfo_name() == name:
+                    return True
+
+
+
+
+    @staticmethod
     def instance_player(data_player, key=None, value=None):
         if key and value:
             match key:
@@ -169,23 +197,3 @@ class Core(Tk):
                 case _:
                     pass
         return data_player
-
-    def listing_canvas(self, curent_frame, bg_color, dimension):
-
-        # dimension = self.master_window(master_x, master_y)
-
-        canvas = Canvas(curent_frame)
-        self.frame_list = Frame(canvas, bg=bg_color, padx=10, pady=15)
-        scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
-
-        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension[0], height=dimension[1])
-        canvas.create_window((0, 0), window=self.frame_list, anchor='nw')
-
-        canvas.grid(row=0, column=0)
-        scrollbar.grid(row=0, column=1, sticky='ns')
-
-        def mouse_move(event):
-            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-        return self.frame_list, canvas, mouse_move, dimension[0], dimension[1]
-

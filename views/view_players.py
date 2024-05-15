@@ -102,12 +102,8 @@ class PlayersViews(extend_view.ExtendViews):
                                 command=lambda: self.se.new_player_choice('tournament1', self.frame))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
-        insert_trt = ttk.Button(self.frame, text=" Ajouter au tournoi en création ",
-                                command=lambda: self.se.new_player_choice('tournament1', self.frame))
-        insert_trt.grid(row=(next_line + 3), columnspan=5, pady=20)
-
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
-        annule.grid(row=(next_line + 4), columnspan=5)
+        annule.grid(row=(next_line + 3), columnspan=5, pady=20)
 
         insert.update()
         space_x: list = self.adjust_x(title, insert)
@@ -210,12 +206,8 @@ class PlayersViews(extend_view.ExtendViews):
                                 command=lambda: self.se.search_choice('tournament1', instance_player))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
-        insert_trt = ttk.Button(self.frame, text=" Ajouter au tournoi en création ",
-                                command=lambda: search_choice('tournament2'))
-        insert_trt.grid(row=(next_line + 2), columnspan=5)
-
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
-        annule.grid(row=(next_line + 3), columnspan=5, pady=20)
+        annule.grid(row=(next_line + 2), columnspan=5, pady=20)
 
         create_trt.update()
         space_x: list = self.adjust_x(title, create_trt)
@@ -226,7 +218,6 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
-        return 'ok'
 
     def list_player(self, title: str, data_player: list):
 
