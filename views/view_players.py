@@ -78,8 +78,6 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
 
-
-
     def insert_player(self, data_player: dict):
         self.se.clear_frame(self.frame)
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -220,7 +218,6 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
-
     def list_player(self, title: str, data_player: list):
 
         self.se.clear_frame(self.frame)
@@ -235,7 +232,7 @@ class PlayersViews(extend_view.ExtendViews):
         self.frame.place(relx=0.5, rely=0, anchor='n')
 
         self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
-                   justify="center", text=title, width=None, child_w=0, row=0, cols=None, colspan=8, sticky="n",
+                   justify="center", text=title, width=None, row=0, cols=None, colspan=8, sticky="n",
                    padx=None, pady=20)
 
         for player in data_player:

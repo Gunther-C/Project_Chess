@@ -73,7 +73,7 @@ class TournamentsCtrl(core.Core):
         ctrl_errors = self.create_error(errors_dict)
         if len(ctrl_errors) > 0:
             for er in ctrl_errors:
-                self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
+                self.vue.message(mst=new_frame, family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
                                  name=er[0], fg="red", pady=None, text=er[1])
 
         elif name and address and day and month and year:
@@ -85,7 +85,56 @@ class TournamentsCtrl(core.Core):
             self.new_tournoi = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2],
                                 'number_turns': dt_tour[3], 'Joueurs': dt_tour[4],
                                 'Round': dt_tour[5]}
+
+            self.vue.detail_tournament(self.new_tournoi)
             self.new_tour_choice_view()
+        else:
+            pass
+
+    def tournament_ctrl_player(self, new_frame, plr_data) -> False:
+        errors_dict = {}
+        last_name = plr_data['last_name'].get()
+        first_name = plr_data['first_name'].get()
+        identity = plr_data['identity'].get()
+
+        if last_name:
+            errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
+            errors_dict['ctrl_lst_2'] = self.string_verif("Le Nom", last_name)
+        if first_name:
+            errors_dict['ctrl_fst_1'] = self.long_string_verif("Le Prénom", 2, 40, first_name)
+            errors_dict['ctrl_fst_2'] = self.string_verif("Le Prénom", first_name)
+        if identity:
+            errors_dict['identity'] = self.identity_verif(identity)
+
+        self.destroy_error(new_frame, 1)
+
+        ctrl_errors = self.create_error(errors_dict)
+        if len(ctrl_errors) > 0:
+            for er in ctrl_errors:
+                self.vue.message(mst=new_frame, family=None, size=9, weight="normal", slant="roman", underline=False,
+                                 bg="#FEF9E7", name=er[0], fg="red", pady=None, text=er[1])
+
+        elif identity and last_name and first_name:
+
+            rst1 = self.searching(search_type="compare", last_name=last_name, first_name=first_name, identity=identity)
+            rst2 = self.searching(search_type="searching", identity=identity)
+
+            if len(rst1) > 0:
+                self.vue.message(mst=new_frame, family=None, size=10, weight="normal", slant="roman", underline=False,
+                                 bg="#FEF9E7", name="error1", fg="red", pady=10,
+                                 text="il semble que ce joueur est déja enregistré")
+            elif len(rst2) > 0:
+                self.vue.message(mst=new_frame, family=None, size=10, weight="normal", slant="roman", underline=False,
+                                 bg="#FEF9E7", name="error1", fg="red", pady=10,
+                                 text="Ce numéro d'identité éxiste déja !")
+            else:
+                id_last = identity[:2].upper()
+                id_first = identity[2:]
+                identity = id_last + id_first
+                last_name = str(last_name).capitalize()
+                first_name = str(first_name).capitalize()
+
+                return identity, last_name, first_name
         else:
             pass
 

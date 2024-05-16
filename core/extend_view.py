@@ -3,6 +3,7 @@ from tkinter import font, Entry, Radiobutton, Checkbutton
 from tkinter import ttk
 
 
+
 class ExtendViews:
     def __init__(self, frame: any):
         self.frame = frame
@@ -64,7 +65,7 @@ class ExtendViews:
         check.update()
         return check
 
-    def title(self, **kwargs: any) -> any:
+    def title(self, **kwargs: any) -> Label:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
                             slant=kwargs['slant'], underline=kwargs['underline'])
         title = Label(kwargs['mst'], bg=kwargs['bg'], font=lb_font, justify=kwargs['justify'], text=kwargs['text'],
@@ -73,9 +74,10 @@ class ExtendViews:
         title.update()
         return title
 
-    def label(self, **kwargs: any) -> any:
+    def label(self, **kwargs: any) -> Label:
         label = Label(kwargs['mst'], width=kwargs['width'], height=kwargs['height'], bg=kwargs['bg'],
                       justify=kwargs['justify'], text=kwargs['text'])
         label.grid(row=kwargs['row'], ipadx=kwargs['ipadx'], ipady=kwargs['ipady'], column=kwargs['cols'],
                    columnspan=kwargs['colspan'], sticky=kwargs['sticky'])
-
+        label.update()
+        return label
