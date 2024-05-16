@@ -51,17 +51,16 @@ class TournamentsViews(extend_view.ExtendViews):
 
         file_players = self.se.players_list()
         dt_player = sorted(file_players, key=lambda x: x['Nom'])
-        for plr in dt_player:
-            infos_player: dict = {}
-            for key, value in plr.items():
-                if key == 'Identité' or key == 'Nom' or key == 'Prénom':
-                    infos_player[key] = value
 
-            data_player.append(infos_player)
+        for plr in dt_player:
+            instance_player: dict = {}
+            for keys, values in plr.items():
+                instance_player = self.se.instance_player(instance_player, keys, values)
+            data_player.append(instance_player)
 
         self.se.clear_frame(self.frame)
-        self.se.master_window(50, 60)
-        self.se.minsize(width=420, height=450)
+        view_master = self.se.master_window(55, 70)
+        self.se.minsize(width=int(view_master[0] * 0.70), height=int(view_master[1]))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
@@ -76,6 +75,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         number_turns = self.input_text(mst=self.frame, lb_row=11, ip_row=12, cols=1, colspan=6, bg="#FEF9E7",
                                        text="Choisissez un nombre de tour", ip_wh=10)
+        number_turns.insert(0, '4')
 
         self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None,
                    justify=None, text="Sélection des joueurs", row=14, cols=1, colspan=6, sticky='w')
@@ -94,9 +94,14 @@ class TournamentsViews(extend_view.ExtendViews):
 
         def on_click():
             data_tournament['players'] = [data_player[x] for x, select in enumerate(select_players) if select.get()]
+            if len(self.se.new_all_players) > 0:
+                for nw_player in self.se.new_all_players:
+                    data_tournament['players'].insert(0, nw_player)
+
             self.new_window[0].destroy()
             ctrl_name = self.se.search_name_widget(self.frame, 'selectPlayers')
-            if not ctrl_name:
+
+            if not ctrl_name and len(data_tournament['players']) > 0:
                 submit = ttk.Button(self.frame, text="Valider", name='selectPlayers',
                                     command=lambda: self.se.tournament_ctrl(self.frame, data_tournament))
                 submit.grid(columnspan=7, pady=30, ipadx=5)
@@ -136,33 +141,52 @@ class TournamentsViews(extend_view.ExtendViews):
             view_x = list_system[3]
             view_y = list_system[4]
 
+            # Titre
             self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
                        justify="center", text="Sélection des joueurs", width=None, child_w=0, row=0, cols=None,
-                       colspan=8,
-                       sticky="n", padx=None, pady=20)
+                       colspan=8, sticky="n", padx=None, pady=20)
 
-            for player in data_player:
+            # En tète listing
+            for infos_type in data_player:
                 title_cols = 0
-                for keys, values in player.items():
-                    if keys == 'Identité' or keys == 'Nom' or keys == 'Prénom' or keys == 'Date de naissance':
-                        self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
-                                   bg="#ffffff", justify="center", text=keys, width=None, child_w=300, row=1,
-                                   cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
-                        title_cols += 1
+                for title_list in infos_type:
+                    self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
+                               bg="#ffffff", justify="center", text=title_list, width=None, child_w=300, row=1,
+                               cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
+                    title_cols += 1
                 break
 
             next_line = 2
-            for i, player in enumerate(data_player):
+            if len(self.se.new_all_players) > 0:
+                for nw_player in self.se.new_all_players:
+                    value_cols = 0
+                    for key in nw_player:
+                        self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
+                                   justify="center", text=nw_player[key], row=next_line, cols=value_cols, colspan=None,
+                                   sticky=None)
+                        value_cols += 1
+
+                    check = self.check_button(mst=frame, variable=None, onvalue=1, offvalue=0,
+                                              bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
+                                              state="disabled", cols=value_cols, row=next_line, sticky=None)
+                    check.select()
+                    next_line += 1
+
+                label = Label(frame, bg="#ffffff", height=1, underline=1)
+                label.grid(row=next_line, columnspan=8, sticky="w")
+                next_line += 1
+
+            for i, infos_player in enumerate(data_player):
                 value_cols = 0
-                for keys, values in player.items():
+                for ks in infos_player:
                     self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                               justify="center", text=values, row=next_line, cols=value_cols, colspan=None,
+                               justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
                                sticky=None)
                     value_cols += 1
 
-                self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0, bg="#ffffff",
-                                  justify=None,
-                                  indicatoron=True, selectcolor=None, cols=value_cols, row=next_line, sticky=None)
+                self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
+                                  bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
+                                  state="normal", cols=value_cols, row=next_line, sticky=None)
                 next_line += 1
 
             submit_players = ttk.Button(frame, text="Valider", command=lambda: on_click())

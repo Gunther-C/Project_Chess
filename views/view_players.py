@@ -45,8 +45,8 @@ class PlayersViews(extend_view.ExtendViews):
 
     def new_player(self):
         self.se.clear_frame(self.frame)
-        self.se.master_window(50, 60)
-        self.se.minsize(width=420, height=450)
+        view_master = self.se.master_window(50, 60)
+        self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.4, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
@@ -77,6 +77,8 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=7, cols=0, colspan=None, sticky=None)
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
+
+
 
     def insert_player(self, data_player: dict):
         self.se.clear_frame(self.frame)
@@ -117,8 +119,8 @@ class PlayersViews(extend_view.ExtendViews):
     def search_player(self, choice_type):
         # Recherche par nom
         self.se.clear_frame(self.frame)
-        self.se.master_window(50, 60)
-        self.se.minsize(width=420, height=450)
+        view_master = self.se.master_window(50, 60)
+        self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.3, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
@@ -203,7 +205,7 @@ class PlayersViews(extend_view.ExtendViews):
             next_line += 1
 
         create_trt = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ",
-                                command=lambda: self.se.search_choice('tournament1', instance_player))
+                                command=lambda: self.se.search_choice(instance_player))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))

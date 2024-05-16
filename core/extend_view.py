@@ -59,7 +59,7 @@ class ExtendViews:
         check = Checkbutton(kwargs['mst'], variable=kwargs['variable'], onvalue=kwargs['onvalue'],
                             offvalue=kwargs['offvalue'], bg=kwargs['bg'], justify=kwargs['justify'],
                             indicatoron=kwargs['indicatoron'], offrelief="flat", overrelief="ridge",
-                            selectcolor=kwargs['selectcolor'])
+                            selectcolor=kwargs['selectcolor'], state=kwargs['state'])
         check.grid(column=kwargs['cols'], row=kwargs['row'], sticky=kwargs['sticky'])
         check.update()
         return check

@@ -9,63 +9,21 @@ from models import mdl_tournament as model
 from views import view_tournaments as view
 
 
-def searching(**kwargs: any) -> False:
-    """
-        Recherchée correspondance
-        si le nom de tournoi
-    """
-    file_players = players_list()
-    if file_players:
-
-        type_search = 1
-        last_name = None
-        first_name = None
-        birth = None
-
-        if 'last_name' in kwargs:
-            last_name = kwargs['last_name'].strip().replace(' ', '').lower()
-        if 'first_name' in kwargs:
-            first_name = kwargs['first_name'].strip().replace(' ', '').lower()
-        if 'birth' in kwargs:
-            birth = kwargs['birth']
-
-        for player in file_players:
-
-            data_user = []
-            for keys, values in player.items():
-                if keys == 'Nom':
-                    values = values.strip().replace(' ', '').lower()
-                    if last_name == values:
-                        data_user.append(values)
-
-                if keys == 'Prénom':
-                    values = values.strip().replace(' ', '').lower()
-                    if first_name == values:
-                        data_user.append(values)
-
-                if keys == 'Date de naissance':
-                    if birth == values:
-                        data_user.append(values)
-
-            if kwargs['search_type'] == 'compare':
-                type_search = 3
-            if len(data_user) == type_search:
-                return player
-
-
 class TournamentsCtrl(core.Core):
     def __init__(self, data_transfer=None):
         super().__init__()
 
         print('TournamentsCtrl data_transfer', data_transfer)
 
-        self.vue = view.TournamentsViews(self)
+        self.new_all_players: list = []
 
+        self.vue = view.TournamentsViews(self)
         self.vue.new_menu()
         self.vue.menu_choice()
 
         if data_transfer:
             self.new_player = data_transfer
+            self.new_all_players.append(self.new_player)
             self.vue.new_tournament()
 
     def result_menu(self, result: str | None = None):
@@ -82,13 +40,16 @@ class TournamentsCtrl(core.Core):
     def tournament_ctrl(self, new_frame, plr_data):
 
         errors_dict = {}
+
         name = plr_data['name'].get()
         address = plr_data['address'].get()
         day = plr_data['birth_start']['day'].get()
         month = plr_data['birth_start']['month'].get()
         year = plr_data['birth_start']['year'].get()
         number_turns = plr_data['numberRound'].get()
+
         players = plr_data['players']
+        ctrl_number_players = len(players)
 
         if name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, name)
@@ -102,6 +63,10 @@ class TournamentsCtrl(core.Core):
             errors_dict['ctrl_year'] = self.number_verif("L'année tournoi", year)
         if number_turns:
             errors_dict['ctrl_round'] = self.number_verif("numberRound", number_turns)
+        if day and month and year:
+            errors_dict['ctrl_date'] = self.date_verif(year, month, day)
+        if not ctrl_number_players % 2 == 0:
+            errors_dict['ctrl_nbr_plrs'] = f"Vous devez sélectionner un nombre pair de joueurs"
 
         self.destroy_error(new_frame, 1)
 
@@ -113,7 +78,6 @@ class TournamentsCtrl(core.Core):
 
         elif name and address and day and month and year:
             birth = year + '-' + month + '-' + day
-
             # instance tournoi
             dt_tour = model.TournamentMdl(name=name, address=address, birth=birth, number_turns=number_turns,
                                           players=players).instance_tournament()

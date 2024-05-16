@@ -1,9 +1,9 @@
 from tkinter import *
 from tkinter import font, Entry
 from tkinter import ttk
-import re
-
+from datetime import date
 from database import data_players as dt_players
+import re
 
 class Core(Tk):
 
@@ -11,8 +11,13 @@ class Core(Tk):
         super().__init__()
 
         self.master_id = self.winfo_id()
+
         print(self.master_id)
+
         self.data_transfer = None
+
+        self.new_player = None
+        self.new_tournoi = None
 
         self.menu_listing = None
         self.frame = None
@@ -21,20 +26,12 @@ class Core(Tk):
         self.widjets_menu2 = False
         self.widjets_menu3 = False
 
-        self.master_window(50, 60)
-        self.minsize(width=420, height=450)
+        view_master = self.master_window(50, 60)
+        self.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.title(" Echec")
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
         self.menu = Menu(self)
-
-        self.new_player = None
-        # self.new_player2 = None
-
-        self.new_tournoi = None
-
-        # self.new_w = None
-        # self.new_fr = None
 
     def master_window(self, child_width, child_height):
         """
@@ -99,6 +96,7 @@ class Core(Tk):
 
     @staticmethod
     def number_verif(arg_type, number) -> False:
+
         if number:
             number = number.replace(" ", "").strip()
             new_nbr = re.search(r"[a-zA-Z]+", number)
@@ -116,11 +114,18 @@ class Core(Tk):
                         if int(number) < 1900 or int(number) > 2016 or not len(number) == 4:
                             return f"{arg_type} doit comporter un nombre entre 1900 et 2016"
                     case "L'année tournoi":
-                        if int(number) < 2024 or int(number) > 2100 or not len(number) == 4:
-                            return f"{arg_type} doit comporter un nombre entre 2024 et 2100"
+                        if not len(number) == 4:
+                            return f"{arg_type} doit comporter un nombre à 4 chiffres"
                     case "numberRound":
                         if int(number) < 1 or int(number) > 99:
                             return f"{arg_type} doit comporter un nombre entre 1 et 99"
+
+    @staticmethod
+    def date_verif(*args) -> False:
+        now = date.today()
+        date_verif = date(int(args[0]), int(args[1]), int(args[2]))
+        if date_verif < now:
+            return f"La date de départ ne peut être antérieure à la date du jour !"
 
     @staticmethod
     def string_verif(arg_type, text) -> False:
@@ -179,9 +184,6 @@ class Core(Tk):
                 if child.winfo_name() == name:
                     return True
 
-
-
-
     @staticmethod
     def instance_player(data_player, key=None, value=None):
         if key and value:
@@ -192,8 +194,7 @@ class Core(Tk):
                     data_player[key] = value
                 case 'Prénom':
                     data_player[key] = value
-                case 'Date de naissance':
-                    data_player[key] = value
                 case _:
                     pass
         return data_player
+

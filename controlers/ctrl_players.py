@@ -96,6 +96,10 @@ class PlayersCtrl(core.Core):
                 self.new_player_save(new_frame)
 
             case 'tournament1':
+                instance_player: dict = {}
+                for keys, values in self.new_player.items():
+                    instance_player = self.instance_player(instance_player, keys, values)
+                self.new_player = instance_player
                 self.create_new_tournament()
 
             case _:
@@ -179,32 +183,17 @@ class PlayersCtrl(core.Core):
         else:
             pass
 
-    def search_choice(self, result: str, data_player: dict):
+    def search_choice(self, data_player: dict):
 
-        if len(data_player) == 4:
-            data_pl = model.PlayersMdl(
-                identity=data_player['Identité'],
-                last_name=data_player['Nom'],
-                first_name=data_player['Prénom'],
-                birth=data_player['Date de naissance']
-            ).instance_player()
-
+        if len(data_player) == 3:
             self.new_player = {
-                'Identité': data_pl[0],
-                'Nom': data_pl[1],
-                'Prénom': data_pl[2],
-                'Date de naissance': data_pl[3]
+                'Identité': data_player['Identité'],
+                'Nom': data_player['Nom'],
+                'Prénom': data_player['Prénom'],
             }
 
-            match result:
-                case 'tournament1':
-                    self.create_new_tournament()
+            self.create_new_tournament()
 
-                case 'tournament2':
-                    pass
-
-                case _:
-                    pass
         else:
             self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
                              bg="#FEF9E7", name="error1", fg="red", pady=10, text="La création du joueur à échoué")
