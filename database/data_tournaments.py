@@ -2,32 +2,31 @@ import json
 import os
 
 
-class PlayersData:
+class TournamentData:
 
-    def __init__(self, player: object | None = None):
+    def __init__(self, new_data: object):
 
         self.data: dict = {}
 
-        if player and player.identity and player.last_name and player.first_name and player.birth:
+        if new_data and new_data[0] and new_data[1] and new_data[2] and new_data[3] and new_data[4] and new_data[5]:
+
             self.data = {
                 'id': int(1),
-                'Identité': str(player.identity),
-                'Nom': str(player.last_name).capitalize(),
-                'Prénom': str(player.first_name).capitalize(),
-                'Date de naissance': str(player.birth),
-                'Tournoi réalisé': int(0),
-                'Tournoi gagné': int(0),
-                'partie jouée': int(0),
-                'partie gagnée': int(0)
+                'Nom': str(data[0]).capitalize(),
+                'Adresse': str(data[1]),
+                'Date': str(data[2]),
+                'Nombre de manche': int(data[3]),
+                'Joueurs': data[4],
+                'Round': data[5]
             }
-            self.insert_player()
+            self.insert_tournament()
 
-    def insert_player(self) -> False:
+    def insert_tournament(self) -> False:
 
         current_file = []
 
-        if os.path.isfile("database/data_players.json"):
-            current_file = self.load_players_file()
+        if os.path.isfile("database/data_tournaments.json"):
+            current_file = self.load_tournament_file()
             new_id = int(current_file[-1]['id']) + 1
             self.data['id'] = new_id
             current_file.append(self.data)
@@ -35,7 +34,7 @@ class PlayersData:
             current_file.append(self.data)
 
         try:
-            with open("database/data_players.json", "w", encoding="utf-8-sig", newline="") as file:
+            with open("database/data_tournaments.json", "w", encoding="utf-8-sig", newline="") as file:
 
                 try:
                     json.dump(current_file, file)
@@ -51,9 +50,9 @@ class PlayersData:
             print("Erreur D'encodage :", err)
 
     @staticmethod
-    def load_players_file():
+    def load_tournament_file():
         try:
-            with open("database/data_players.json", encoding="utf-8-sig", newline="") as file:
+            with open("database/data_tournaments.json", encoding="utf-8-sig", newline="") as file:
 
                 try:
                     new_file = json.load(file)
@@ -68,3 +67,5 @@ class PlayersData:
 
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
+
+

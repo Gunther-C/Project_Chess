@@ -4,16 +4,16 @@ from tkinter import ttk
 
 from core import core
 from rotate import rotation
-from database import data_tournament as data
+from database import data_tournaments as data
 from models import mdl_tournament as model
 from views import view_tournaments as view
 
 
 class TournamentsCtrl(core.Core):
-    def __init__(self, data_transfer=None):
+    def __init__(self, data_player=None):
         super().__init__()
 
-        print('TournamentsCtrl data_transfer', data_transfer)
+        print('TournamentsCtrl data_player', data_player)
 
         self.new_all_players: list = []
 
@@ -21,26 +21,23 @@ class TournamentsCtrl(core.Core):
         self.vue.new_menu()
         self.vue.menu_choice()
 
-        if data_transfer:
-            self.new_player = data_transfer
-            self.new_all_players.append(self.new_player)
+        if data_player:
+            self.new_player = data_player
+            self.new_all_players.append(data_player)
             self.vue.new_tournament()
 
     def result_menu(self, result: str | None = None):
         match result:
             case 'create':
                 self.vue.new_tournament()
-
             case 'search':
                 self.vue.search_tournament()
-
             case _:
                 pass
 
     def tournament_ctrl(self, new_frame, plr_data):
 
         errors_dict = {}
-
         name = plr_data['name'].get()
         address = plr_data['address'].get()
         day = plr_data['birth_start']['day'].get()
@@ -64,7 +61,8 @@ class TournamentsCtrl(core.Core):
         if number_turns:
             errors_dict['ctrl_round'] = self.number_verif("numberRound", number_turns)
         if day and month and year:
-            errors_dict['ctrl_date'] = self.date_verif(year, month, day)
+            if not errors_dict['ctrl_day'] and not errors_dict['ctrl_month'] and not errors_dict['ctrl_year']:
+                errors_dict['ctrl_date'] = self.date_verif(year, month, day)
         if not ctrl_number_players % 2 == 0:
             errors_dict['ctrl_nbr_plrs'] = f"Vous devez sélectionner un nombre pair de joueurs"
 
@@ -80,14 +78,12 @@ class TournamentsCtrl(core.Core):
             birth = year + '-' + month + '-' + day
             # instance tournoi
             dt_tour = model.TournamentMdl(name=name, address=address, birth=birth, number_turns=number_turns,
-                                          players=players).instance_tournament()
+                                          players=players)
 
-            self.new_tournoi = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2],
-                                'number_turns': dt_tour[3], 'Joueurs': dt_tour[4],
-                                'Round': dt_tour[5]}
+            self.new_tournament = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2],
+                                   'number_turns': dt_tour[3], 'Joueurs': dt_tour[4], 'Round': dt_tour[5]}
 
-            self.vue.detail_tournament(self.new_tournoi)
-            self.new_tour_choice_view()
+            self.tournament_view(new_frame)
         else:
             pass
 
@@ -138,12 +134,22 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
-    def new_tour_choice_view(self):
-        tr = self.new_tournoi
+    def tournament_view(self, new_frame):
+
+        if data.TournamentData(self.new_tournament):
+            self.vue.detail_tournament(self.new_tournament)
+        else:
+            self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
+                             bg="#FEF9E7", name="error", fg="red", pady=10,
+                             text="Une erreur est survenue, veuillez réessayer.")
+
+
+
+        tr = self.new_tournament
         print(f"new_tour_choice_view =>")
-        print(tr['Nom'])
-        print(tr['Adresse'])
-        print(tr['Date'])
+        print('NOM =>', tr['Nom'])
+        print('ADRESSE =>', tr['Adresse'])
+        print('DATE =>', tr['Date'])
         print('JOUEURS =>', tr['Joueurs'])
         print('ROUND =>', tr['number_turns'])
         print('Match =>', tr['Round'])

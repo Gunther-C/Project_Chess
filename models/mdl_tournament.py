@@ -39,15 +39,16 @@ class TournamentMdl:
         pair_players = self.pair()
 
         self.new_round: dict = {'round': number_round, 'start_date': start_date, 'finish_date': finish_date,
-                                'match': pair_players}
+                                'matchs': pair_players}
 
         return self.name, self.address, self.birth, self.number_turns, self.players, self.new_round
 
     def pair(self):
-        players_pair = []
-        players_count = int(len(self.players) / 2)
 
+        players_count = int(len(self.players) / 2)
+        matchs_player: list = []
         players_list: list = []
+
         for player in self.players:
             player_tuple = ()
             for key, value in player.items():
@@ -58,11 +59,12 @@ class TournamentMdl:
 
         for y in range(players_count):
             pair = random.sample(players_list, 2)
-            players_pair.append(pair)
+            matchs_player.append(pair)
+
             for element in pair:
                 players_list.remove(element)
 
-        return players_pair
+        return matchs_player
 
 
     """players = []

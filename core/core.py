@@ -3,6 +3,7 @@ from tkinter import font, Entry
 from tkinter import ttk
 from datetime import date
 from database import data_players as dt_players
+from database import data_tournaments as dt_tournaments
 import re
 
 class Core(Tk):
@@ -11,13 +12,13 @@ class Core(Tk):
         super().__init__()
 
         self.master_id = self.winfo_id()
-
         print(self.master_id)
 
         self.data_transfer = None
 
         self.new_player = None
-        self.new_tournoi = None
+        self.new_player_tournament = None
+        self.new_tournament = None
 
         self.menu_listing = None
         self.frame = None
@@ -69,6 +70,8 @@ class Core(Tk):
         def mouse_move(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
+        canvas.update()
+        self.frame_list.update()
         return self.frame_list, canvas, mouse_move, dimension[0], dimension[1]
 
     @staticmethod
@@ -123,6 +126,7 @@ class Core(Tk):
     @staticmethod
     def date_verif(*args) -> False:
         now = date.today()
+
         date_verif = date(int(args[0]), int(args[1]), int(args[2]))
         if date_verif < now:
             return f"La date de départ ne peut être antérieure à la date du jour !"

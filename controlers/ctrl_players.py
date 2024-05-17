@@ -18,9 +18,9 @@ class PlayersCtrl(core.Core):
         self.vue.new_menu()
         self.vue.menu_choice()
 
-        if data_transfer:
+        """if data_transfer:
             self.new_player = data_transfer
-            self.vue.new_player()
+            self.vue.new_player()"""
 
     def new_player_ctrl(self, new_frame, plr_data):
         errors_dict = {}
@@ -73,33 +73,22 @@ class PlayersCtrl(core.Core):
 
             else:
                 # instance d'un joueur
-                data_pl = model.PlayersMdl(
-                    identity=identity,
-                    last_name=last_name,
-                    first_name=first_name,
-                    birth=birth
-                ).instance_player()
-
-                self.new_player = {
-                    'Identité': data_pl[0],
-                    'Nom': data_pl[1],
-                    'Prénom': data_pl[2],
-                    'Date de naissance': data_pl[3]
-                }
+                self.new_player = model.PlayersMdl(identity=identity, last_name=last_name, first_name=first_name,
+                                                   birth=birth)
                 self.vue.insert_player(self.new_player)
         else:
             pass
 
-    def new_player_choice(self, result, new_frame):
+    def new_player_choice(self, result, plr_data, new_frame):
         match result:
-            case 'list':
+            case 'save':
                 self.new_player_save(new_frame)
 
-            case 'tournament1':
+            case 'tournament':
                 instance_player: dict = {}
-                for keys, values in self.new_player.items():
+                for keys, values in plr_data.items():
                     instance_player = self.instance_player(instance_player, keys, values)
-                self.new_player = instance_player
+                self.new_player_tournament = instance_player
                 self.create_new_tournament()
 
             case _:
@@ -186,12 +175,11 @@ class PlayersCtrl(core.Core):
     def search_choice(self, data_player: dict):
 
         if len(data_player) == 3:
-            self.new_player = {
+            self.new_player_tournament = {
                 'Identité': data_player['Identité'],
                 'Nom': data_player['Nom'],
                 'Prénom': data_player['Prénom'],
             }
-
             self.create_new_tournament()
 
         else:
@@ -200,7 +188,7 @@ class PlayersCtrl(core.Core):
 
     def create_new_tournament(self):
         self.destroy()
-        rotation('t', self.new_player)
+        rotation('t', self.new_player_tournament)
 
     def recover_list(self, type_list=None):
 
@@ -208,12 +196,12 @@ class PlayersCtrl(core.Core):
 
         match type_list:
             case 'names':
-                liste = []
+                """liste = []
                 for x in range(10):
                     for player in file_players:
                         liste.append(player)
-                ordered = sorted(liste, key=lambda x: x['Nom'])
-                # ordered = sorted(file_players, key=lambda x: x['Nom'])
+                ordered = sorted(liste, key=lambda x: x['Nom'])"""
+                ordered = sorted(file_players, key=lambda x: x['Nom'])
 
                 self.vue.list_player('Liste par ordre alphabétique', ordered)
 

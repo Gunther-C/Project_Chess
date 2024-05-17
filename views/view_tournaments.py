@@ -21,6 +21,9 @@ class TournamentsViews(extend_view.ExtendViews):
 
         super().__init__(self.frame)
 
+        """font_families = font.families()
+        for family in font_families:
+            print(family)"""
     def new_menu(self):
         self.se.menu_tour = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_tour)
@@ -99,15 +102,14 @@ class TournamentsViews(extend_view.ExtendViews):
             if len(self.se.new_all_players) > 0:
                 for nw_player in self.se.new_all_players:
                     data_tournament['players'].insert(0, nw_player)
-
-            print(data_tournament['players'])
-
             self.new_window[0].destroy()
-
             ctrl_name = self.se.search_name_widget(self.frame, 'selectPlayers')
             if not ctrl_name and len(data_tournament['players']) > 0:
-                submit = ttk.Button(self.frame, text="Valider", name='selectPlayers',
-                                    command=lambda: self.se.tournament_ctrl(self.frame, data_tournament))
+                def tournament_submit():
+                    self.new_window[0].destroy()
+                    self.se.tournament_ctrl(self.frame, data_tournament)
+                self.new_window[0].destroy()
+                submit = ttk.Button(self.frame, text="Valider", name='selectPlayers', command=lambda: tournament_submit())
                 submit.grid(columnspan=7, pady=30, ipadx=5)
 
         select_players = [BooleanVar() for _ in data_player]
@@ -131,6 +133,8 @@ class TournamentsViews(extend_view.ExtendViews):
                    justify=None, text="", row=13, cols=0, colspan=None, sticky=None)
 
         def list_player():
+            if self.new_window:
+                self.new_window[0].destroy()
             self.new_window = self.se.listing_window(45, 70, 'Liste des joueurs', '#FEF9E7')
             master_geometrie = self.new_window[1], self.new_window[2]
 
@@ -155,7 +159,7 @@ class TournamentsViews(extend_view.ExtendViews):
                 title_cols = 0
                 for title_list in infos_type:
                     self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
-                               bg="#ffffff", justify="center", text=title_list, width=None, child_w=300, row=1,
+                               bg="#ffffff", justify="center", text=title_list, width=None, row=1,
                                cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
                     title_cols += 1
                 break
@@ -202,6 +206,8 @@ class TournamentsViews(extend_view.ExtendViews):
             frame.place(relx=0.5, rely=0.1, anchor='n')
 
         def new_player():
+            if self.new_window:
+                self.new_window[0].destroy()
             self.new_window = self.se.listing_window(30, 50, 'Ajouter un joueur', '#FEF9E7')
             master_geometrie = self.new_window[1], self.new_window[2]
 
@@ -243,63 +249,36 @@ class TournamentsViews(extend_view.ExtendViews):
                        justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
 
     def detail_tournament(self, data_player: dict):
-
         self.se.clear_frame(self.frame)
-        master_geometrie = self.se.master_window(70, 70)
-        list_system = self.se.listing_canvas(self.frame, '#ffffff', master_geometrie)
-        frame = list_system[0]
-        canvas = list_system[1]
-        scroll_mouse = list_system[2]
-        view_x = list_system[3]
-        view_y = list_system[4]
-        self.se.minsize(width=view_x, height=view_y)
-        self.frame.place(relx=0.5, rely=0, anchor='n')
+        self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
-                   justify="center", text=data_player['Nom'], width=None, row=0, cols=None, colspan=8, sticky="n",
-                   padx=None, pady=20)
+        self.title(family="Lucida Calligraphy", size=30, weight="bold", slant="roman", underline=True, mst=self.frame,
+                   bg="#FEF9E7", justify="center", text=data_player['Nom'], width=None, row=0, cols=None, colspan=8,
+                   sticky=None, padx=None, pady=20)
 
-        self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                   justify="center", text=data_player['Adresse'], row=1, cols=1, colspan=7,
-                   sticky=None)
+        self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=f"Le : {data_player['Date']}", width=None, row=1, cols=None,
+                   colspan=8, sticky="w", padx=None, pady=10)
 
-        self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                   justify="center", text=data_player['Date'], row=2, cols=1, colspan=7,
-                   sticky=None)
+        self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=f"A : {data_player['Adresse']}", width=None, row=2, cols=None,
+                   colspan=8, sticky="w", padx=None, pady=10)
 
-        self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                   justify="center", text=f"Nombre(s) de tour(s){data_player['number_turns']}", row=3, cols=1, colspan=7,
-                   sticky=None)
+        self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=f"En : {data_player['number_turns']} manche(s)", width=None, row=3,
+                   cols=None, colspan=8, sticky="w", padx=None, pady=10)
 
-        for player in data_player['Joueurs']:
-            title_cols = 0
-            for keys, values in player.items():
-                if not keys == 'id':
-                    self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
-                               bg="#ffffff", justify="center", text=keys, width=None, child_w=300, row=4,
-                               cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
-                    title_cols += 1
-            break
+        self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=10, justify=None, text="", row=4,
+                   cols=0, colspan=8, sticky=None)
 
-        next_line = 5
-        for player in data_player['Joueurs']:
-            value_cols = 0
-            for keys, values in player.items():
-                if not keys == 'id':
-                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                               justify="center", text=values, row=next_line, cols=value_cols, colspan=None,
-                               sticky=None)
-                    value_cols += 1
-            next_line += 1
+        plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: new_player())
+        plr_create.grid(row=5, column=1, columnspan=2, pady=5, padx=15)
 
-        frame.update()
-        frame.bind("<Configure>",
-                   canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100), height=(view_y - 25)))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        plr_list = ttk.Button(self.frame, text="Liste des rounds", command=lambda: list_player())
+        plr_list.grid(row=5, column=4, columnspan=2, pady=5, padx=15)
 
-
-
-
+        plr_list = ttk.Button(self.frame, text="<= Round en cours =>", command=lambda: list_player())
+        plr_list.grid(row=6, columnspan=8, pady=25)
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],

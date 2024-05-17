@@ -24,7 +24,7 @@ class PlayersViews(extend_view.ExtendViews):
         if not self.se.widjets_menu1:
             self.se.menu_searching = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_search())
             self.se.menu_listing = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_list())
-            self.se.menu_players.add_command(label="Ajouter un joueur", command=lambda: self.new_player())
+            self.se.menu_players.add_command(label="Ajouter un joueur", command=lambda: self.create_player())
             self.se.menu_players.add_cascade(label="Chercher un joueur par :", menu=self.se.menu_searching)
             self.se.menu_players.add_cascade(label="Liste des joueurs par :", menu=self.se.menu_listing)
             self.se.widjets_menu1 = True
@@ -43,7 +43,7 @@ class PlayersViews(extend_view.ExtendViews):
             self.se.menu_searching.add_command(label="Identifiant", command=lambda: self.search_player('Identité'))
             self.se.widjets_menu3 = True
 
-    def new_player(self):
+    def create_player(self):
         self.se.clear_frame(self.frame)
         view_master = self.se.master_window(50, 60)
         self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
@@ -78,7 +78,21 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
 
-    def insert_player(self, data_player: dict):
+    def insert_player(self, data_pl: object):
+        data_player = {
+            'Identité': data_pl.identity,
+            'Nom': data_pl.last_name,
+            'Prénom': data_pl.first_name,
+            'Date de naissance': data_pl.birth
+        }
+
+        def click(type_choice):
+            if type_choice == 'save':
+                self.se.new_player_choice('save', data_player, self.frame)
+                insert.config(state=DISABLED)
+            else:
+                self.se.new_player_choice('tournament', data_player, self.frame)
+
         self.se.clear_frame(self.frame)
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -94,13 +108,10 @@ class PlayersViews(extend_view.ExtendViews):
                        justify="left", text=values, row=next_line, cols=3, colspan=None, sticky="w")
             next_line += 1
 
-        insert = ttk.Button(self.frame, text=" Ajouter à la liste des joueurs ",
-                            command=lambda: self.se.new_player_choice('list', self.frame))
+        insert = ttk.Button(self.frame, text=" Ajouter à la liste des joueurs ", command=lambda: click('save'))
         insert.grid(row=(next_line + 2), columnspan=5)
-
-        create_trt = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ",
-                                command=lambda: self.se.new_player_choice('tournament1', self.frame))
-        create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
+        create = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ", command=lambda: click('tournament'))
+        create.grid(row=(next_line + 1), columnspan=5, pady=20)
 
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
         annule.grid(row=(next_line + 3), columnspan=5, pady=20)
@@ -160,18 +171,17 @@ class PlayersViews(extend_view.ExtendViews):
                    padx=10, pady=None)
 
         next_line = 2
-        for x in range(10):
-            for player in multi_players:
-                last_name = None
-                first_name = None
-                for keys in player:
-                    if keys == 'Nom':
-                        last_name = player[keys]
-                    if keys == 'Prénom':
-                        first_name = player[keys]
+        for player in multi_players:
+            last_name = None
+            first_name = None
+            for keys in player:
+                if keys == 'Nom':
+                    last_name = player[keys]
+                if keys == 'Prénom':
+                    first_name = player[keys]
 
-                player_button(last_name, first_name, player, next_line)
-                next_line += 1
+            player_button(last_name, first_name, player, next_line)
+            next_line += 1
 
         annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
         annule.grid(row=next_line, columnspan=5)
