@@ -10,10 +10,10 @@ from views import view_tournaments as view
 
 
 class TournamentsCtrl(core.Core):
-    def __init__(self, data_player=None):
+    def __init__(self, new_player=None):
         super().__init__()
 
-        print('TournamentsCtrl data_player', data_player)
+        print('TournamentsCtrl data_player', new_player)
 
         self.new_all_players: list = []
 
@@ -21,9 +21,8 @@ class TournamentsCtrl(core.Core):
         self.vue.new_menu()
         self.vue.menu_choice()
 
-        if data_player:
-            self.new_player = data_player
-            self.new_all_players.append(data_player)
+        if new_player:
+            self.new_all_players.append(new_player)
             self.vue.new_tournament()
 
     def result_menu(self, result: str | None = None):
@@ -35,17 +34,17 @@ class TournamentsCtrl(core.Core):
             case _:
                 pass
 
-    def tournament_ctrl(self, new_frame, plr_data):
+    def tournament_ctrl(self, new_frame, data_tournament):
 
         errors_dict = {}
-        name = plr_data['name'].get()
-        address = plr_data['address'].get()
-        day = plr_data['birth_start']['day'].get()
-        month = plr_data['birth_start']['month'].get()
-        year = plr_data['birth_start']['year'].get()
-        number_turns = plr_data['numberRound'].get()
+        name = data_tournament['name'].get()
+        address = data_tournament['address'].get()
+        day = data_tournament['birth_start']['day'].get()
+        month = data_tournament['birth_start']['month'].get()
+        year = data_tournament['birth_start']['year'].get()
+        number_turns = data_tournament['numberRound'].get()
 
-        players = plr_data['players']
+        players = data_tournament['players']
         ctrl_number_players = len(players)
 
         if name:
@@ -76,22 +75,20 @@ class TournamentsCtrl(core.Core):
 
         elif name and address and day and month and year:
             birth = year + '-' + month + '-' + day
+
             # instance tournoi
-            dt_tour = model.TournamentMdl(name=name, address=address, birth=birth, number_turns=number_turns,
-                                          players=players)
-
-            self.new_tournament = {'Nom': dt_tour[0], 'Adresse': dt_tour[1], 'Date': dt_tour[2],
-                                   'number_turns': dt_tour[3], 'Joueurs': dt_tour[4], 'Round': dt_tour[5]}
-
+            self.new_tournament = model.TournamentMdl(name=name, address=address, birth=birth,
+                                                      number_turns=number_turns, players=players)
             self.tournament_view(new_frame)
+
         else:
             pass
 
-    def tournament_ctrl_player(self, new_frame, plr_data) -> False:
+    def tournament_ctrl_player(self, new_frame, data_player) -> False:
         errors_dict = {}
-        last_name = plr_data['last_name'].get()
-        first_name = plr_data['first_name'].get()
-        identity = plr_data['identity'].get()
+        last_name = data_player['last_name'].get()
+        first_name = data_player['first_name'].get()
+        identity = data_player['identity'].get()
 
         if last_name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
@@ -134,6 +131,20 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
+    def tournament_lists(self, list_type):
+        tournaments = self.tournaments_list()
+        if len(tournaments) > 0:
+            if list_type == 'first':
+                ordered = sorted(tournaments, key=lambda x: x['Date'])
+                self.vue.list_tournament('Liste par dates croissantes', ordered)
+            elif list_type == 'last':
+                ordered = sorted(tournaments, key=lambda x: x['Date'], reverse=True)
+                self.vue.list_tournament('Liste par dates décroissantes', ordered)
+        else:
+            pass
+
+
+
     def tournament_view(self, new_frame):
 
         if data.TournamentData(self.new_tournament):
@@ -143,15 +154,12 @@ class TournamentsCtrl(core.Core):
                              bg="#FEF9E7", name="error", fg="red", pady=10,
                              text="Une erreur est survenue, veuillez réessayer.")
 
-
-
-        tr = self.new_tournament
         print(f"new_tour_choice_view =>")
-        print('NOM =>', tr['Nom'])
-        print('ADRESSE =>', tr['Adresse'])
-        print('DATE =>', tr['Date'])
-        print('JOUEURS =>', tr['Joueurs'])
-        print('ROUND =>', tr['number_turns'])
-        print('Match =>', tr['Round'])
+        print('NOM =>', self.new_tournament.name)
+        print('ADRESSE =>', self.new_tournament.address)
+        print('DATE =>', self.new_tournament.date)
+        print('JOUEURS =>', self.new_tournament.players)
+        print('ROUND =>', self.new_tournament.number_turns)
+        print('Match =>', self.new_tournament.rounds)
 
 

@@ -17,7 +17,7 @@ class Core(Tk):
         self.data_transfer = None
 
         self.new_player = None
-        self.new_player_tournament = None
+        # self.new_player_tournament = {}
         self.new_tournament = None
 
         self.menu_listing = None
@@ -44,11 +44,11 @@ class Core(Tk):
 
         return [view_x[0], view_y[0]]
 
-    def listing_window(self, percent_width, percent_height, title, bg):
+    def listing_window(self, percent_width, percent_height, placex, placey, title, bg):
         new_window = Toplevel(self)
         view_x: list = self.window_x(self.winfo_screenwidth(), percent_width)
         view_y: list = self.window_y(self.winfo_screenheight(), percent_height)
-        new_window.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], 30, 30))
+        new_window.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], placex, placey))
         new_window.minsize(width=view_x[0], height=view_y[0])
         new_window.title(title)
         new_window.config(bg=bg)
@@ -74,12 +74,78 @@ class Core(Tk):
         self.frame_list.update()
         return self.frame_list, canvas, mouse_move, dimension[0], dimension[1]
 
+    def searching(self, **kwargs: any) -> False:
+        """
+            Recherchée correspondance
+            si le joueur est déja dans la bdd à l'inscription
+            recherche si un joueur éxiste retourne ses infos en cas de success
+            Si plusieurs joueurs ont le mème nom retourne une list des joueurs
+        """
+        file_players = self.players_list()
+        if file_players:
+            multi_player = []
+            type_search = 1
+            last_name = None
+            first_name = None
+            birth = None
+            identity = None
+            if 'last_name' in kwargs:
+                last_name = kwargs['last_name'].strip().replace(' ', '').lower()
+            if 'first_name' in kwargs:
+                first_name = kwargs['first_name'].strip().replace(' ', '').lower()
+            if 'birth' in kwargs:
+                birth = kwargs['birth']
+            if 'identity' in kwargs:
+                identity = kwargs['identity']
+                id_last = identity[:2]
+                if not id_last.isupper():
+                    id_last = id_last.upper()
+                    id_first = identity[2:]
+                    identity = id_last + id_first
+
+            for player in file_players:
+
+                data_user = []
+                for keys, values in player.items():
+                    if keys == 'Nom':
+                        values = values.strip().replace(' ', '').lower()
+                        if last_name == values:
+                            data_user.append(values)
+
+                    if keys == 'Prénom':
+                        values = values.strip().replace(' ', '').lower()
+                        if first_name == values:
+                            data_user.append(values)
+
+                    if keys == 'Date de naissance':
+                        if birth == values:
+                            data_user.append(values)
+
+                    if keys == 'Identité':
+                        if identity == values:
+                            data_user.append(values)
+
+                if kwargs['search_type'] == 'compare':
+                    type_search = 3
+
+                if len(data_user) == type_search:
+                    multi_player.append(player)
+
+            return multi_player
+
     @staticmethod
     def players_list():
         # fichier json des joueurs
         file_players = dt_players.PlayersData().load_players_file()
         if file_players:
             return file_players
+
+    @staticmethod
+    def tournaments_list():
+        # fichier json des tournois
+        tournament = dt_tournaments.TournamentData().load_tournament_file()
+        if tournament:
+            return tournament
 
     @staticmethod
     def window_x(parent, child_width) -> list:
@@ -202,61 +268,3 @@ class Core(Tk):
                     pass
         return data_player
 
-    def searching(self, **kwargs: any) -> False:
-        """
-            Recherchée correspondance
-            si le joueur est déja dans la bdd à l'inscription
-            recherche si un joueur éxiste retourne ses infos en cas de success
-            Si plusieurs joueurs ont le mème nom retourne une list des joueurs
-        """
-        file_players = self.players_list()
-        if file_players:
-            multi_player = []
-            type_search = 1
-            last_name = None
-            first_name = None
-            birth = None
-            identity = None
-            if 'last_name' in kwargs:
-                last_name = kwargs['last_name'].strip().replace(' ', '').lower()
-            if 'first_name' in kwargs:
-                first_name = kwargs['first_name'].strip().replace(' ', '').lower()
-            if 'birth' in kwargs:
-                birth = kwargs['birth']
-            if 'identity' in kwargs:
-                identity = kwargs['identity']
-                id_last = identity[:2]
-                if not id_last.isupper():
-                    id_last = id_last.upper()
-                    id_first = identity[2:]
-                    identity = id_last + id_first
-
-            for player in file_players:
-
-                data_user = []
-                for keys, values in player.items():
-                    if keys == 'Nom':
-                        values = values.strip().replace(' ', '').lower()
-                        if last_name == values:
-                            data_user.append(values)
-
-                    if keys == 'Prénom':
-                        values = values.strip().replace(' ', '').lower()
-                        if first_name == values:
-                            data_user.append(values)
-
-                    if keys == 'Date de naissance':
-                        if birth == values:
-                            data_user.append(values)
-
-                    if keys == 'Identité':
-                        if identity == values:
-                            data_user.append(values)
-
-                if kwargs['search_type'] == 'compare':
-                    type_search = 3
-
-                if len(data_user) == type_search:
-                    multi_player.append(player)
-
-            return multi_player

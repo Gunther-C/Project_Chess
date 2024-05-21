@@ -65,7 +65,7 @@ class PlayersViews(extend_view.ExtendViews):
         data_player = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'birth': birth}
 
         submit = ttk.Button(self.frame, text="  Valider  ",
-                            command=lambda: self.se.new_player_ctrl(self.frame, data_player))
+                            command=lambda: self.se.player_ctrl(self.frame, data_player))
         submit.grid(columnspan=7, pady=20)
 
         space_x: list = self.adjust_x(title, last_name)
@@ -88,10 +88,10 @@ class PlayersViews(extend_view.ExtendViews):
 
         def click(type_choice):
             if type_choice == 'save':
-                self.se.new_player_choice('save', data_player, self.frame)
+                self.se.save_or_tournament('save', data_player, self.frame)
                 insert.config(state=DISABLED)
             else:
-                self.se.new_player_choice('tournament', data_player, self.frame)
+                self.se.save_or_tournament('tournament', data_player, self.frame)
 
         self.se.clear_frame(self.frame)
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -162,8 +162,8 @@ class PlayersViews(extend_view.ExtendViews):
         view_y = list_system[4]
         self.frame.place(relx=0.5, rely=0, anchor='n')
 
-        def player_button(last_n, first_n, plr, next_row):
-            button = ttk.Button(frame, text=f" {last_n} {first_n} ", command=lambda: self.matching_player(plr))
+        def player_button(lst_name, fst_name, dt_player, next_row):
+            button = ttk.Button(frame, text=f" {lst_name} {fst_name} ", command=lambda: self.matching_player(dt_player))
             button.grid(row=next_row, columnspan=5, pady=10)
 
         self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
@@ -209,11 +209,12 @@ class PlayersViews(extend_view.ExtendViews):
                        sticky="e", padx=None, pady=None)
             self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None, justify="left",
                        text=values, row=next_line, cols=3, colspan=None, sticky="w")
+
             instance_player = self.se.instance_player(instance_player, keys, values)
             next_line += 1
 
         create_trt = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ",
-                                command=lambda: self.se.search_choice(instance_player))
+                                command=lambda: self.se.save_or_tournament('tournament', instance_player, self.frame))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
@@ -266,7 +267,8 @@ class PlayersViews(extend_view.ExtendViews):
             next_line += 1
 
         frame.update()
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100), height=(view_y - 25)))
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100),
+                                                   height=(view_y - 25)))
         canvas.bind_all("<MouseWheel>", scroll_mouse)
 
     def message(self, **kwargs: any) -> any:

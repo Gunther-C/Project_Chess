@@ -9,62 +9,51 @@ fake = Faker("fr_FR")
 
 class TournamentMdl:
     def __init__(self, name: str | None = None, address: str | None = None, birth: str | None = None,
-                 number_turns: str | None = None, players=None):
+                 number_turns: str | None = None, rounds=None, players=None):
 
         self.name = None
         self.address = None
-        self.birth = None
+        self.date = None
         self.number_turns = None
         self.players = None
+        self.rounds = None
+
+        self.instance_tournament(name, address, birth, number_turns, rounds, players)
+
+    def instance_tournament(self, name, address, birth, number_turns, rounds, players):
 
         if name and address and birth and number_turns and len(players) > 1:
+
             self.name = str(name).capitalize()
             self.address = str(address)
-            self.birth = str(birth)
+            self.date = str(birth)
             self.number_turns = int(number_turns)
-            self.players: dict = players
-            self.new_round = None
+            self.players: list = players
 
-            self.instance_tournament()
+            if rounds:
+                self.rounds: dict = rounds
+            else:
+                players_lists: list = []
+                for player in players:
+                    first_name = player.pop('Prénom', None)
+                    capital = first_name[0]
+                    player['Nom'] = f"{player['Nom']}.{capital}"
+                    player_list = [player['Identité'], player['Nom']]
+                    players_lists.append(player_list)
+                first_match = self.pair(players_lists)
+                self.rounds: dict = {"round": 1, "start": '', "finish": '',  "matchs": first_match}
 
-    def instance_tournament(self):
-
-        # pour numéroter les prochains tours faire comme id des joueurs dans data
-        # prendre le dernier tour crée + 1
-        # date.today().strftime("%Y-%m-%d")
-
-        number_round = 1
-        start_date = ''
-        finish_date = ''
-        pair_players = self.pair()
-
-        self.new_round: dict = {'round': number_round, 'start_date': start_date, 'finish_date': finish_date,
-                                'matchs': pair_players}
-
-        return self.name, self.address, self.birth, self.number_turns, self.players, self.new_round
-
-    def pair(self):
-
-        players_count = int(len(self.players) / 2)
-        matchs_player: list = []
-        players_list: list = []
-
-        for player in self.players:
-            player_tuple = ()
-            for key, value in player.items():
-                if key == 'Identité' or key == 'Nom':
-                    player_tuple = player_tuple + (value, )
-
-            players_list.append(player_tuple)
-
+    def pair(self, match) -> list:
+        players_count = int(len(match) / 2)
+        players_lists: list = []
         for y in range(players_count):
-            pair = random.sample(players_list, 2)
-            matchs_player.append(pair)
-
+            pair = random.sample(match, 2)
+            match_players: tuple = (pair[0], pair[1])
             for element in pair:
-                players_list.remove(element)
+                match.remove(element)
+            players_lists.append(match_players)
 
-        return matchs_player
+        return players_lists
 
 
     """players = []

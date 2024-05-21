@@ -22,14 +22,14 @@ class PlayersCtrl(core.Core):
             self.new_player = data_transfer
             self.vue.new_player()"""
 
-    def new_player_ctrl(self, new_frame, plr_data):
+    def player_ctrl(self, new_frame, data_player):
         errors_dict = {}
-        last_name = plr_data['last_name'].get()
-        first_name = plr_data['first_name'].get()
-        day = plr_data['birth']['day'].get()
-        month = plr_data['birth']['month'].get()
-        year = plr_data['birth']['year'].get()
-        identity = plr_data['identity'].get()
+        last_name = data_player['last_name'].get()
+        first_name = data_player['first_name'].get()
+        day = data_player['birth']['day'].get()
+        month = data_player['birth']['month'].get()
+        year = data_player['birth']['year'].get()
+        identity = data_player['identity'].get()
 
         if last_name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
@@ -79,22 +79,22 @@ class PlayersCtrl(core.Core):
         else:
             pass
 
-    def new_player_choice(self, result, plr_data, new_frame):
+    def save_or_tournament(self, result, data_player, new_frame):
         match result:
             case 'save':
-                self.new_player_save(new_frame)
-
+                self.player_save(new_frame)
             case 'tournament':
-                instance_player: dict = {}
-                for keys, values in plr_data.items():
-                    instance_player = self.instance_player(instance_player, keys, values)
-                self.new_player_tournament = instance_player
-                self.create_new_tournament()
-
+                data_player.pop('Date de naissance', None)
+                if len(data_player) == 3:
+                    self.create_new_tournament(data_player)
+                else:
+                    self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
+                                     bg="#FEF9E7", name="error1", fg="red", pady=10,
+                                     text="La création du joueur à échoué")
             case _:
                 pass
 
-    def new_player_save(self, new_frame):
+    def player_save(self, new_frame):
         if data.PlayersData(self.new_player):
             self.vue.message(family=None, size=12, weight="bold", slant="roman", underline=False, bg="#FEF9E7",
                              name="success", fg="blue", pady=10, text="Joueur inséré")
@@ -172,23 +172,9 @@ class PlayersCtrl(core.Core):
         else:
             pass
 
-    def search_choice(self, data_player: dict):
-
-        if len(data_player) == 3:
-            self.new_player_tournament = {
-                'Identité': data_player['Identité'],
-                'Nom': data_player['Nom'],
-                'Prénom': data_player['Prénom'],
-            }
-            self.create_new_tournament()
-
-        else:
-            self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
-                             bg="#FEF9E7", name="error1", fg="red", pady=10, text="La création du joueur à échoué")
-
-    def create_new_tournament(self):
+    def create_new_tournament(self, player_tournament):
         self.destroy()
-        rotation('t', self.new_player_tournament)
+        rotation('t', player_tournament)
 
     def recover_list(self, type_list=None):
 

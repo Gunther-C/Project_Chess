@@ -4,20 +4,19 @@ import os
 
 class TournamentData:
 
-    def __init__(self, new_data: object):
+    def __init__(self, new_data: object | None = None):
 
         self.data: dict = {}
 
-        if new_data and new_data[0] and new_data[1] and new_data[2] and new_data[3] and new_data[4] and new_data[5]:
-
+        if new_data:
             self.data = {
                 'id': int(1),
-                'Nom': str(data[0]).capitalize(),
-                'Adresse': str(data[1]),
-                'Date': str(data[2]),
-                'Nombre de manche': int(data[3]),
-                'Joueurs': data[4],
-                'Round': data[5]
+                'Nom': str(new_data.name).capitalize(),
+                'Adresse': str(new_data.address),
+                'Date': str(new_data.date),
+                'Nombre de manche': int(new_data.number_turns),
+                'Joueurs': new_data.players,
+                'Rounds': [new_data.rounds]
             }
             self.insert_tournament()
 
