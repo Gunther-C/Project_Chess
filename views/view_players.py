@@ -153,46 +153,53 @@ class PlayersViews(extend_view.ExtendViews):
 
     def matching_multi_players(self, multi_players: list):
         self.se.clear_frame(self.frame)
+
         master_geometrie = self.se.master_window(50, 60)
+        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
+
         list_system = self.se.listing_canvas(self.frame, '#FEF9E7', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
         scroll_mouse = list_system[2]
         view_x = list_system[3]
         view_y = list_system[4]
+
         self.frame.place(relx=0.5, rely=0, anchor='n')
+
+        self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
+                   justify=None, text="Plusieurs résultats : ", width=None, row=0, cols=1, colspan=2,  sticky=None,
+                   padx=10, pady=None)
 
         def player_button(lst_name, fst_name, dt_player, next_row):
             button = ttk.Button(frame, text=f" {lst_name} {fst_name} ", command=lambda: self.matching_player(dt_player))
-            button.grid(row=next_row, columnspan=5, pady=10)
-
-        self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
-                   justify=None, text="Plusieurs résultats : ", width=None, row=0, cols=None, colspan=5, sticky=None,
-                   padx=10, pady=None)
+            button.grid(row=next_row, column=1, columnspan=2, pady=10)
 
         next_line = 2
-        for player in multi_players:
-            last_name = None
-            first_name = None
-            for keys in player:
-                if keys == 'Nom':
-                    last_name = player[keys]
-                if keys == 'Prénom':
-                    first_name = player[keys]
+        for x in range(10):
+            for player in multi_players:
+                last_name = None
+                first_name = None
+                for keys in player:
+                    if keys == 'Nom':
+                        last_name = player[keys]
+                    if keys == 'Prénom':
+                        first_name = player[keys]
 
-            player_button(last_name, first_name, player, next_line)
-            next_line += 1
+                player_button(last_name, first_name, player, next_line)
+                next_line += 1
 
         annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
-        annule.grid(row=next_line, columnspan=5)
+        annule.grid(row=next_line, column=1, columnspan=2)
 
         canvas.update()
-        frame.update()
-        space_x: list = self.adjust_x(canvas, frame)
-        frame.config(padx=space_x[2])
-
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 50), height=(view_y - 25)))
+        canvas.create_window((0, 0), window=frame)
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
         canvas.bind_all("<MouseWheel>", scroll_mouse)
+
+        frame.update()
+        col0_x = self.adjust_x(canvas, frame)
+        col0 = Label(frame, bg="#FEF9E7")
+        col0.grid(row=0, column=0, ipadx=col0_x[2])
 
     def matching_player(self, data_player: dict):
         self.se.clear_frame(self.frame)
@@ -233,43 +240,50 @@ class PlayersViews(extend_view.ExtendViews):
 
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(70, 70)
+        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
+
         list_system = self.se.listing_canvas(self.frame, '#ffffff', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
         scroll_mouse = list_system[2]
         view_x = list_system[3]
         view_y = list_system[4]
-        self.se.minsize(width=view_x, height=view_y)
         self.frame.place(relx=0.5, rely=0, anchor='n')
 
         self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
-                   justify="center", text=title, width=None, row=0, cols=None, colspan=8, sticky="n",
+                   justify="center", text=title, width=None, row=0, cols=1, colspan=8, sticky="n",
                    padx=None, pady=20)
 
         for player in data_player:
-            title_cols = 0
+            title_cols = 1
             for keys, values in player.items():
                 if not keys == 'id':
                     self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
-                               bg="#ffffff", justify="center", text=keys, width=None, child_w=300, row=1,
-                               cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
+                               bg="#ffffff", justify="center", text=keys, width=None, row=1, cols=title_cols,
+                               colspan=None, sticky=None, padx=15, pady=5)
                     title_cols += 1
             break
 
         next_line = 2
-        for player in data_player:
-            value_cols = 0
-            for keys, values in player.items():
-                if not keys == 'id':
-                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                               justify="center", text=values, row=next_line, cols=value_cols, colspan=None, sticky=None)
-                    value_cols += 1
-            next_line += 1
+        for x in range(10):
+            for player in data_player:
+                value_cols = 1
+                for keys, values in player.items():
+                    if not keys == 'id':
+                        self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
+                                   justify="center", text=values, row=next_line, cols=value_cols, colspan=None, sticky=None)
+                        value_cols += 1
+                next_line += 1
+
+        canvas.update()
+        canvas.create_window((0, 0), window=frame)
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
+        canvas.bind_all("<MouseWheel>", scroll_mouse)
 
         frame.update()
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100),
-                                                   height=(view_y - 25)))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        col0_x = self.adjust_x(canvas, frame)
+        col0 = Label(frame, bg="#ffffff")
+        col0.grid(row=0, column=0, ipadx=col0_x[2])
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],

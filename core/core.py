@@ -57,22 +57,24 @@ class Core(Tk):
 
     def listing_canvas(self, curent_frame, bg_color, dimension):
 
+        dimension_x = int(dimension[0] - 60)
+        dimension_y = int((dimension[1] - 20))
+
         canvas = Canvas(curent_frame)
-        self.frame_list = Frame(canvas, bg=bg_color, padx=10, pady=15)
+        frame_list = Frame(canvas, bg=bg_color, pady=40)
 
         scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
         scrollbar.grid(row=0, column=1, sticky='ns')
 
-        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension[0], height=dimension[1])
-        canvas.create_window((0, 0), window=self.frame_list, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension_x, height=dimension_y)
         canvas.grid(row=0, column=0)
 
-        def mouse_move(event):
+        def scroll_mouse(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
         canvas.update()
-        self.frame_list.update()
-        return self.frame_list, canvas, mouse_move, dimension[0], dimension[1]
+        frame_list.update()
+        return frame_list, canvas, scroll_mouse, dimension_x, dimension_y
 
     def searching(self, **kwargs: any) -> False:
         """

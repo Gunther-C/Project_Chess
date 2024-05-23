@@ -8,9 +8,10 @@ fake = Faker("fr_FR")
 
 
 class TournamentMdl:
-    def __init__(self, name: str | None = None, address: str | None = None, birth: str | None = None,
+    def __init__(self, id_tour: str | None = None, name: str | None = None, address: str | None = None, birth: str | None = None,
                  number_turns: str | None = None, rounds=None, players=None):
 
+        self.id_tour = None
         self.name = None
         self.address = None
         self.date = None
@@ -18,11 +19,14 @@ class TournamentMdl:
         self.players = None
         self.rounds = None
 
-        self.instance_tournament(name, address, birth, number_turns, rounds, players)
+        self.instance_tournament(id_tour, name, address, birth, number_turns, rounds, players)
 
-    def instance_tournament(self, name, address, birth, number_turns, rounds, players):
+    def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players):
 
         if name and address and birth and number_turns and len(players) > 1:
+
+            if id_tour:
+                self.id_tour = id_tour
 
             self.name = str(name).capitalize()
             self.address = str(address)
@@ -31,7 +35,7 @@ class TournamentMdl:
             self.players: list = players
 
             if rounds:
-                self.rounds: dict = rounds
+                self.rounds: list = rounds
             else:
                 players_lists: list = []
                 for player in players:
@@ -41,7 +45,7 @@ class TournamentMdl:
                     player_list = [player['Identité'], player['Nom']]
                     players_lists.append(player_list)
                 first_match = self.pair(players_lists)
-                self.rounds: dict = {"round": 1, "start": '', "finish": '',  "matchs": first_match}
+                self.rounds: list = [{"round": 1, "start": '', "finish": '',  "matchs": first_match}]
 
     def pair(self, match) -> list:
         players_count = int(len(match) / 2)

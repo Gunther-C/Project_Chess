@@ -16,7 +16,7 @@ class TournamentData:
                 'Date': str(new_data.date),
                 'Nombre de manche': int(new_data.number_turns),
                 'Joueurs': new_data.players,
-                'Rounds': [new_data.rounds]
+                'Rounds': new_data.rounds
             }
             self.insert_tournament()
 

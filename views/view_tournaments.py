@@ -69,6 +69,11 @@ class TournamentsViews(extend_view.ExtendViews):
         select_players = [BooleanVar() for _ in data_player]
 
         def tournament_submit(dt_tournament):
+            if len(self.se.new_all_players) > 0:
+                for nw_player in self.se.new_all_players:
+                    data_tournament['players'].insert(0, nw_player)
+                self.se.new_all_players.clear()
+
             self.new_window[0].destroy()
             self.se.tournament_ctrl(self.frame, dt_tournament)
 
@@ -83,18 +88,14 @@ class TournamentsViews(extend_view.ExtendViews):
             if submit_type == 'list':
                 data_tournament['players'] = [data_player[x] for x, select in enumerate(select_players) if select.get()]
 
-            if len(self.se.new_all_players) > 0:
-                for nw_player in self.se.new_all_players:
-                    data_tournament['players'].insert(0, nw_player)
-
             self.new_window[0].destroy()
-
             ctrl_name = self.se.search_name_widget(self.frame, 'selectPlayers')
 
-            if not ctrl_name and len(data_tournament['players']) > 0:
-                submit = ttk.Button(self.frame, text="Valider", name='selectPlayers',
-                                    command=lambda: tournament_submit(data_tournament))
-                submit.grid(columnspan=7, pady=30, ipadx=5)
+            if not ctrl_name:
+                if len(self.se.new_all_players) > 0 or len(data_tournament['players']) > 0:
+                    submit = ttk.Button(self.frame, text="Valider", name='selectPlayers',
+                                        command=lambda: tournament_submit(data_tournament))
+                    submit.grid(columnspan=7, pady=30, ipadx=5)
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
                            mst=self.frame, bg="#FEF9E7", justify=None, text="Nouveau Tournoi : ", width=None, row=0,
@@ -143,16 +144,16 @@ class TournamentsViews(extend_view.ExtendViews):
         data_tournament['players'] = []
 
         def new_list():
-            view_list = self.list_players(data_player, select_players)
+            view_list = self.list_players(data_player, select_players, 'Sélection des joueurs')
             self.new_window = view_list[0]
 
             submit_list = ttk.Button(view_list[1], text="Valider", command=lambda: all_player_submit('list'))
-            submit_list.grid(columnspan=7, pady=20, ipadx=5)
+            submit_list.grid(column=1, columnspan=5, pady=20, ipadx=5)
 
         def new_player():
             if self.new_window:
                 self.new_window[0].destroy()
-            self.new_window = self.se.listing_window(30, 50, 30, 30, 'Ajouter un joueur', '#FEF9E7')
+            self.new_window = self.se.listing_window(30, 50, 40, 40, 'Ajouter un joueur', '#FEF9E7')
 
             self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
             self.new_frame.grid()
@@ -185,7 +186,7 @@ class TournamentsViews(extend_view.ExtendViews):
             self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                        justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
 
-    def list_tournament(self, title, data_tour):
+    def list_tournament(self, title, data_tournament):
 
         self.se.clear_frame(self.frame)
         view_master = self.se.master_window(70, 70)
@@ -200,10 +201,10 @@ class TournamentsViews(extend_view.ExtendViews):
         cols_x = int(view_master[0] - 100) // 7
         content_y = int(view_master[1] / 3) // 12
 
-        data_tournament = []
+        """data_tournament = []
         for x in range(10):
             for tournament in data_tour:
-                data_tournament.append(tournament)
+                data_tournament.append(tournament)"""
 
         columns: tuple = ()
         for cols in data_tournament:
@@ -230,10 +231,21 @@ class TournamentsViews(extend_view.ExtendViews):
             content.insert('', END, values=list_tour)
 
         def item_selected(event):
+            result = None
             for selected_item in content.selection():
-                item = content.item(selected_item)
-                record = item['values']
-                print(record)
+                result = content.item(selected_item)['values']
+
+            if result:
+                rst_rounds = None
+                rst_players = None
+                for tour in data_tournament:
+                    for kys in tour:
+                        if kys == 'id' and tour[kys] == result[0]:
+                            rst_rounds = tour['Rounds']
+                            rst_players = tour['Joueurs']
+                if rst_rounds and rst_players:
+                    self.se.tournament_treatment('data', self.frame, result[0], result[1], result[2], result[3],
+                                                 result[4], rst_rounds, rst_players)
 
         content.bind('<<TreeviewSelect>>', item_selected)
         content.grid(row=1, column=0, sticky='nsew')
@@ -241,8 +253,6 @@ class TournamentsViews(extend_view.ExtendViews):
         scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=content.yview)
         content.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=1, column=1, sticky='ns')
-
-
 
     def detail_tournament(self, tournament: object):
 
@@ -281,11 +291,11 @@ class TournamentsViews(extend_view.ExtendViews):
         plr_list.grid(row=6, columnspan=8, pady=25)
 
         def listing():
-            view_list = self.list_players(tournament.players, None)
+            view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
             self.new_window = view_list[0]
 
             submit_list = ttk.Button(view_list[1], text="Fermer", command=lambda: self.new_window[0].destroy())
-            submit_list.grid(columnspan=7, pady=20, ipadx=5)
+            submit_list.grid(column=1, columnspan=5, pady=20, ipadx=5)
 
     def shema_round(self, rounds=None):
         if rounds:
@@ -298,8 +308,10 @@ class TournamentsViews(extend_view.ExtendViews):
 
         if self.new_window:
             self.new_window[0].destroy()
+
         self.new_window = self.se.listing_window(45, 70, 30, 30, 'Liste des joueurs', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
+        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", width=master_geometrie[0], height=master_geometrie[1], padx=15, pady=10)
         self.new_frame.pack()
@@ -331,16 +343,24 @@ class TournamentsViews(extend_view.ExtendViews):
             player_button(last_name2, next_line)
             next_line += 1
 
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100),
-                                                   height=(view_y - 55)))
+        canvas.update()
+        canvas.create_window((0, 0), window=frame)
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
         canvas.bind_all("<MouseWheel>", scroll_mouse)
-        frame.place(relx=0.5, rely=0.1, anchor='n')
 
-    def list_players(self, data_player, select_players):
+        """frame.update()
+        col0_x = self.adjust_x(canvas, frame)
+        col0 = Label(frame, bg="#ffffff")
+        col0.grid(row=0, column=0, ipadx=col0_x[2])"""
+
+    def list_players(self, data_player, select_players, title):
         if self.new_window:
             self.new_window[0].destroy()
-        self.new_window = self.se.listing_window(45, 70, 30, 30, 'Liste des joueurs', '#FEF9E7')
+        self.new_window = self.se.listing_window(40, 60, 30, 30, 'Liste des joueurs', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
+
+        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
+        self.se.maxsize(width=master_geometrie[0], height=master_geometrie[1])
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
         self.new_frame.grid()
@@ -353,26 +373,24 @@ class TournamentsViews(extend_view.ExtendViews):
         view_x = list_system[3]
         view_y = list_system[4]
 
-        if select_players:
-            # Titre
-            self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
-                       justify="center", text="Sélection des joueurs", width=None, child_w=0, row=0, cols=None,
-                       colspan=8, sticky="n", padx=None, pady=20)
+        self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
+                   justify="center", text=title, width=None, row=0, cols=1, colspan=5,
+                   sticky="n", padx=None, pady=20)
 
         # En tète listing
         for infos_type in data_player:
-            title_cols = 0
+            title_cols = 1
             for title_list in infos_type:
                 self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
                            bg="#ffffff", justify="center", text=title_list, width=None, row=1,
-                           cols=title_cols, colspan=None, sticky=None, padx=15, pady=5)
+                           cols=title_cols, colspan=None, sticky=None, padx=None, pady=5)
                 title_cols += 1
             break
 
         next_line = 2
         if len(self.se.new_all_players) > 0:
             for nw_player in self.se.new_all_players:
-                value_cols = 0
+                value_cols = 1
                 for key in nw_player:
                     self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
                                justify="center", text=nw_player[key], row=next_line, cols=value_cols, colspan=None,
@@ -387,26 +405,32 @@ class TournamentsViews(extend_view.ExtendViews):
                 next_line += 1
 
             label = Label(frame, bg="#ffffff", height=1, underline=1)
-            label.grid(row=next_line, columnspan=8, sticky="w")
+            label.grid(row=next_line, columnspan=6, sticky="w")
             next_line += 1
 
-        for i, infos_player in enumerate(data_player):
-            value_cols = 0
-            for ks in infos_player:
-                self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                           justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
-                           sticky=None)
-                value_cols += 1
-            if select_players:
-                self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
-                                  bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
-                                  state="normal", cols=value_cols, row=next_line, sticky=None)
-            next_line += 1
+        for x in range(3):
+            for i, infos_player in enumerate(data_player):
+                value_cols = 1
+                for ks in infos_player:
+                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
+                               justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
+                               sticky=None)
+                    value_cols += 1
+                if select_players:
+                    self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
+                                      bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
+                                      state="normal", cols=value_cols, row=next_line, sticky=None)
+                next_line += 1
 
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 100),
-                                                   height=(view_y - 55)))
+        canvas.update()
+        canvas.create_window((0, 0), window=frame)
+        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
         canvas.bind_all("<MouseWheel>", scroll_mouse)
-        frame.place(relx=0.5, rely=0.1, anchor='n')
+
+        frame.update()
+        col0_x = self.adjust_x(canvas, frame)
+        col0 = Label(frame, bg="#ffffff")
+        col0.grid(row=0, column=0, ipadx=col0_x[2])
 
         return self.new_window, frame
 

@@ -75,12 +75,7 @@ class TournamentsCtrl(core.Core):
 
         elif name and address and day and month and year:
             birth = year + '-' + month + '-' + day
-
-            # instance tournoi
-            self.new_tournament = model.TournamentMdl(name=name, address=address, birth=birth,
-                                                      number_turns=number_turns, players=players)
-            self.tournament_view(new_frame)
-
+            self.tournament_treatment('create', new_frame, None, name, address, birth, number_turns, None, players)
         else:
             pass
 
@@ -131,6 +126,34 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
+    def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players):
+        # instance tournoi
+        self.new_tournament = model.TournamentMdl(id_tour=id_tour, name=name, address=address, birth=birth,
+                                                  number_turns=number_turns, rounds=rounds, players=players)
+        if treatment == 'create':
+
+            if data.TournamentData(self.new_tournament):
+                self.vue.detail_tournament(self.new_tournament)
+            else:
+                self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
+                                 bg="#FEF9E7", name="error", fg="red", pady=10,
+                                 text="Une erreur est survenue, veuillez réessayer.")
+
+        elif treatment == 'data':
+
+            self.vue.detail_tournament(self.new_tournament)
+
+
+
+
+        print(f"new_tour_choice_view =>")
+        print('NOM =>', self.new_tournament.name)
+        print('ADRESSE =>', self.new_tournament.address)
+        print('DATE =>', self.new_tournament.date)
+        print('JOUEURS =>', self.new_tournament.players)
+        print('ROUND =>', self.new_tournament.number_turns)
+        print('Match =>', self.new_tournament.rounds)
+
     def tournament_lists(self, list_type):
         tournaments = self.tournaments_list()
         if len(tournaments) > 0:
@@ -143,23 +166,17 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
+    def tournament_view(self, instance_type, new_frame, name, address, birth, number_turns, rounds, players):
 
 
-    def tournament_view(self, new_frame):
+        if not rounds:
 
-        if data.TournamentData(self.new_tournament):
-            self.vue.detail_tournament(self.new_tournament)
-        else:
-            self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
-                             bg="#FEF9E7", name="error", fg="red", pady=10,
-                             text="Une erreur est survenue, veuillez réessayer.")
+            if data.TournamentData(self.new_tournament):
+                self.vue.detail_tournament(self.new_tournament)
+            else:
+                self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
+                                 bg="#FEF9E7", name="error", fg="red", pady=10,
+                                 text="Une erreur est survenue, veuillez réessayer.")
 
-        print(f"new_tour_choice_view =>")
-        print('NOM =>', self.new_tournament.name)
-        print('ADRESSE =>', self.new_tournament.address)
-        print('DATE =>', self.new_tournament.date)
-        print('JOUEURS =>', self.new_tournament.players)
-        print('ROUND =>', self.new_tournament.number_turns)
-        print('Match =>', self.new_tournament.rounds)
-
+        self.vue.detail_tournament(self.new_tournament)
 

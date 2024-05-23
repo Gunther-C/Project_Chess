@@ -68,8 +68,10 @@ class ExtendViews:
     def title(self, **kwargs: any) -> Label:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
                             slant=kwargs['slant'], underline=kwargs['underline'])
+
         title = Label(kwargs['mst'], bg=kwargs['bg'], font=lb_font, justify=kwargs['justify'], text=kwargs['text'],
                       width=kwargs['width'], padx=kwargs['padx'], pady=kwargs['pady'])
+
         title.grid(row=kwargs['row'], column=kwargs['cols'], columnspan=kwargs['colspan'], sticky=kwargs['sticky'])
         title.update()
         return title
