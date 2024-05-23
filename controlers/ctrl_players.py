@@ -70,7 +70,6 @@ class PlayersCtrl(core.Core):
             elif len(result2) > 0:
                 self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
                                  name="error1", fg="red", pady=10, text="Ce numéro d'identité éxiste déja !")
-
             else:
                 # instance d'un joueur
                 self.new_player = model.PlayersMdl(identity=identity, last_name=last_name, first_name=first_name,
@@ -79,10 +78,18 @@ class PlayersCtrl(core.Core):
         else:
             pass
 
-    def save_or_tournament(self, result, data_player, new_frame):
+    def save_or_tournament(self, result, data_player):
         match result:
             case 'save':
-                self.player_save(new_frame)
+                if data.PlayersData(self.new_player):
+                    self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
+                                     bg="#FEF9E7",
+                                     name="success", fg="blue", pady=10, text="Joueur inséré")
+                else:
+                    self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
+                                     bg="#FEF9E7", name="error", fg="red", pady=10,
+                                     text="Une erreur est survenue, veuillez réessayer.")
+
             case 'tournament':
                 data_player.pop('Date de naissance', None)
                 if len(data_player) == 3:
@@ -93,16 +100,6 @@ class PlayersCtrl(core.Core):
                                      text="La création du joueur à échoué")
             case _:
                 pass
-
-    def player_save(self, new_frame):
-        if data.PlayersData(self.new_player):
-            self.vue.message(family=None, size=12, weight="bold", slant="roman", underline=False, bg="#FEF9E7",
-                             name="success", fg="blue", pady=10, text="Joueur inséré")
-        else:
-            self.vue.message(family=None, size=12, weight="bold", slant="roman", underline=False,
-                             bg="#FEF9E7", name="error", fg="red", pady=10,
-                             text="Une erreur est survenue, veuillez réessayer.")
-        self.after(7000, new_frame.destroy)
 
     ###
 
@@ -182,13 +179,7 @@ class PlayersCtrl(core.Core):
 
         match type_list:
             case 'names':
-                """liste = []
-                for x in range(10):
-                    for player in file_players:
-                        liste.append(player)
-                ordered = sorted(liste, key=lambda x: x['Nom'])"""
                 ordered = sorted(file_players, key=lambda x: x['Nom'])
-
                 self.vue.list_player('Liste par ordre alphabétique', ordered)
 
             case 'tournaments':

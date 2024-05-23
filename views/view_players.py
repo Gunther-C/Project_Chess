@@ -88,10 +88,10 @@ class PlayersViews(extend_view.ExtendViews):
 
         def click(type_choice):
             if type_choice == 'save':
-                self.se.save_or_tournament('save', data_player, self.frame)
+                self.se.save_or_tournament('save', data_player)
                 insert.config(state=DISABLED)
             else:
-                self.se.save_or_tournament('tournament', data_player, self.frame)
+                self.se.save_or_tournament('tournament', data_player)
 
         self.se.clear_frame(self.frame)
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -175,18 +175,17 @@ class PlayersViews(extend_view.ExtendViews):
             button.grid(row=next_row, column=1, columnspan=2, pady=10)
 
         next_line = 2
-        for x in range(10):
-            for player in multi_players:
-                last_name = None
-                first_name = None
-                for keys in player:
-                    if keys == 'Nom':
-                        last_name = player[keys]
-                    if keys == 'Prénom':
-                        first_name = player[keys]
+        for player in multi_players:
+            last_name = None
+            first_name = None
+            for keys in player:
+                if keys == 'Nom':
+                    last_name = player[keys]
+                if keys == 'Prénom':
+                    first_name = player[keys]
 
-                player_button(last_name, first_name, player, next_line)
-                next_line += 1
+            player_button(last_name, first_name, player, next_line)
+            next_line += 1
 
         annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
         annule.grid(row=next_line, column=1, columnspan=2)
@@ -221,7 +220,7 @@ class PlayersViews(extend_view.ExtendViews):
             next_line += 1
 
         create_trt = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ",
-                                command=lambda: self.se.save_or_tournament('tournament', instance_player, self.frame))
+                                command=lambda: self.se.save_or_tournament('tournament', instance_player))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
@@ -236,54 +235,66 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
-    def list_player(self, title: str, data_player: list):
-
+    def list_player(self, title: str, data_players: list):
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(70, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
+        self.frame.place(relx=0.5, rely=0.1, anchor='n')
 
-        list_system = self.se.listing_canvas(self.frame, '#ffffff', master_geometrie)
-        frame = list_system[0]
-        canvas = list_system[1]
-        scroll_mouse = list_system[2]
-        view_x = list_system[3]
-        view_y = list_system[4]
-        self.frame.place(relx=0.5, rely=0, anchor='n')
+        self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=title, width=None, row=0, cols=None, colspan=2, sticky=None,
+                   padx=None, pady=15)
 
-        self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
-                   justify="center", text=title, width=None, row=0, cols=1, colspan=8, sticky="n",
-                   padx=None, pady=20)
+        cols_x = int(master_geometrie[0] - 200) // 9
+        content_y = int(master_geometrie[1] / 3) // 12
 
-        for player in data_player:
-            title_cols = 1
-            for keys, values in player.items():
-                if not keys == 'id':
-                    self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
-                               bg="#ffffff", justify="center", text=keys, width=None, row=1, cols=title_cols,
-                               colspan=None, sticky=None, padx=15, pady=5)
-                    title_cols += 1
+        """data_tournament = []
+        for x in range(10):
+            for tournament in data_tour:
+                data_tournament.append(tournament)"""
+
+        columns: tuple = ()
+        for cols in data_players:
+            for col_name in cols:
+                columns = columns + (col_name,)
             break
 
-        next_line = 2
-        for x in range(10):
-            for player in data_player:
-                value_cols = 1
-                for keys, values in player.items():
-                    if not keys == 'id':
-                        self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                                   justify="center", text=values, row=next_line, cols=value_cols, colspan=None, sticky=None)
-                        value_cols += 1
-                next_line += 1
+        content = ttk.Treeview(self.frame, columns=columns, show='headings', padding=20, height=content_y)
 
-        canvas.update()
-        canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        for head in data_players:
+            for head_name in head:
+                content.column(head_name, width=cols_x, anchor="center")
+                content.heading(head_name, text=head_name)
+            break
 
-        frame.update()
-        col0_x = self.adjust_x(canvas, frame)
-        col0 = Label(frame, bg="#ffffff")
-        col0.grid(row=0, column=0, ipadx=col0_x[2])
+        for player in data_players:
+            list_players = []
+            for keys, values in player.items():
+                list_players.append(values)
+            content.insert('', END, values=list_players)
+
+        def item_selected(event):
+            result = None
+            for selected_item in content.selection():
+                result = content.item(selected_item)['values']
+
+            if result:
+                data_player = None
+                for plr in data_players:
+                    for kys in plr:
+                        if kys == 'id' and plr[kys] == result[0]:
+                            data_player = plr
+
+                if data_player:
+                    self.matching_player(data_player)
+
+        content.bind('<<TreeviewSelect>>', item_selected)
+        content.grid(row=1, column=0, sticky='nsew')
+
+        scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=content.yview)
+        content.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=1, column=1, sticky='ns')
+
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],

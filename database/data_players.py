@@ -17,7 +17,7 @@ class PlayersData:
                 'Date de naissance': str(player.birth),
                 'Tournoi réalisé': int(0),
                 'Tournoi gagné': int(0),
-                'partie jouée': int(0),
+                'partie réalisée': int(0),
                 'partie gagnée': int(0)
             }
             self.insert_player()

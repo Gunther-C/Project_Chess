@@ -50,8 +50,8 @@ class TournamentsViews(extend_view.ExtendViews):
 
     def new_tournament(self):
         self.se.clear_frame(self.frame)
-        view_master = self.se.master_window(55, 70)
-        self.se.minsize(width=int(view_master[0] * 0.70), height=int(view_master[1]))
+        master_geometrie = self.se.master_window(55, 70)
+        self.se.minsize(width=int(master_geometrie[0] * 0.70), height=int(master_geometrie[1]))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         data_tournament: dict = {}
@@ -186,20 +186,20 @@ class TournamentsViews(extend_view.ExtendViews):
             self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                        justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
 
-    def list_tournament(self, title, data_tournament):
+    def list_tournament(self, title: str, data_tournament: list):
 
         self.se.clear_frame(self.frame)
-        view_master = self.se.master_window(70, 70)
-        self.se.minsize(width=view_master[0], height=view_master[1])
-        self.se.maxsize(width=view_master[0], height=view_master[1])
+        master_geometrie = self.se.master_window(70, 70)
+        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
+        self.se.maxsize(width=master_geometrie[0], height=master_geometrie[1])
         self.frame.place(relx=0.5, rely=0.1, anchor='n')
 
         self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True, mst=self.frame,
                    bg="#FEF9E7", justify=None, text=title, width=None, row=0, cols=None, colspan=2, sticky=None,
                    padx=None, pady=15)
 
-        cols_x = int(view_master[0] - 100) // 7
-        content_y = int(view_master[1] / 3) // 12
+        cols_x = int(master_geometrie[0] - 100) // 7
+        content_y = int(master_geometrie[1] / 3) // 12
 
         """data_tournament = []
         for x in range(10):

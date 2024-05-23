@@ -70,12 +70,13 @@ class TournamentsCtrl(core.Core):
         ctrl_errors = self.create_error(errors_dict)
         if len(ctrl_errors) > 0:
             for er in ctrl_errors:
-                self.vue.message(mst=new_frame, family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
-                                 name=er[0], fg="red", pady=None, text=er[1])
+                self.vue.message(mst=new_frame, family=None, size=9, weight="normal", slant="roman", underline=False,
+                                 bg="#FEF9E7", name=er[0], fg="red", pady=None, text=er[1])
 
         elif name and address and day and month and year:
             birth = year + '-' + month + '-' + day
-            self.tournament_treatment('create', new_frame, None, name, address, birth, number_turns, None, players)
+            self.tournament_treatment('create', new_frame, None, name, address, birth, number_turns,
+                                      None, players)
         else:
             pass
 

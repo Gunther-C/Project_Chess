@@ -15,7 +15,6 @@ class PlayersMdl:
     def instance_player(self, identity, last_name, first_name, birth):
 
         if identity and last_name and first_name and birth:
-
             id_last = identity[:2].upper()
             id_first = identity[2:]
             self.identity = id_last + id_first
@@ -23,7 +22,8 @@ class PlayersMdl:
             self.first_name = str(first_name).capitalize()
             self.birth = str(birth)
 
-        # return self.identity, self.last_name, self.first_name, self.birth
+
+
 
 
 
