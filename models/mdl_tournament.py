@@ -19,11 +19,10 @@ class TournamentMdl:
         self.players = None
         self.rounds = None
 
-        self.instance_tournament(id_tour, name, address, birth, number_turns, rounds, players)
+        if name and address and birth and number_turns and len(players) > 1:
+            self.instance_tournament(id_tour, name, address, birth, number_turns, rounds, players)
 
     def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players):
-
-        if name and address and birth and number_turns and len(players) > 1:
 
             if id_tour:
                 self.id_tour = id_tour
@@ -58,6 +57,10 @@ class TournamentMdl:
             players_lists.append(match_players)
 
         return players_lists
+
+
+
+
 
 
     """players = []

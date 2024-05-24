@@ -254,18 +254,15 @@ class PlayersViews(extend_view.ExtendViews):
                 data_tournament.append(tournament)"""
 
         columns: tuple = ()
-        for cols in data_players:
-            for col_name in cols:
-                columns = columns + (col_name,)
-            break
+        for col_name in data_players[0]:
+            columns = columns + (col_name,)
 
         content = ttk.Treeview(self.frame, columns=columns, show='headings', padding=20, height=content_y)
+        content.tag_configure('highlight', background='lightblue')
 
-        for head in data_players:
-            for head_name in head:
-                content.column(head_name, width=cols_x, anchor="center")
-                content.heading(head_name, text=head_name)
-            break
+        for head_name in data_players[0]:
+            content.column(head_name, width=cols_x, anchor="center")
+            content.heading(head_name, text=head_name)
 
         for player in data_players:
             list_players = []
@@ -288,6 +285,13 @@ class PlayersViews(extend_view.ExtendViews):
                 if data_player:
                     self.matching_player(data_player)
 
+        def hover(event):
+            tree = event.widget
+            item = tree.identify_row(event.y)
+            tree.tk.call(tree, "tag", "remove", "highlight")
+            tree.tk.call(tree, "tag", "add", "highlight", item)
+
+        content.bind("<Motion>", hover)
         content.bind('<<TreeviewSelect>>', item_selected)
         content.grid(row=1, column=0, sticky='nsew')
 

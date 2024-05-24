@@ -88,10 +88,8 @@ class TournamentsCtrl(core.Core):
 
         if last_name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
-            errors_dict['ctrl_lst_2'] = self.string_verif("Le Nom", last_name)
         if first_name:
             errors_dict['ctrl_fst_1'] = self.long_string_verif("Le Prénom", 2, 40, first_name)
-            errors_dict['ctrl_fst_2'] = self.string_verif("Le Prénom", first_name)
         if identity:
             errors_dict['identity'] = self.identity_verif(identity)
 
@@ -144,9 +142,6 @@ class TournamentsCtrl(core.Core):
 
             self.vue.detail_tournament(self.new_tournament)
 
-
-
-
         print(f"new_tour_choice_view =>")
         print('NOM =>', self.new_tournament.name)
         print('ADRESSE =>', self.new_tournament.address)
@@ -166,18 +161,4 @@ class TournamentsCtrl(core.Core):
                 self.vue.list_tournament('Liste par dates décroissantes', ordered)
         else:
             pass
-
-    def tournament_view(self, instance_type, new_frame, name, address, birth, number_turns, rounds, players):
-
-
-        if not rounds:
-
-            if data.TournamentData(self.new_tournament):
-                self.vue.detail_tournament(self.new_tournament)
-            else:
-                self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
-                                 bg="#FEF9E7", name="error", fg="red", pady=10,
-                                 text="Une erreur est survenue, veuillez réessayer.")
-
-        self.vue.detail_tournament(self.new_tournament)
 

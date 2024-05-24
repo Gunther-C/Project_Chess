@@ -21,7 +21,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         super().__init__(self.frame)
 
-        # self.shema_round()
+        # self.schema_round()
 
         """font_families = font.families()
         for family in font_families:
@@ -159,7 +159,7 @@ class TournamentsViews(extend_view.ExtendViews):
             self.new_frame.grid()
             self.new_frame.place(relx=0.5, rely=0.4, anchor='center')
 
-            plr_title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
+            plr_title = self.title(family="Lucida Calligraphy", size=30, weight="bold", slant="italic", underline=True,
                                    mst=self.new_frame, bg="#FEF9E7", justify=None, text="Nouveau joueur : ", width=None,
                                    row=0, cols=None, colspan=7, sticky=None, padx=None, pady=None)
 
@@ -191,10 +191,9 @@ class TournamentsViews(extend_view.ExtendViews):
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(70, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
-        self.se.maxsize(width=master_geometrie[0], height=master_geometrie[1])
         self.frame.place(relx=0.5, rely=0.1, anchor='n')
 
-        self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True, mst=self.frame,
+        self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True, mst=self.frame,
                    bg="#FEF9E7", justify=None, text=title, width=None, row=0, cols=None, colspan=2, sticky=None,
                    padx=None, pady=15)
 
@@ -207,18 +206,15 @@ class TournamentsViews(extend_view.ExtendViews):
                 data_tournament.append(tournament)"""
 
         columns: tuple = ()
-        for cols in data_tournament:
-            for keys in cols:
-                columns = columns + (keys,)
-            break
+        for keys in data_tournament[0]:
+            columns = columns + (keys,)
 
         content = ttk.Treeview(self.frame, columns=columns, show='headings', padding=20, height=content_y)
+        content.tag_configure('highlight', background='lightblue')
 
-        for tournament in data_tournament:
-            for keys in tournament:
-                content.column(keys, width=cols_x, anchor="center")
-                content.heading(keys, text=keys)
-            break
+        for keys in data_tournament[0]:
+            content.column(keys, width=cols_x, anchor="center")
+            content.heading(keys, text=keys)
 
         for tournament in data_tournament:
             list_tour = []
@@ -230,7 +226,7 @@ class TournamentsViews(extend_view.ExtendViews):
                 list_tour.append(values)
             content.insert('', END, values=list_tour)
 
-        def item_selected(event):
+        def selected(event):
             result = None
             for selected_item in content.selection():
                 result = content.item(selected_item)['values']
@@ -247,7 +243,14 @@ class TournamentsViews(extend_view.ExtendViews):
                     self.se.tournament_treatment('data', self.frame, result[0], result[1], result[2], result[3],
                                                  result[4], rst_rounds, rst_players)
 
-        content.bind('<<TreeviewSelect>>', item_selected)
+        def hover(event):
+            tree = event.widget
+            item = tree.identify_row(event.y)
+            tree.tk.call(tree, "tag", "remove", "highlight")
+            tree.tk.call(tree, "tag", "add", "highlight", item)
+
+        content.bind("<Motion>", hover)
+        content.bind('<<TreeviewSelect>>', selected)
         content.grid(row=1, column=0, sticky='nsew')
 
         scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=content.yview)
@@ -260,35 +263,41 @@ class TournamentsViews(extend_view.ExtendViews):
             self.se.new_all_players.clear()
 
         self.se.clear_frame(self.frame)
+        master_geometrie = self.se.master_window(50, 60)
+        self.se.minsize(width=(master_geometrie[0] - 100), height=(master_geometrie[1] - 100))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.title(family="Lucida Calligraphy", size=30, weight="bold", slant="roman", underline=True, mst=self.frame,
-                   bg="#FEF9E7", justify="center", text=tournament.name, width=None, row=0, cols=None, colspan=8,
-                   sticky=None, padx=None, pady=20)
+        self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True, mst=self.frame,
+                   bg="#FEF9E7", justify="center", text=tournament.name, width=None, row=0, cols=1, colspan=3,
+                   sticky=None, padx=None, pady=30)
 
-        self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=self.frame,
-                   bg="#FEF9E7", justify=None, text=f"Le : {tournament.date}", width=None, row=1, cols=None,
-                   colspan=8, sticky="w", padx=None, pady=10)
+        self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=f"Le : {tournament.date}", width=None, row=1, cols=1,
+                   colspan=3, sticky="w", padx=None, pady=10)
 
-        self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=self.frame,
-                   bg="#FEF9E7", justify=None, text=f"A : {tournament.address}", width=None, row=2, cols=None,
-                   colspan=8, sticky="w", padx=None, pady=10)
+        self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=f"A : {tournament.address}", width=None, row=2, cols=1,
+                   colspan=3, sticky="w", padx=None, pady=10)
 
-        self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=self.frame,
+        self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
                    bg="#FEF9E7", justify=None, text=f"En : {tournament.number_turns} manche(s)", width=None, row=3,
-                   cols=None, colspan=8, sticky="w", padx=None, pady=10)
+                   cols=1, colspan=3, sticky="w", padx=None, pady=10)
 
         self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=10, justify=None, text="",
-                   row=4, cols=0, colspan=8, sticky=None)
+                   row=4, cols=0, colspan=None, sticky=None)
 
         plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: listing())
-        plr_create.grid(row=5, columnspan=4, ipadx=10, ipady=5)
+        plr_create.grid(row=5, column=1,  ipadx=20, ipady=5)
 
-        plr_list = ttk.Button(self.frame, text="Liste des rounds", command=lambda: listing())
-        plr_list.grid(row=5, column=4, columnspan=4, ipadx=10, ipady=5)
+        self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=20, ipady=None, justify=None, text="",
+                   row=5, cols=2, colspan=None, sticky=None)
 
-        plr_list = ttk.Button(self.frame, text="<= Round en cours =>", command=lambda: shema_round(tournament.rounds))
-        plr_list.grid(row=6, columnspan=8, pady=25)
+        plr_list = ttk.Button(self.frame, text="Liste des tours", command=lambda: self.list_rounds(tournament.rounds))
+        plr_list.grid(row=5, column=3, ipadx=20, ipady=5)
+
+        plr_list = ttk.Button(self.frame, text="<= Round en cours =>",
+                              command=lambda: self.schema_round(tournament.rounds[-1]))
+        plr_list.grid(row=6, columnspan=4, pady=40, ipadx=30, ipady=10)
 
         def listing():
             view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
@@ -297,70 +306,125 @@ class TournamentsViews(extend_view.ExtendViews):
             submit_list = ttk.Button(view_list[1], text="Fermer", command=lambda: self.new_window[0].destroy())
             submit_list.grid(column=1, columnspan=5, pady=20, ipadx=5)
 
-    def shema_round(self, rounds=None):
-        if rounds:
-            new_round = rounds
-        else:
-            tournaments = self.se.tournaments_list()
-            tournaments = sorted(tournaments, key=lambda x: x['id'])
-            tour = tournaments[1]
-            new_round = tour['Rounds']
+    def schema_round(self, new_round: object):
+
+        # print(new_round)
 
         if self.new_window:
             self.new_window[0].destroy()
 
-        self.new_window = self.se.listing_window(45, 70, 30, 30, 'Liste des joueurs', '#FEF9E7')
+        self.new_window = self.se.listing_window(60, 70, 50, 100, f'Tour n° {new_round['round']}', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
-        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
 
-        self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", width=master_geometrie[0], height=master_geometrie[1], padx=15, pady=10)
-        self.new_frame.pack()
+        self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
+        self.new_frame.grid()
         self.new_frame.place(relx=0.5, rely=0, anchor='n')
 
-        list_system = self.se.listing_canvas(self.new_frame, '#ffffff', master_geometrie)
-        frame = list_system[0]
-        canvas = list_system[1]
-        scroll_mouse = list_system[2]
-        view_x = list_system[3]
-        view_y = list_system[4]
+        self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
+                   mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Tour n° {new_round['round']}", width=None,
+                   row=0, cols=None, colspan=None, sticky=None, padx=None, pady=15)
 
-        def player_button(lst_name, next_row):
-            button = ttk.Button(frame, text=lst_name, command=lambda: self.se.destroy())
-            button.grid(row=next_row, columnspan=5, pady=10)
+        self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.new_frame,
+                   bg="#FEF9E7", justify=None, text=f"Débute le : {new_round['start']}", width=None, row=1, cols=None,
+                   colspan=None, sticky="w", padx=None, pady=10)
 
-        self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
-                   justify=None, text=f"tour", width=None, row=0, cols=None, colspan=5, sticky=None,
-                   padx=10, pady=None)
+        self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.new_frame,
+                   bg="#FEF9E7", justify=None, text=f"Fini le : {new_round['finish']}", width=None, row=2, cols=None,
+                   colspan=None, sticky=None, padx=None, pady=10)
 
-        next_line = 2
-        for match in new_round[0]['matchs']:
+        cols_x = int(master_geometrie[0] - 100) // 6
+        content_y = int(master_geometrie[1] / 3) // 12
 
-            last_name1 = match[0][1]
-            last_name2 = match[1][1]
+        """data_tournament = []
+        for x in range(10):
+            for tournament in data_tour:
+                data_tournament.append(tournament)"""
 
-            player_button(last_name1, next_line)
-            next_line += 1
-            player_button(last_name2, next_line)
-            next_line += 1
+        columns: tuple = ('Joueur 1', 'Joueur 2', '', 'Résultat')
 
-        canvas.update()
-        canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        content = ttk.Treeview(self.new_frame, columns=columns, show='headings', padding=20, height=content_y)
+        content.tag_configure('highlight', background='lightblue')
 
-        """frame.update()
-        col0_x = self.adjust_x(canvas, frame)
-        col0 = Label(frame, bg="#ffffff")
-        col0.grid(row=0, column=0, ipadx=col0_x[2])"""
+        for col in columns:
+
+            if col == '':
+                content.column(col, width=180)
+            else:
+                content.column(col, width=cols_x, anchor="center")
+
+            content.heading(col, text=col)
+
+        for player in new_round['matchs']:
+            list_matchs = [player[0][1], player[1][1], '']
+            if len(player[0]) > 2:
+                if float(player[0][2]) > float(player[1][2]):
+                    list_matchs.append(player[0][1])
+                elif float(player[0][2]) < float(player[1][2]):
+                    list_matchs.append(player[1][1])
+                elif float(player[0][2]) == 0.5 and float(player[1][2]) == 0.5:
+                    list_matchs.append('Match null')
+                else:
+                    list_matchs.append('Annulé')
+            else:
+                list_matchs.append('En cours')
+                
+            content.insert('', END, )
+            content.insert('', END, values=list_matchs)
+
+        def selected(event):
+            result = None
+            for selected_item in content.selection():
+                result = content.item(selected_item)['values']
+
+            if result:
+                found = False
+                number = 0
+
+                for tour in data_rounds:
+                    search = False
+                    for id_tour in tour:
+                        if id_tour == 'round' and tour[id_tour] == result[0]:
+                            search = True
+
+                    if search:
+                        found = True
+                        break
+                    else:
+                        number += 1
+
+                if found:
+                    self.schema_round(data_rounds[number])
+
+        def hover(event):
+            tree = event.widget
+            item = tree.identify_row(event.y)
+            tree.tk.call(tree, "tag", "remove", "highlight")
+            tree.tk.call(tree, "tag", "add", "highlight", item)
+
+        def cell_clicked(event):
+            # Récupérer l'élément sélectionné
+            item = content.focus()
+            # Récupérer les valeurs des colonnes
+            values = content.item(item, 'values')
+            print(f"Cellule cliquée : {values}")
+
+        # content.bind("<Motion>", hover)
+        # content.bind('<<TreeviewSelect>>', selected)
+        content.bind("<ButtonRelease-1>", cell_clicked)
+
+        content.grid(row=1, column=0, sticky='nsew')
+
+        scrollbar = ttk.Scrollbar(self.new_frame, orient="vertical", command=content.yview)
+        content.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=1, column=1, sticky='ns')
+
+
 
     def list_players(self, data_player, select_players, title):
         if self.new_window:
             self.new_window[0].destroy()
         self.new_window = self.se.listing_window(40, 60, 30, 30, 'Liste des joueurs', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
-
-        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
-        self.se.maxsize(width=master_geometrie[0], height=master_geometrie[1])
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
         self.new_frame.grid()
@@ -373,15 +437,15 @@ class TournamentsViews(extend_view.ExtendViews):
         view_x = list_system[3]
         view_y = list_system[4]
 
-        self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=frame, bg="#ffffff",
-                   justify="center", text=title, width=None, row=0, cols=1, colspan=5,
-                   sticky="n", padx=None, pady=20)
+        self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True, mst=frame,
+                   bg="#ffffff", justify="center", text=title, width=None, row=0, cols=1, colspan=5, sticky="n",
+                   padx=None, pady=20)
 
         # En tète listing
         for infos_type in data_player:
             title_cols = 1
             for title_list in infos_type:
-                self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=frame,
+                self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=frame,
                            bg="#ffffff", justify="center", text=title_list, width=None, row=1,
                            cols=title_cols, colspan=None, sticky=None, padx=None, pady=5)
                 title_cols += 1
@@ -408,19 +472,18 @@ class TournamentsViews(extend_view.ExtendViews):
             label.grid(row=next_line, columnspan=6, sticky="w")
             next_line += 1
 
-        for x in range(3):
-            for i, infos_player in enumerate(data_player):
-                value_cols = 1
-                for ks in infos_player:
-                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                               justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
-                               sticky=None)
-                    value_cols += 1
-                if select_players:
-                    self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
-                                      bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
-                                      state="normal", cols=value_cols, row=next_line, sticky=None)
-                next_line += 1
+        for i, infos_player in enumerate(data_player):
+            value_cols = 1
+            for ks in infos_player:
+                self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
+                           justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
+                           sticky=None)
+                value_cols += 1
+            if select_players:
+                self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
+                                  bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
+                                  state="normal", cols=value_cols, row=next_line, sticky=None)
+            next_line += 1
 
         canvas.update()
         canvas.create_window((0, 0), window=frame)
@@ -433,6 +496,92 @@ class TournamentsViews(extend_view.ExtendViews):
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
         return self.new_window, frame
+
+    def list_rounds(self, data_rounds):
+
+        if self.new_window:
+            self.new_window[0].destroy()
+        self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des tours', '#FEF9E7')
+        master_geometrie = self.new_window[1], self.new_window[2]
+
+        self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
+        self.new_frame.grid()
+        self.new_frame.place(relx=0.5, rely=0, anchor='n')
+
+        self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
+                   mst=self.new_frame, bg="#FEF9E7", justify=None, text="Liste des tours", width=None, row=0,
+                   cols=None, colspan=2, sticky=None, padx=None, pady=15)
+
+        cols_x = int(master_geometrie[0] - 100) // 4
+        content_y = int(master_geometrie[1] / 3) // 12
+
+        """data_tournament = []
+        for x in range(10):
+            for tournament in data_tour:
+                data_tournament.append(tournament)"""
+
+        columns: tuple = ()
+        for cols in data_rounds[0]:
+            columns = columns + (cols,)
+
+        content = ttk.Treeview(self.new_frame, columns=columns, show='headings', padding=20, height=content_y)
+        content.tag_configure('highlight', background='lightblue')
+
+        for head in data_rounds[0]:
+            content.column(head, width=cols_x, anchor="center")
+            content.heading(head, text=head)
+
+        for unity in data_rounds:
+            list_matchs = []
+            for keys, values in unity.items():
+                if keys == 'matchs':
+                    values = len(values)
+                list_matchs.append(values)
+            content.insert('', END, values=list_matchs)
+
+        def selected(event):
+            result = None
+            for selected_item in content.selection():
+                result = content.item(selected_item)['values']
+
+            if result:
+                found = False
+                number = 0
+
+                for tour in data_rounds:
+                    search = False
+                    for id_tour in tour:
+                        if id_tour == 'round' and tour[id_tour] == result[0]:
+                            search = True
+
+                    if search:
+                        found = True
+                        break
+                    else:
+                        number += 1
+
+                if found:
+                    self.schema_round(data_rounds[number])
+
+        def hover(event):
+            tree = event.widget
+            item = tree.identify_row(event.y)
+            tree.tk.call(tree, "tag", "remove", "highlight")
+            tree.tk.call(tree, "tag", "add", "highlight", item)
+
+        content.bind("<Motion>", hover)
+        content.bind('<<TreeviewSelect>>', selected)
+        content.grid(row=1, column=0, sticky='nsew')
+
+        scrollbar = ttk.Scrollbar(self.new_frame, orient="vertical", command=content.yview)
+        content.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=1, column=1, sticky='ns')
+
+
+
+
+
+
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],

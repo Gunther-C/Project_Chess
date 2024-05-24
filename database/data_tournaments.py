@@ -12,7 +12,7 @@ class TournamentData:
             self.data = {
                 'id': int(1),
                 'Nom': str(new_data.name).capitalize(),
-                'Adresse': str(new_data.address),
+                'Adresse': str(new_data.address).capitalize(),
                 'Date': str(new_data.date),
                 'Nombre de manche': int(new_data.number_turns),
                 'Joueurs': new_data.players,
