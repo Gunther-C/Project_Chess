@@ -157,7 +157,7 @@ class PlayersViews(extend_view.ExtendViews):
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
 
-        list_system = self.se.listing_canvas(self.frame, '#FEF9E7', master_geometrie)
+        list_system = self.se.listing_canvas(self.frame, 0, '#FEF9E7', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
         scroll_mouse = list_system[2]

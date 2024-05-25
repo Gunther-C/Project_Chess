@@ -55,7 +55,7 @@ class Core(Tk):
         new_window.iconbitmap("views/pictures/horse.ico")
         return new_window, view_x[0], view_y[0]
 
-    def listing_canvas(self, curent_frame, bg_color, dimension):
+    def listing_canvas(self, curent_frame, rw, bg_color, dimension):
 
         dimension_x = int(dimension[0] - 60)
         dimension_y = int((dimension[1] - 20))
@@ -64,10 +64,11 @@ class Core(Tk):
         frame_list = Frame(canvas, bg=bg_color, pady=40)
 
         scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
-        scrollbar.grid(row=0, column=1, sticky='ns')
+        scrollbar.grid(row=rw, column=1, sticky='ns')
 
-        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension_x, height=dimension_y)
-        canvas.grid(row=0, column=0)
+        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension_x, height=dimension_y,
+                         highlightthickness=0)
+        canvas.grid(row=rw, column=0)
 
         def scroll_mouse(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
