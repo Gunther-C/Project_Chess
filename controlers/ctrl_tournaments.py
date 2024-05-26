@@ -162,3 +162,7 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
+    def update_score(self, new_scores):
+
+        if data.TournamentData().update_scores(new_scores):
+            print('ok')

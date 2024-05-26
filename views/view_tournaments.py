@@ -292,11 +292,12 @@ class TournamentsViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=20, ipady=None, justify=None, text="",
                    row=5, cols=2, colspan=None, sticky=None)
 
-        plr_list = ttk.Button(self.frame, text="Liste des tours", command=lambda: self.list_rounds(tournament.rounds))
+        plr_list = ttk.Button(self.frame, text="Liste des tours",
+                              command=lambda: self.list_rounds(tournament.id_tour, tournament.rounds))
         plr_list.grid(row=5, column=3, ipadx=20, ipady=5)
 
         plr_list = ttk.Button(self.frame, text="<= Round en cours =>",
-                              command=lambda: self.schema_round(tournament.rounds[-1]))
+                              command=lambda: self.schema_round(tournament.id_tour, tournament.rounds[-1]))
         plr_list.grid(row=6, columnspan=4, pady=40, ipadx=30, ipady=10)
 
         def listing():
@@ -306,12 +307,12 @@ class TournamentsViews(extend_view.ExtendViews):
             submit_list = ttk.Button(view_list[1], text="Fermer", command=lambda: self.new_window[0].destroy())
             submit_list.grid(column=1, columnspan=7, pady=20, ipadx=5)
 
-    def schema_round(self, new_round: object):
+    def schema_round(self, tournament_id, new_round: object):
 
         if self.new_window:
             self.new_window[0].destroy()
 
-        self.new_window = self.se.listing_window(60, 90, 30, 30, f'Tour n° {new_round['round']}', '#FEF9E7')
+        self.new_window = self.se.listing_window(60, 90, 300, 30, f'Tour n° {new_round['round']}', '#FEF9E7')
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", pady=10)
         self.new_frame.grid()
@@ -344,55 +345,101 @@ class TournamentsViews(extend_view.ExtendViews):
 
         lb_font = font.Font(family='Times New Roman', size=15)
         next_line = 0
+        number_key = 0
 
-        def action(re):
-            print(re)
+        def action(winner, loser, parent):
 
-        def player_1(plr, number_match):
-            plr1 = Label(match_frame, width=20, bg="#f5cb8e", font=lb_font, text=plr, name=f'plr1-match{number_match}')
-            plr1.bind("<Button-1>", lambda e: action(f'player1 => {plr}'))
-            plr1.grid(row=0)
+            round_id = new_round['round']
+            match_key = parent.winfo_name()
 
-        def player_2(plr, number_match):
-            plr2 = Label(match_frame, width=20, bg="#f5cb8e", font=lb_font, text=plr, name=f'plr2-match{number_match}')
-            plr2.bind("<Button-1>", lambda e: action(f'player2 => {plr}'))
-            plr2.grid(row=2)
+            if not loser:
+                extract = winner.find('-')
+                id_player1 = winner[:extract]
+                id_player2 = winner[extract + 1:]
+                results = [(id_player1, 0.5), (id_player2, 0.5)]
+            else:
+                id_player1 = winner[0]
+                id_player2 = loser[0]
+                results = [(id_player1, 1), (id_player2, 0)]
 
-        def rst_match(number_match):
-            result = Label(match_frame, width=15, bg="#f5cb8e", font=lb_font, text=result_match,
-                           name=f'result-match{number_match}')
-            result.grid(row=1, column=2)
+
+            for child in parent.winfo_children():
+                id_name = child.winfo_name()
+                id_n = id_name.find('id-')
+                identity = id_name[id_n +3:]
+                if identity == id_player1:
+                    child.configure(foreground='green')
+                    # e0f9d9
+                if identity == id_player2:
+                    child.configure(foreground='red')
+
+                if id_name == 'score':
+                    child['text'] = winner[1]
+                    if not loser:
+                        child['text'] = 'Null'
+
+            if winner:
+                data_match = (tournament_id, round_id, match_key, results)
+                self.se.update_score(data_match)
+
+
+
+
+
+
+
+        def player_1(player1, player2, parent):
+            plr1_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
+                                font=lb_font, text=player1[1], name=f"id-{player1[0]}")
+            plr1_widget.bind("<Button-1>", lambda e: action(player1, player2, parent))
+            plr1_widget.grid(row=0, padx=10)
+
+        def player_2(player2, player1, parent):
+            plr2_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
+                                font=lb_font, text=player2[1], name=f"id-{player2[0]}")
+            plr2_widget.bind("<Button-1>", lambda e: action(player2, player1, parent))
+            plr2_widget.grid(row=2, padx=10)
+
 
         for player in new_round['matchs']:
 
             result_match = 'En cours'
             if len(player[0]) > 2:
+
                 if float(player[0][2]) > float(player[1][2]):
                     result_match = player[0][1]
+
                 elif float(player[0][2]) < float(player[1][2]):
                     result_match = player[1][1]
+
                 elif float(player[0][2]) == 0.5 and float(player[1][2]) == 0.5:
                     result_match = 'Match null'
+
                 else:
                     result_match = 'Annulé'
 
-            match_frame = Frame(frame, highlightbackground="black", highlightthickness=1, bg="#f5cb8e", pady=30)
+            match_frame = Frame(frame, name=str(number_key), highlightbackground="black", highlightthickness=1,
+                                bg="#f5cb8e", pady=30)
             match_frame.grid(row=next_line, column=1)
 
-            player_1(player[0][1], next_line)
+            player_1(player[0], player[1], match_frame)
 
             espace = Label(match_frame, width=5, bg="#f5cb8e")
             espace.grid(row=1, column=1)
 
-            rst_match(next_line)
+            result = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
+                           font=lb_font, text=result_match, name="score")
+            result.grid(row=1, column=2, padx=10)
 
-            player_2(player[1][1], next_line)
+            player_2(player[1], player[0], match_frame)
 
             next_line += 1
+
             espace_ext = Label(frame)
             espace_ext.grid(row=next_line, column=1)
 
             next_line += 1
+            number_key += 1
 
         canvas.update()
         canvas.create_window((0, 0), window=frame)
@@ -502,7 +549,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         return self.new_window, frame
 
-    def list_rounds(self, data_rounds):
+    def list_rounds(self, tournament_id,  data_rounds):
 
         if self.new_window:
             self.new_window[0].destroy()
@@ -555,8 +602,8 @@ class TournamentsViews(extend_view.ExtendViews):
 
                 for tour in data_rounds:
                     search = False
-                    for id_tour in tour:
-                        if id_tour == 'round' and tour[id_tour] == result[0]:
+                    for id_tr in tour:
+                        if id_tr == 'round' and tour[id_tr] == result[0]:
                             search = True
 
                     if search:
@@ -566,7 +613,7 @@ class TournamentsViews(extend_view.ExtendViews):
                         number += 1
 
                 if found:
-                    self.schema_round(data_rounds[number])
+                    self.schema_round(tournament_id, data_rounds[number])
 
         def hover(event):
             tree = event.widget

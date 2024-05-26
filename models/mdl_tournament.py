@@ -8,7 +8,8 @@ fake = Faker("fr_FR")
 
 
 class TournamentMdl:
-    def __init__(self, id_tour: str | None = None, name: str | None = None, address: str | None = None, birth: str | None = None,
+    def __init__(self, id_tour: str | None = None, name: str | None = None, address: str | None = None,
+                 birth: str | None = None,
                  number_turns: str | None = None, rounds=None, players=None):
 
         self.id_tour = None
@@ -24,27 +25,27 @@ class TournamentMdl:
 
     def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players):
 
-            if id_tour:
-                self.id_tour = id_tour
+        if id_tour:
+            self.id_tour = id_tour
 
-            self.name = str(name).capitalize()
-            self.address = str(address)
-            self.date = str(birth)
-            self.number_turns = int(number_turns)
-            self.players: list = players
+        self.name = str(name).capitalize()
+        self.address = str(address)
+        self.date = str(birth)
+        self.number_turns = int(number_turns)
+        self.players: list = players
 
-            if rounds:
-                self.rounds: list = rounds
-            else:
-                players_lists: list = []
-                for player in players:
-                    first_name = player.pop('Prénom', None)
-                    capital = first_name[0]
-                    player['Nom'] = f"{player['Nom']}.{capital}"
-                    player_list = [player['Identité'], player['Nom']]
-                    players_lists.append(player_list)
-                first_match = self.pair(players_lists)
-                self.rounds: list = [{"round": 1, "start": '', "finish": '',  "matchs": first_match}]
+        if rounds:
+            self.rounds: list = rounds
+        else:
+            players_lists: list = []
+            for player in players:
+                first_name = player.pop('Prénom', None)
+                capital = first_name[0]
+                player['Nom'] = f"{player['Nom']}.{capital}"
+                player_list = [player['Identité'], player['Nom']]
+                players_lists.append(player_list)
+            first_match = self.pair(players_lists)
+            self.rounds: list = [{"round": 1, "start": '', "finish": '', "matchs": first_match}]
 
     def pair(self, match) -> list:
         players_count = int(len(match) / 2)
@@ -57,11 +58,6 @@ class TournamentMdl:
             players_lists.append(match_players)
 
         return players_lists
-
-
-
-
-
 
     """players = []
     for x in range(self.tour_type):
