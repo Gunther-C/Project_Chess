@@ -362,41 +362,34 @@ class TournamentsViews(extend_view.ExtendViews):
                 id_player2 = loser[0]
                 results = [(id_player1, 1), (id_player2, 0)]
 
-
             for child in parent.winfo_children():
                 id_name = child.winfo_name()
                 id_n = id_name.find('id-')
-                identity = id_name[id_n +3:]
+                identity = id_name[id_n + 3:]
                 if identity == id_player1:
                     child.configure(foreground='green')
-                    # e0f9d9
                 if identity == id_player2:
                     child.configure(foreground='red')
-
                 if id_name == 'score':
                     child['text'] = winner[1]
                     if not loser:
-                        child['text'] = 'Null'
+                        child['text'] = 'Match null'
+                        if identity == id_player1 or identity == id_player2:
+                            child.configure(foreground='red')
 
             if winner:
                 data_match = (tournament_id, round_id, match_key, results)
                 self.se.update_score(data_match)
 
-
-
-
-
-
-
-        def player_1(player1, player2, parent):
+        def player_1(player1, player2, parent, color):
             plr1_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                                font=lb_font, text=player1[1], name=f"id-{player1[0]}")
+                                font=lb_font, foreground=color, text=player1[1], name=f"id-{player1[0]}")
             plr1_widget.bind("<Button-1>", lambda e: action(player1, player2, parent))
             plr1_widget.grid(row=0, padx=10)
 
-        def player_2(player2, player1, parent):
+        def player_2(player2, player1, parent,color):
             plr2_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                                font=lb_font, text=player2[1], name=f"id-{player2[0]}")
+                                font=lb_font, foreground=color, text=player2[1], name=f"id-{player2[0]}")
             plr2_widget.bind("<Button-1>", lambda e: action(player2, player1, parent))
             plr2_widget.grid(row=2, padx=10)
 
@@ -404,17 +397,25 @@ class TournamentsViews(extend_view.ExtendViews):
         for player in new_round['matchs']:
 
             result_match = 'En cours'
+            foreground1 = 'black'
+            foreground2 = 'black'
+
             if len(player[0]) > 2:
 
                 if float(player[0][2]) > float(player[1][2]):
                     result_match = player[0][1]
+                    foreground1 = 'green'
+                    foreground2 = 'red'
 
                 elif float(player[0][2]) < float(player[1][2]):
                     result_match = player[1][1]
+                    foreground1 = 'red'
+                    foreground2 = 'green'
 
                 elif float(player[0][2]) == 0.5 and float(player[1][2]) == 0.5:
                     result_match = 'Match null'
-
+                    foreground1 = 'blue'
+                    foreground2 = 'blue'
                 else:
                     result_match = 'Annulé'
 
@@ -422,7 +423,7 @@ class TournamentsViews(extend_view.ExtendViews):
                                 bg="#f5cb8e", pady=30)
             match_frame.grid(row=next_line, column=1)
 
-            player_1(player[0], player[1], match_frame)
+            player_1(player[0], player[1], match_frame, foreground1)
 
             espace = Label(match_frame, width=5, bg="#f5cb8e")
             espace.grid(row=1, column=1)
@@ -431,7 +432,7 @@ class TournamentsViews(extend_view.ExtendViews):
                            font=lb_font, text=result_match, name="score")
             result.grid(row=1, column=2, padx=10)
 
-            player_2(player[1], player[0], match_frame)
+            player_2(player[1], player[0], match_frame, foreground2)
 
             next_line += 1
 
@@ -450,9 +451,6 @@ class TournamentsViews(extend_view.ExtendViews):
         col0_x = self.adjust_x(canvas, frame)
         col0 = Label(frame, bg="#ffffff")
         col0.grid(row=0, column=0, ipadx=col0_x[2])
-
-
-
 
     def list_players(self, data_player, select_players, title):
         if self.new_window:

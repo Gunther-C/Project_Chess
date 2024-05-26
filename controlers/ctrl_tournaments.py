@@ -142,13 +142,13 @@ class TournamentsCtrl(core.Core):
 
             self.vue.detail_tournament(self.new_tournament)
 
-        print(f"new_tour_choice_view =>")
+        """print(f"new_tour_choice_view =>")
         print('NOM =>', self.new_tournament.name)
         print('ADRESSE =>', self.new_tournament.address)
         print('DATE =>', self.new_tournament.date)
         print('JOUEURS =>', self.new_tournament.players)
         print('ROUND =>', self.new_tournament.number_turns)
-        print('Match =>', self.new_tournament.rounds)
+        print('Match =>', self.new_tournament.rounds)"""
 
     def tournament_lists(self, list_type):
         tournaments = self.tournaments_list()

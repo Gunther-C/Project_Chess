@@ -48,16 +48,57 @@ class TournamentData:
 
     def update_scores(self, new_scores):
 
+        nw_sc = new_scores
+        print(new_scores)
+
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
 
                 try:
-
                     new_file = json.load(file)
 
-                    print(new_scores)
+                    for rd in new_file:
+                        # tournoi
+                        if rd['id'] == nw_sc[0]:
+                            # liste des rounds
+                            rounds = rd['Rounds']
+                            for rds in rounds:
+                                # choix du round
+                                if rds['round'] == nw_sc[1]:
 
-                except json.JSONEncodeError as e:
+                                    # liste des matchs
+                                    matchs = rds['matchs']
+                                    match = matchs[int(nw_sc[2])]
+
+                                    player_1 = match[0]
+                                    player_2 = match[1]
+
+                                    if player_1[0] == nw_sc[3][0][0]:
+                                        if len(player_1) > 2:
+                                            player_1.remove(player_1[2])
+                                        player_1.append(nw_sc[3][0][1])
+
+                                    if player_1[0] == nw_sc[3][1][0]:
+                                        if len(player_1) > 2:
+                                            player_1.remove(player_1[2])
+                                        player_1.append(nw_sc[3][1][1])
+
+                                    if player_2[0] == nw_sc[3][0][0]:
+                                        if len(player_2) > 2:
+                                            player_2.remove(player_2[2])
+                                        player_2.append(nw_sc[3][0][1])
+
+                                    if player_2[0] == nw_sc[3][1][0]:
+                                        if len(player_2) > 2:
+                                            player_2.remove(player_2[2])
+                                        player_2.append(nw_sc[3][1][1])
+
+
+                    file.seek(0)
+
+                    json.dump(new_file, file)
+
+                except json.JSONDecodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")
 
 
