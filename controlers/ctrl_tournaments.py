@@ -3,9 +3,11 @@ from tkinter import font, Entry
 from tkinter import ttk
 
 from core import core
+from core import french_date as date_fr
 from rotate import rotation
 from database import data_tournaments as data
-from models import mdl_tournament as model
+from models.mdl_tournament import TournamentMdl as T_class
+from models.mdl_round import RoundMdl as Round_class
 from views import view_tournaments as view
 
 
@@ -74,9 +76,11 @@ class TournamentsCtrl(core.Core):
                                  bg="#FEF9E7", name=er[0], fg="red", pady=None, text=er[1])
 
         elif name and address and day and month and year:
-            birth = year + '-' + month + '-' + day
+            birth = date_fr.FrenchDate().new_format_fr(year, month, day)
+
             self.tournament_treatment('create', new_frame, None, name, address, birth, number_turns,
                                       None, players)
+            self.new_all_players.clear()
         else:
             pass
 
@@ -126,11 +130,12 @@ class TournamentsCtrl(core.Core):
             pass
 
     def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players):
-        # instance tournoi
-        self.new_tournament = model.TournamentMdl(id_tour=id_tour, name=name, address=address, birth=birth,
-                                                  number_turns=number_turns, rounds=rounds, players=players)
-        if treatment == 'create':
 
+        # instance tournoi
+        self.new_tournament = T_class(id_tour=id_tour, name=name, address=address, birth=birth,
+                                      number_turns=number_turns, rounds=rounds, players=players)
+        if treatment == 'create':
+            # insertion json
             if data.TournamentData(self.new_tournament):
                 self.vue.detail_tournament(self.new_tournament)
             else:
@@ -139,7 +144,6 @@ class TournamentsCtrl(core.Core):
                                  text="Une erreur est survenue, veuillez réessayer.")
 
         elif treatment == 'data':
-
             self.vue.detail_tournament(self.new_tournament)
 
         """print(f"new_tour_choice_view =>")
@@ -162,7 +166,24 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
-    def update_score(self, new_scores):
+    def round_instance(self, new_round):
 
+        if 'list' == type(new_round):
+            instance_round = Round_class(new_round['round'], new_round['start'], new_round['finish'],
+                                         new_round['matchs'])
+
+        else:
+            instance_round = []
+            for _round in new_round:
+                rd_ = Round_class(_round['round'], _round['start'], _round['finish'], _round['matchs'])
+                instance_round.append(rd_)
+
+        return instance_round
+
+    def update_score(self, new_scores):
         if data.TournamentData().update_scores(new_scores):
-            print('ok')
+            pass
+
+    def update_date(self, data_date):
+        new_date = data.TournamentData().update_date(data_date)
+        return new_date

@@ -5,7 +5,7 @@ from tkinter import ttk
 from core import core
 from rotate import rotation
 from database import data_players as data
-from models import mdl_players as model
+from models import mdl_player as model
 from views import view_players as view
 
 
@@ -58,7 +58,8 @@ class PlayersCtrl(core.Core):
                                  name=er[0], fg="red", pady=None, text=er[1])
 
         elif identity and last_name and first_name and day and month and year:
-            birth = year + '-' + month + '-' + day
+            birth = date_fr.FrenchDate().new_format_fr(year, month, day)
+            # birth = year + '-' + month + '-' + day
 
             result = self.searching(search_type="compare", last_name=last_name, first_name=first_name, birth=birth)
             result2 = self.searching(search_type="searching", identity=identity)

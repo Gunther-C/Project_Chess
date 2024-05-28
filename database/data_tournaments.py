@@ -1,5 +1,6 @@
 import json
 import os
+from core import french_date as date_fr
 
 
 class TournamentData:
@@ -34,7 +35,7 @@ class TournamentData:
         try:
             with open("database/data_tournaments.json", "w", encoding="utf-8-sig", newline="") as file:
                 try:
-                    json.dump(current_file, file)
+                    json.dump(current_file, file, indent=4)
                     return True
                 except json.JSONEncodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")
@@ -47,56 +48,43 @@ class TournamentData:
             print("Erreur D'encodage :", err)
 
     def update_scores(self, new_scores):
-
         nw_sc = new_scores
-        print(new_scores)
-
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
 
                 try:
                     new_file = json.load(file)
-
-                    for rd in new_file:
+                    for tournament in new_file:
                         # tournoi
-                        if rd['id'] == nw_sc[0]:
+                        if tournament['id'] == nw_sc[0]:
                             # liste des rounds
-                            rounds = rd['Rounds']
-                            for rds in rounds:
-                                # choix du round
-                                if rds['round'] == nw_sc[1]:
+                            rounds = tournament['Rounds']
+                            rd = rounds[-1]
 
-                                    # liste des matchs
-                                    matchs = rds['matchs']
-                                    match = matchs[int(nw_sc[2])]
+                            # liste des matchs
+                            matchs = rd['matchs']
+                            match = matchs[int(nw_sc[1])]
 
-                                    player_1 = match[0]
-                                    player_2 = match[1]
+                            player_1 = match[0]
+                            player_2 = match[1]
 
-                                    if player_1[0] == nw_sc[3][0][0]:
-                                        if len(player_1) > 2:
-                                            player_1.remove(player_1[2])
-                                        player_1.append(nw_sc[3][0][1])
+                            if player_1[0] == nw_sc[2][0][0]:
+                                if len(player_1) > 2:
+                                    player_1.remove(player_1[2])
+                                    player_2.remove(player_2[2])
+                                player_1.append(nw_sc[2][0][1])
+                                player_2.append(nw_sc[2][1][1])
 
-                                    if player_1[0] == nw_sc[3][1][0]:
-                                        if len(player_1) > 2:
-                                            player_1.remove(player_1[2])
-                                        player_1.append(nw_sc[3][1][1])
-
-                                    if player_2[0] == nw_sc[3][0][0]:
-                                        if len(player_2) > 2:
-                                            player_2.remove(player_2[2])
-                                        player_2.append(nw_sc[3][0][1])
-
-                                    if player_2[0] == nw_sc[3][1][0]:
-                                        if len(player_2) > 2:
-                                            player_2.remove(player_2[2])
-                                        player_2.append(nw_sc[3][1][1])
-
+                            if player_2[0] == nw_sc[2][0][0]:
+                                if len(player_2) > 2:
+                                    player_2.remove(player_2[2])
+                                    player_1.remove(player_1[2])
+                                player_2.append(nw_sc[2][0][1])
+                                player_1.append(nw_sc[2][1][1])
 
                     file.seek(0)
 
-                    json.dump(new_file, file)
+                    json.dump(new_file, file, indent=4)
 
                 except json.JSONDecodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")
@@ -108,6 +96,43 @@ class TournamentData:
 
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
+
+    def update_date(self, data_date):
+
+        to_day = date_fr.FrenchDate().date_hour_fr
+        print(data_date)
+        try:
+            with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
+
+                try:
+                    new_file = json.load(file)
+
+                    for tournament in new_file:
+                        # tournoi
+                        if tournament['id'] == data_date[1]:
+                            # liste des rounds
+                            rounds = tournament['Rounds']
+                            rd = rounds[-1]
+
+                            if data_date[0] == 'start' and len(rd['start']) < 1:
+                                rd['start'] = to_day
+
+                    file.seek(0)
+
+                    json.dump(new_file, file, indent=4)
+
+                    return to_day
+
+                except json.JSONDecodeError as e:
+                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+
+        except IOError as er:
+            print("Erreur lors de l'ouverture du fichier :", er)
+            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+
+        except UnicodeEncodeError as err:
+            print("Erreur D'encodage :", err)
+
 
 
     @staticmethod

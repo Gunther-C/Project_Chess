@@ -72,7 +72,6 @@ class TournamentsViews(extend_view.ExtendViews):
             if len(self.se.new_all_players) > 0:
                 for nw_player in self.se.new_all_players:
                     data_tournament['players'].insert(0, nw_player)
-                self.se.new_all_players.clear()
 
             self.new_window[0].destroy()
             self.se.tournament_ctrl(self.frame, dt_tournament)
@@ -286,48 +285,72 @@ class TournamentsViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=10, justify=None, text="",
                    row=4, cols=0, colspan=None, sticky=None)
 
-        plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: listing())
+        plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: players_list())
         plr_create.grid(row=5, column=1,  ipadx=20, ipady=5)
 
         self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=20, ipady=None, justify=None, text="",
                    row=5, cols=2, colspan=None, sticky=None)
 
         plr_list = ttk.Button(self.frame, text="Liste des tours",
-                              command=lambda: self.list_rounds(tournament.id_tour, tournament.rounds))
+                              command=lambda: round_list())
         plr_list.grid(row=5, column=3, ipadx=20, ipady=5)
 
-        plr_list = ttk.Button(self.frame, text="<= Round en cours =>",
-                              command=lambda: self.schema_round(tournament.id_tour, tournament.rounds[-1]))
+        plr_list = ttk.Button(self.frame, text="<= Lancer le tour =>", command=lambda: round_start())
         plr_list.grid(row=6, columnspan=4, pady=40, ipadx=30, ipady=10)
 
-        def listing():
+        def players_list():
             view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
             self.new_window = view_list[0]
 
             submit_list = ttk.Button(view_list[1], text="Fermer", command=lambda: self.new_window[0].destroy())
             submit_list.grid(column=1, columnspan=7, pady=20, ipadx=5)
 
-    def schema_round(self, tournament_id, new_round: object):
+        def round_start():
+            last_round = tournament.rounds[-1]
+            if len(last_round['start']) < 1:
+                last_round['start'] = self.se.update_date(('start', tournament.id_tour))
+
+            new_round = self.se.round_instance(last_round)
+            self.schema_round(tournament.id_tour, new_round)
+
+        def round_list():
+            rounds = self.se.round_instance(tournament.rounds)
+            self.list_rounds(tournament.id_tour, rounds)
+
+
+    def schema_round(self, tournament_id: object, new_round: object):
+
+        """modif_round = False
+        last_round_id = tournament.rounds[-1]
+        last_round_id = last_round_id['round']
+        if last_round_id == new_round['round']:
+            modif_round = True"""
+
+        # tournament_id = tournament.id_tour
 
         if self.new_window:
             self.new_window[0].destroy()
 
-        self.new_window = self.se.listing_window(60, 90, 300, 30, f'Tour n° {new_round['round']}', '#FEF9E7')
+        self.new_window = self.se.listing_window(60, 90, 300, 30, f'Tour n° {new_round.id_round}', '#FEF9E7')
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", pady=10)
         self.new_frame.grid()
         self.new_frame.place(relx=0.5, rely=0, anchor='n')
 
+        if not new_round.finish:
+            new_round.finish = 'En cours'
+
         name = self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
-                          mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Tour n° {new_round['round']}",
+                          mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Tour n° {new_round.id_round}",
                           width=None, row=0, cols=0, colspan=2, sticky="w", padx=20, pady=15)
 
         start = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
-                           mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Débute le : {new_round['start']}",
-                           width=None, row=1, cols=0, colspan=2, sticky="w", padx=20, pady=5)
+                           mst=self.new_frame, bg="#FEF9E7", justify=None,
+                           text=f"Ouverture du tournoi le : {new_round.start}", width=None, row=1, cols=0, colspan=2,
+                           sticky="w", padx=20, pady=5)
 
         finish = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
-                            mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Fini le : {new_round['finish']}",
+                            mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Tournoi terminé le : {new_round.finish}",
                             width=None, row=2, cols=0, colspan=2, sticky="w", padx=20, pady=5)
 
         name.update()
@@ -348,50 +371,62 @@ class TournamentsViews(extend_view.ExtendViews):
         number_key = 0
 
         def action(winner, loser, parent):
+            if new_round.start and not new_round.finish:
+                match_key = parent.winfo_name()
 
-            round_id = new_round['round']
-            match_key = parent.winfo_name()
+                if not loser:
+                    extract = winner.find('-')
+                    id_player1 = winner[:extract]
+                    id_player2 = winner[extract + 1:]
+                    results = [(id_player1, 0.5), (id_player2, 0.5)]
+                else:
+                    id_player1 = winner[0]
+                    id_player2 = loser[0]
+                    results = [(id_player1, 1), (id_player2, 0)]
 
-            if not loser:
-                extract = winner.find('-')
-                id_player1 = winner[:extract]
-                id_player2 = winner[extract + 1:]
-                results = [(id_player1, 0.5), (id_player2, 0.5)]
+                for child in parent.winfo_children():
+                    id_name = child.winfo_name()
+                    id_n = id_name.find('id-')
+                    identity = id_name[id_n + 3:]
+                    if identity == id_player1:
+                        child.configure(foreground='green')
+                    if identity == id_player2:
+                        child.configure(foreground='red')
+                    if id_name == 'score':
+                        child['text'] = winner[1]
+                        if not loser:
+                            child['text'] = 'Match null'
+                            if identity == id_player1 or identity == id_player2:
+                                child.configure(foreground='red')
+
+                if winner:
+                    data_match = (tournament_id, match_key, results)
+                    self.se.update_score(data_match)
             else:
-                id_player1 = winner[0]
-                id_player2 = loser[0]
-                results = [(id_player1, 1), (id_player2, 0)]
-
-            for child in parent.winfo_children():
-                id_name = child.winfo_name()
-                id_n = id_name.find('id-')
-                identity = id_name[id_n + 3:]
-                if identity == id_player1:
-                    child.configure(foreground='green')
-                if identity == id_player2:
-                    child.configure(foreground='red')
-                if id_name == 'score':
-                    child['text'] = winner[1]
-                    if not loser:
-                        child['text'] = 'Match null'
-                        if identity == id_player1 or identity == id_player2:
-                            child.configure(foreground='red')
-
-            if winner:
-                data_match = (tournament_id, round_id, match_key, results)
-                self.se.update_score(data_match)
+                pass
 
         def player_1(player1, player2, parent, color):
             plr1_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                                font=lb_font, foreground=color, text=player1[1], name=f"id-{player1[0]}")
+                                font=lb_font, foreground=color, text=player1.name_plr1,
+                                name=f"id-{player1.identity_plr1}")
             plr1_widget.bind("<Button-1>", lambda e: action(player1, player2, parent))
             plr1_widget.grid(row=0, padx=10)
 
         def player_2(player2, player1, parent,color):
             plr2_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                                font=lb_font, foreground=color, text=player2[1], name=f"id-{player2[0]}")
+                                font=lb_font, foreground=color, text=player2.name_plr2,
+                                name=f"id-{player2.identity_plr2}")
             plr2_widget.bind("<Button-1>", lambda e: action(player2, player1, parent))
             plr2_widget.grid(row=2, padx=10)
+
+
+
+
+###############################################################
+
+
+
+
 
 
         for player in new_round['matchs']:
@@ -416,8 +451,12 @@ class TournamentsViews(extend_view.ExtendViews):
                     result_match = 'Match null'
                     foreground1 = 'blue'
                     foreground2 = 'blue'
+
                 else:
                     result_match = 'Annulé'
+
+            elif not new_round.start:
+                result_match = 'non lancé'
 
             match_frame = Frame(frame, name=str(number_key), highlightbackground="black", highlightthickness=1,
                                 bg="#f5cb8e", pady=30)
@@ -451,6 +490,10 @@ class TournamentsViews(extend_view.ExtendViews):
         col0_x = self.adjust_x(canvas, frame)
         col0 = Label(frame, bg="#ffffff")
         col0.grid(row=0, column=0, ipadx=col0_x[2])
+
+        submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {new_round['round']}",
+                                 command=lambda: self.new_window[0].destroy())
+        submit_list.grid(column=0, columnspan=2, pady=20, ipadx=5)
 
     def list_players(self, data_player, select_players, title):
         if self.new_window:
@@ -494,10 +537,15 @@ class TournamentsViews(extend_view.ExtendViews):
         if len(self.se.new_all_players) > 0:
             for nw_player in self.se.new_all_players:
                 value_cols = 1
+
                 for key in nw_player:
                     self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
                                justify="center", text=nw_player[key], row=next_line, cols=value_cols, colspan=None,
                                sticky=None)
+                    value_cols += 1
+
+                    label = Label(frame, bg="#ffffff", height=1, underline=1)
+                    label.grid(row=next_line, column=value_cols, padx=40)
                     value_cols += 1
 
                 if select_players:
@@ -547,8 +595,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         return self.new_window, frame
 
-    def list_rounds(self, tournament_id,  data_rounds):
-
+    def list_rounds(self, tournament_id: object,  data_rounds: list):
         if self.new_window:
             self.new_window[0].destroy()
         self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des tours', '#FEF9E7')
@@ -565,28 +612,30 @@ class TournamentsViews(extend_view.ExtendViews):
         cols_x = int(master_geometrie[0] - 100) // 4
         content_y = int(master_geometrie[1] / 3) // 12
 
-        """data_tournament = []
-        for x in range(10):
-            for tournament in data_tour:
-                data_tournament.append(tournament)"""
+        for rd in data_rounds:
+            if rd.start and not rd.finish:
+                rd.finish = 'En cours'
 
-        columns: tuple = ()
-        for cols in data_rounds[0]:
-            columns = columns + (cols,)
+            elif not rd.finish:
+                rd.finish = 'En attente de lancement'
+
+            if not rd.start:
+                rd.start = 'En attente de lancement'
+            count_matchs = len(rd.matchs_list)
+            rd.matchs_list = str(count_matchs)
+
+        columns: tuple = (1, 2, 3, 4)
+        header: tuple = ("Numéro", "Date d'ouverture", "Date de fin", "Nombre de match")
 
         content = ttk.Treeview(self.new_frame, columns=columns, show='headings', padding=20, height=content_y)
         content.tag_configure('highlight', background='lightblue')
 
-        for head in data_rounds[0]:
-            content.column(head, width=cols_x, anchor="center")
-            content.heading(head, text=head)
+        for x, head in enumerate(header):
+            content.column(columns[x], width=cols_x, anchor="center")
+            content.heading(columns[x], text=head)
 
-        for unity in data_rounds:
-            list_matchs = []
-            for keys, values in unity.items():
-                if keys == 'matchs':
-                    values = len(values)
-                list_matchs.append(values)
+        for rd in data_rounds:
+            list_matchs = [rd.id_round, rd.start, rd.finish, rd.matchs_list]
             content.insert('', END, values=list_matchs)
 
         def selected(event):
@@ -597,21 +646,16 @@ class TournamentsViews(extend_view.ExtendViews):
             if result:
                 found = False
                 number = 0
-
-                for tour in data_rounds:
-                    search = False
-                    for id_tr in tour:
-                        if id_tr == 'round' and tour[id_tr] == result[0]:
-                            search = True
-
-                    if search:
+                for _round in data_rounds:
+                    if _round.id_round == result[0]:
                         found = True
                         break
-                    else:
-                        number += 1
+
+                    number += 1
 
                 if found:
-                    self.schema_round(tournament_id, data_rounds[number])
+                    new_round = self.se.round_instance(data_rounds[number])
+                    self.schema_round(tournament_id, new_round)
 
         def hover(event):
             tree = event.widget

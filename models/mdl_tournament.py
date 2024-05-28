@@ -2,23 +2,23 @@ from faker import Faker
 import json
 import os
 import random
-from datetime import date
+from core import french_date as date_fr
 
 fake = Faker("fr_FR")
 
 
 class TournamentMdl:
-    def __init__(self, id_tour: str | None = None, name: str | None = None, address: str | None = None,
-                 birth: str | None = None,
-                 number_turns: str | None = None, rounds=None, players=None):
+    def __init__(self, id_tour: int | None = None, name: str | None = None, address: str | None = None,
+                 birth: str | None = None, number_turns: int | None = None, rounds: list | None = None,
+                 players: list | None = None):
 
         self.id_tour = None
         self.name = None
         self.address = None
         self.date = None
         self.number_turns = None
-        self.players = None
-        self.rounds = None
+        self.players = []
+        self.rounds = []
 
         if name and address and birth and number_turns and len(players) > 1:
             self.instance_tournament(id_tour, name, address, birth, number_turns, rounds, players)
@@ -26,6 +26,7 @@ class TournamentMdl:
     def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players):
 
         if id_tour:
+            # Tournoi éxistant
             self.id_tour = id_tour
 
         self.name = str(name).capitalize()
@@ -35,8 +36,11 @@ class TournamentMdl:
         self.players: list = players
 
         if rounds:
+            # Tournoi éxistant
             self.rounds: list = rounds
+
         else:
+            # Tournoi en création → Création premier round
             players_lists: list = []
             for player in players:
                 first_name = player.pop('Prénom', None)
@@ -44,6 +48,7 @@ class TournamentMdl:
                 player['Nom'] = f"{player['Nom']}.{capital}"
                 player_list = [player['Identité'], player['Nom']]
                 players_lists.append(player_list)
+
             first_match = self.pair(players_lists)
             self.rounds: list = [{"round": 1, "start": '', "finish": '', "matchs": first_match}]
 
