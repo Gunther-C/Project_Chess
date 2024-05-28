@@ -100,7 +100,6 @@ class TournamentData:
     def update_date(self, data_date):
 
         to_day = date_fr.FrenchDate().date_hour_fr
-        print(data_date)
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
 

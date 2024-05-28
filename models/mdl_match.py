@@ -14,16 +14,23 @@ class MatchMdl:
             self.instance_match(pair)
 
     def instance_match(self, pair):
-        for pr in pair:
-            if len(pr[0]) > 1 and len(pr[1]) > 1:
-                self.identity_plr1 = pr[0][0]
-                self.name_plr1 = pr[0][1]
-                if len(pr[0]) > 2:
-                    self.score_plr1 = pr[0][2]
+        # print(pair)
+        if len(pair[0]) > 1 and len(pair[1]) > 1:
+            self.identity_plr1 = pair[0][0]
+            self.name_plr1 = pair[0][1]
+            if len(pair[0]) > 2:
+                self.score_plr1 = pair[0][2]
 
-                self.identity_plr1 = pr[1][0]
-                self.name_plr1 = pr[1][1]
-                if len(pr[1]) > 2:
-                    self.score_plr1 = pr[1][2]
+            self.identity_plr2 = pair[1][0]
+            self.name_plr2 = pair[1][1]
+            if len(pair[1]) > 2:
+                self.score_plr2 = pair[1][2]
+
+            """print(self.identity_plr1)
+            print(self.name_plr1)
+            print(self.score_plr1)
+            print(self.identity_plr2)
+            print(self.name_plr2)
+            print(self.score_plr2)"""
 
 
