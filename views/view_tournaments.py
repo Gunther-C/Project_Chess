@@ -305,15 +305,16 @@ class TournamentsViews(extend_view.ExtendViews):
 
         def round_start():
             last_round = tournament.rounds[-1]
-            if len(last_round['start']) < 1:
-                last_round['start'] = self.se.update_date(('start', tournament.id_tour))
+            if not last_round.start:
+                last_round.start = self.se.update_date(('start', tournament.id_tour))
 
-            new_round = self.se.round_instance(last_round)
-            self.schema_round(tournament.id_tour, new_round)
+            # new_round = self.se.round_instance(last_round)
+            self.schema_round(tournament.id_tour, last_round)
 
         def round_list():
-            rounds = self.se.round_instance(tournament.rounds)
-            self.list_rounds(tournament.id_tour, rounds)
+            """rounds = self.se.round_instance(tournament.rounds)
+            self.list_rounds(tournament.id_tour, rounds)"""
+            self.list_rounds(tournament.id_tour, tournament.rounds)
 
     def schema_round(self, tournament_id: object, new_round: object):
 
@@ -667,8 +668,8 @@ class TournamentsViews(extend_view.ExtendViews):
                     number += 1
 
                 if found:
-                    new_round = self.se.round_instance(data_rounds[number])
-                    self.schema_round(tournament_id, new_round)
+                    # new_round = self.se.round_instance(data_rounds[number])
+                    self.schema_round(tournament_id, data_rounds[number])
 
         def hover(event):
             tree = event.widget

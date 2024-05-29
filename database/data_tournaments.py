@@ -9,7 +9,21 @@ class TournamentData:
 
         self.data: dict = {}
 
+        self.identity_plr1 = None
+        self.name_plr1 = None
+        self.score_plr1 = None
+
+        self.identity_plr2 = None
+        self.name_plr2 = None
+
         if new_data:
+            _rd = new_data.rounds[0]
+            match_list = []
+            for match in _rd.matchs_list:
+                match_list.append(([match.identity_plr1, match.name_plr1], [match.identity_plr2, match.name_plr2]))
+
+            rounds: list = [{"round": _rd.id_round, "start": '', "finish": '', "matchs": match_list}]
+            print(rounds)
             self.data = {
                 'id': int(1),
                 'Nom': str(new_data.name).capitalize(),
@@ -17,7 +31,7 @@ class TournamentData:
                 'Date': str(new_data.date),
                 'Nombre de manche': int(new_data.number_turns),
                 'Joueurs': new_data.players,
-                'Rounds': new_data.rounds
+                'Rounds': rounds
             }
             self.insert_tournament()
 

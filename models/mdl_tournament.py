@@ -3,7 +3,7 @@ import json
 import os
 import random
 from core import french_date as date_fr
-
+from models.mdl_round import RoundMdl as R_mdl
 fake = Faker("fr_FR")
 
 
@@ -37,7 +37,10 @@ class TournamentMdl:
 
         if rounds:
             # Tournoi éxistant
-            self.rounds: list = rounds
+            for _round in rounds:
+                rd_ = R_mdl(_round['round'], _round['start'], _round['finish'], _round['matchs'])
+                self.rounds.append(rd_)
+            # self.rounds: list = rounds
 
         else:
             # Tournoi en création → Création premier round
@@ -50,7 +53,9 @@ class TournamentMdl:
                 players_lists.append(player_list)
 
             first_match = self.pair(players_lists)
-            self.rounds: list = [{"round": 1, "start": '', "finish": '', "matchs": first_match}]
+            rd_ = R_mdl(1, None, None, first_match)
+            self.rounds.append(rd_)
+            # self.rounds: list = [{"round": 1, "start": '', "finish": '', "matchs": first_match}]
 
     def pair(self, match) -> list:
         players_count = int(len(match) / 2)

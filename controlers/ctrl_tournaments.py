@@ -6,8 +6,10 @@ from core import core
 from core import french_date as date_fr
 from rotate import rotation
 from database import data_tournaments as data
+
 from models.mdl_tournament import TournamentMdl as T_class
 from models.mdl_round import RoundMdl as Round_class
+
 from views import view_tournaments as view
 
 
@@ -166,7 +168,7 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
-    def round_instance(self, new_round):
+    """def round_instance(self, new_round):
 
         if type(new_round) is dict:
             instance_round = Round_class(new_round['round'], new_round['start'], new_round['finish'],
@@ -181,7 +183,7 @@ class TournamentsCtrl(core.Core):
         else:
             instance_round = new_round
 
-        return instance_round
+        return instance_round"""
 
     def update_score(self, new_scores):
         if data.TournamentData().update_scores(new_scores):
