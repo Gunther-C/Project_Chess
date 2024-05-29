@@ -15,10 +15,7 @@ class PlayersData:
                 'Nom': str(player.last_name).capitalize(),
                 'Prénom': str(player.first_name).capitalize(),
                 'Date de naissance': str(player.birth),
-                'Tournoi réalisé': int(0),
-                'Tournoi gagné': int(0),
-                'partie réalisée': int(0),
-                'partie gagnée': int(0)
+                'Point': int(0),
             }
             self.insert_player()
 
@@ -38,7 +35,7 @@ class PlayersData:
             with open("database/data_players.json", "w", encoding="utf-8-sig", newline="") as file:
 
                 try:
-                    json.dump(current_file, file)
+                    json.dump(current_file, file, indent=4)
                     return True
                 except json.JSONEncodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")

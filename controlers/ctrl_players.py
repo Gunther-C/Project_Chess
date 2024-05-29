@@ -7,6 +7,7 @@ from rotate import rotation
 from database import data_players as data
 from models import mdl_player as model
 from views import view_players as view
+from core import french_date as date_fr
 
 
 class PlayersCtrl(core.Core):
@@ -24,12 +25,16 @@ class PlayersCtrl(core.Core):
 
     def player_ctrl(self, new_frame, data_player):
         errors_dict = {}
+        identity = data_player['identity'].get()
         last_name = data_player['last_name'].get()
         first_name = data_player['first_name'].get()
         day = data_player['birth']['day'].get()
         month = data_player['birth']['month'].get()
         year = data_player['birth']['year'].get()
-        identity = data_player['identity'].get()
+        point = data_player['point'].get()
+
+        if identity:
+            errors_dict['identity'] = self.identity_verif(identity)
 
         if last_name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
@@ -46,8 +51,10 @@ class PlayersCtrl(core.Core):
         if year:
             errors_dict['ctrl_year'] = self.number_verif("L'année joueur", year)
 
-        if identity:
-            errors_dict['identity'] = self.identity_verif(identity)
+        if point:
+            errors_dict['ctrl_point'] = self.number_verif("Point", point)
+            if not errors_dict['ctrl_point']:
+                point = int(point)
 
         self.destroy_error(new_frame, 1)
 
@@ -74,8 +81,14 @@ class PlayersCtrl(core.Core):
             else:
                 # instance d'un joueur
                 self.new_player = model.PlayersMdl(identity=identity, last_name=last_name, first_name=first_name,
-                                                   birth=birth)
-                self.vue.insert_player(self.new_player)
+                                                   birth=birth, point=point)
+
+                print(self.new_player.identity)
+                print(self.new_player.last_name)
+                print(self.new_player.first_name)
+                print(self.new_player.birth)
+                print(self.new_player.point)
+                # self.vue.insert_player(self.new_player)
         else:
             pass
 
@@ -184,10 +197,10 @@ class PlayersCtrl(core.Core):
                 self.vue.list_player('Liste par ordre alphabétique', ordered)
 
             case 'tournaments':
-                ordered = sorted(file_players, key=lambda x: x['Tournoi gagné'], reverse=True)
-                self.vue.list_player('Liste par tournoi(s) gagné(s)', ordered)
+                ordered = sorted(file_players, key=lambda x: x['id'])
+                self.vue.list_player("Liste par odre d'inscription", ordered)
 
             case 'games':
-                ordered = sorted(file_players, key=lambda x: x['partie gagnée'], reverse=True)
-                self.vue.list_player('Liste par partie(s) gagnée(s)', ordered)
-
+                ordered = sorted(file_players, key=lambda x: x['Point'])
+                self.vue.list_player("Liste par point(s)", ordered)
+                # , reverse=True

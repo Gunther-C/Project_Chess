@@ -171,8 +171,8 @@ class Core(Tk):
 
         if number:
             number = number.replace(" ", "").strip()
-            new_nbr = re.search(r"[a-zA-Z]+", number)
-            if new_nbr:
+            new_nbr = number.isdigit()
+            if not new_nbr:
                 return f"{arg_type} doit comporter uniquement des chiffres"
             else:
                 match arg_type:
@@ -185,12 +185,16 @@ class Core(Tk):
                     case "L'année joueur":
                         if int(number) < 1900 or int(number) > 2016 or not len(number) == 4:
                             return f"{arg_type} doit comporter un nombre entre 1900 et 2016"
+                        elif number[0] == '0':
+                            return f"{arg_type} ne doit pas commencer par un ( 0 )"
                     case "L'année tournoi":
                         if not len(number) == 4:
                             return f"{arg_type} doit comporter un nombre à 4 chiffres"
+                        elif number[0] == '0':
+                            return f"{arg_type} ne doit pas commencer par un ( 0 )"
                     case "numberRound":
                         if int(number) < 1 or int(number) > 99:
-                            return f"{arg_type} doit comporter un nombre entre 1 et 99"
+                            return f"Le nombre de rounds doit comporter un nombre entre 1 et 99"
 
     @staticmethod
     def date_verif(*args) -> False:
@@ -204,8 +208,8 @@ class Core(Tk):
     def string_verif(arg_type, text) -> False:
         if text:
             text = text.replace(" ", "").strip()
-            new_text = re.search(r"[0-9]+", text)
-            if new_text:
+            new_text = text.isalpha()
+            if not new_text:
                 return f"{arg_type} doit comporter uniquement du texte"
 
     @staticmethod
@@ -258,7 +262,7 @@ class Core(Tk):
                     return True
 
     @staticmethod
-    def instance_player(data_player, key=None, value=None):
+    def format_player(data_player, key=None, value=None):
         if key and value:
             match key:
                 case 'Identité':

@@ -59,10 +59,10 @@ class TournamentsViews(extend_view.ExtendViews):
         dt_player = sorted(file_players, key=lambda x: x['Nom'])
         # Récupérer uniquement identité, nom et prénom avec self.se.instance_player
         for plr in dt_player:
-            instance_player: dict = {}
+            ft_player: dict = {}
             for keys, values in plr.items():
-                instance_player = self.se.instance_player(instance_player, keys, values)
-            data_player.append(instance_player)
+                instance_player = self.se.format_player(ft_player, keys, values)
+            data_player.append(ft_player)
 
         select_players = [BooleanVar() for _ in data_player]
 
@@ -528,6 +528,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         # En tète listing
         title_cols = 1
+
         if not select_players:
             label = Label(frame, bg="#ffffff", height=1, underline=1)
             label.grid(row=1, column=title_cols, padx=40)
@@ -543,12 +544,16 @@ class TournamentsViews(extend_view.ExtendViews):
             label.grid(row=1, column=title_cols, padx=40)
             title_cols += 1
 
+        player_supp = []
         next_line = 2
         if len(self.se.new_all_players) > 0:
             for nw_player in self.se.new_all_players:
                 value_cols = 1
 
                 for key in nw_player:
+                    if key == 'Identité':
+                        player_supp.append(nw_player[key])
+
                     self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
                                justify="center", text=nw_player[key], row=next_line, cols=value_cols, colspan=None,
                                sticky=None)
@@ -577,20 +582,26 @@ class TournamentsViews(extend_view.ExtendViews):
                 label.grid(row=next_line, column=value_cols, padx=40)
                 value_cols += 1
 
-            for ks in infos_player:
-                self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                           justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
-                           sticky=None)
-                value_cols += 1
+            equal = None
+            for sup_id in player_supp:
+                if sup_id == infos_player['Identité']:
+                    equal = True
 
-                label = Label(frame, bg="#ffffff", height=1, underline=1)
-                label.grid(row=next_line, column=value_cols, padx=40)
-                value_cols += 1
+            if not equal:
+                for ks in infos_player:
+                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
+                               justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
+                               sticky=None)
+                    value_cols += 1
 
-            if select_players:
-                self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
-                                  bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
-                                  state="normal", cols=value_cols, row=next_line, sticky=None)
+                    label = Label(frame, bg="#ffffff", height=1, underline=1)
+                    label.grid(row=next_line, column=value_cols, padx=40)
+                    value_cols += 1
+
+                if select_players:
+                    self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
+                                      bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
+                                      state="normal", cols=value_cols, row=next_line, sticky=None)
             next_line += 1
 
         canvas.update()

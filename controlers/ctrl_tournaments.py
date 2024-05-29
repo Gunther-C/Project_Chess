@@ -13,6 +13,22 @@ from models.mdl_round import RoundMdl as Round_class
 from views import view_tournaments as view
 
 
+
+
+
+
+
+
+
+# si enregistrement du joueur avant la création tournoi ne pas mettre un doublons avec new_player
+# def __init__(self, new_player=None):
+
+
+
+
+
+
+
 class TournamentsCtrl(core.Core):
     def __init__(self, new_player=None):
         super().__init__()

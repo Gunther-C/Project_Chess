@@ -32,9 +32,9 @@ class PlayersViews(extend_view.ExtendViews):
     def menu_list(self):
         if not self.se.widjets_menu2:
             self.se.menu_listing.add_command(label="Ordre alphabétique", command=lambda: self.se.recover_list('names'))
-            self.se.menu_listing.add_command(label="Tournoi(s) gagné(s)",
+            self.se.menu_listing.add_command(label="Odre d'inscription",
                                              command=lambda: self.se.recover_list('tournaments'))
-            self.se.menu_listing.add_command(label="Partie(s) gagnée(s)", command=lambda: self.se.recover_list('games'))
+            self.se.menu_listing.add_command(label="Point(s) gagné(s)", command=lambda: self.se.recover_list('games'))
             self.se.widjets_menu2 = True
 
     def menu_search(self):
@@ -47,22 +47,28 @@ class PlayersViews(extend_view.ExtendViews):
         self.se.clear_frame(self.frame)
         view_master = self.se.master_window(50, 60)
         self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
-        self.frame.place(relx=0.5, rely=0.4, anchor='center')
+        self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
                            mst=self.frame, bg="#FEF9E7", justify=None, text="Nouveau joueur : ", width=None,
                            row=0, cols=None, colspan=7, sticky=None, padx=None, pady=None)
 
-        last_name = self.input_text(mst=self.frame, lb_row=2, ip_row=3, cols=1, colspan=5, bg="#FEF9E7",
-                                    text="Nom : ", ip_wh=20)
-        first_name = self.input_text(mst=self.frame, lb_row=5, ip_row=6, cols=1, colspan=5, bg="#FEF9E7",
-                                     text="Prénom : ", ip_wh=20)
-        birth = self.input_date(mst=self.frame, lb_row=8, ip_row=9, bg="#FEF9E7", text="Date de naissance : ")
-
-        identity = self.input_text(mst=self.frame, lb_row=11, ip_row=12, cols=1, colspan=5, bg="#FEF9E7",
+        identity = self.input_text(mst=self.frame, lb_row=2, ip_row=3, cols=1, colspan=5, bg="#FEF9E7",
                                    text="Identifiant : ", ip_wh=20)
 
-        data_player = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'birth': birth}
+        last_name = self.input_text(mst=self.frame, lb_row=5, ip_row=6, cols=1, colspan=5, bg="#FEF9E7",
+                                    text="Nom : ", ip_wh=20)
+
+        first_name = self.input_text(mst=self.frame, lb_row=8, ip_row=9, cols=1, colspan=5, bg="#FEF9E7",
+                                     text="Prénom : ", ip_wh=20)
+
+        birth = self.input_date(mst=self.frame, lb_row=11, ip_row=12, bg="#FEF9E7", text="Date de naissance : ")
+
+        point = self.input_text(mst=self.frame, lb_row=14, ip_row=15, cols=1, colspan=5, bg="#FEF9E7",
+                                text="Point(s) : ", ip_wh=10)
+        point.insert(0, "0")
+        data_player = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'birth': birth,
+                       'point': point}
 
         submit = ttk.Button(self.frame, text="  Valider  ",
                             command=lambda: self.se.player_ctrl(self.frame, data_player))
@@ -77,6 +83,8 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=7, cols=0, colspan=None, sticky=None)
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
+        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
+                   justify=None, text="", row=13, cols=6, colspan=None, sticky=None)
 
     def insert_player(self, data_pl: object):
         data_player = {
@@ -208,7 +216,7 @@ class PlayersViews(extend_view.ExtendViews):
                            bg="#FEF9E7", justify=None, text="Résultat de la recherche : ", width=None, row=0, cols=None,
                            colspan=5, sticky=None, padx=None, pady=None)
         next_line = 2
-        instance_player = {}
+        list_player = {}
         for keys, values in data_player.items():
             self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=self.frame,
                        bg="#FEF9E7", justify="right", text=keys, width=None, row=next_line, cols=1, colspan=None,
@@ -216,11 +224,11 @@ class PlayersViews(extend_view.ExtendViews):
             self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None, justify="left",
                        text=values, row=next_line, cols=3, colspan=None, sticky="w")
 
-            instance_player = self.se.instance_player(instance_player, keys, values)
+            list_player = self.se.format_player(list_player, keys, values)
             next_line += 1
 
         create_trt = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ",
-                                command=lambda: self.se.save_or_tournament('tournament', instance_player))
+                                command=lambda: self.se.save_or_tournament('tournament', list_player))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
@@ -298,7 +306,6 @@ class PlayersViews(extend_view.ExtendViews):
         scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=content.yview)
         content.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=1, column=1, sticky='ns')
-
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
