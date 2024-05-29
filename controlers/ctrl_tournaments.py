@@ -168,10 +168,7 @@ class TournamentsCtrl(core.Core):
 
     def round_instance(self, new_round):
 
-        instance_round = None
-
         if type(new_round) is dict:
-            print(f"round_instance => {new_round}")
             instance_round = Round_class(new_round['round'], new_round['start'], new_round['finish'],
                                          new_round['matchs'])
 
@@ -180,6 +177,9 @@ class TournamentsCtrl(core.Core):
             for _round in new_round:
                 rd_ = Round_class(_round['round'], _round['start'], _round['finish'], _round['matchs'])
                 instance_round.append(rd_)
+
+        else:
+            instance_round = new_round
 
         return instance_round
 

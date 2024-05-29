@@ -317,7 +317,6 @@ class TournamentsViews(extend_view.ExtendViews):
 
     def schema_round(self, tournament_id: object, new_round: object):
 
-        print(f"schema_round => {tournament_id}")
         print(f"schema_round => {new_round}")
 
         id_round = None
@@ -337,27 +336,33 @@ class TournamentsViews(extend_view.ExtendViews):
         if self.new_window:
             self.new_window[0].destroy()
 
-        self.new_window = self.se.listing_window(60, 90, 300, 30, f'Tour n° {new_round.id_round}', '#FEF9E7')
+        self.new_window = self.se.listing_window(60, 90, 100, 30, f'Round n° {new_round.id_round}', '#FEF9E7')
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", pady=10)
         self.new_frame.grid()
         self.new_frame.place(relx=0.5, rely=0, anchor='n')
 
-        finish_text = None
-        if not text_finish:
-            finish_text = 'En cours'
+        if not tex_start:
+            start_text = "Ce round n'est pas encore lancé"
+            finish_text = 'En attente'
+        else:
+            start_text = tex_start
+            if not text_finish:
+                finish_text = 'En cours'
+            else:
+                finish_text = text_finish
 
         name = self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
-                          mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Tour n° {id_round}",
+                          mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round n° {id_round}",
                           width=None, row=0, cols=0, colspan=2, sticky="w", padx=20, pady=15)
 
         start = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
                            mst=self.new_frame, bg="#FEF9E7", justify=None,
-                           text=f"Ouverture du tournoi le : {tex_start}", width=None, row=1, cols=0, colspan=2,
+                           text=f"Ouverture du round le : {start_text}", width=None, row=1, cols=0, colspan=2,
                            sticky="w", padx=20, pady=5)
 
         finish = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
-                            mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Tournoi terminé le : {finish_text}",
+                            mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round terminé le : {finish_text}",
                             width=None, row=2, cols=0, colspan=2, sticky="w", padx=20, pady=5)
 
         name.update()
@@ -437,19 +442,19 @@ class TournamentsViews(extend_view.ExtendViews):
             foreground1 = 'black'
             foreground2 = 'black'
 
-            if plr.score_plr1 and plr.score_plr2:
+            if plr.score_plr1 or plr.score_plr2:
 
-                if float(plr.score_plr1) > float(plr.score_plr2):
+                if plr.score_plr1 > plr.score_plr2:
                     result_match = plr.name_plr1
                     foreground1 = 'green'
                     foreground2 = 'red'
 
-                elif float(plr.score_plr1) < float(plr.score_plr2):
+                elif plr.score_plr2 > plr.score_plr1:
                     result_match = plr.name_plr2
                     foreground1 = 'red'
                     foreground2 = 'green'
 
-                elif float(plr.score_plr1) == 0.5 and float(plr.score_plr2) == 0.5:
+                elif plr.score_plr1 == plr.score_plr2:
                     result_match = 'Match null'
                     foreground1 = 'blue'
                     foreground2 = 'blue'
@@ -602,7 +607,7 @@ class TournamentsViews(extend_view.ExtendViews):
     def list_rounds(self, tournament_id: object,  data_rounds: list):
         if self.new_window:
             self.new_window[0].destroy()
-        self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des tours', '#FEF9E7')
+        self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des rounds', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
@@ -610,26 +615,31 @@ class TournamentsViews(extend_view.ExtendViews):
         self.new_frame.place(relx=0.5, rely=0, anchor='n')
 
         self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
-                   mst=self.new_frame, bg="#FEF9E7", justify=None, text="Liste des tours", width=None, row=0,
+                   mst=self.new_frame, bg="#FEF9E7", justify=None, text="Liste des Rounds", width=None, row=0,
                    cols=None, colspan=2, sticky=None, padx=None, pady=15)
 
         cols_x = int(master_geometrie[0] - 100) // 4
         content_y = int(master_geometrie[1] / 3) // 12
 
+        views_rounds = []
         for rd in data_rounds:
-            if rd.start and not rd.finish:
-                rd.finish = 'En cours'
+            rd_view = [rd.id_round, rd.start, rd.finish, rd.matchs_list]
 
-            elif not rd.finish:
-                rd.finish = 'En attente de lancement'
+            if rd_view[1] and not rd_view[2]:
+                rd_view[2] = 'En cours'
 
-            if not rd.start:
-                rd.start = 'En attente de lancement'
-            count_matchs = len(rd.matchs_list)
-            rd.matchs_list = str(count_matchs)
+            elif not rd_view[2]:
+                rd_view[2] = 'En attente de lancement'
+
+            if not rd_view[1]:
+                rd_view[1] = 'En attente de lancement'
+
+            rd_view[3] = len(rd_view[3])
+
+            views_rounds.append(rd_view)
 
         columns: tuple = (1, 2, 3, 4)
-        header: tuple = ("Numéro", "Date d'ouverture", "Date de fin", "Nombre de match")
+        header: tuple = ("Numéro", "Date d'ouverture", "Date de fin", "Nombre de matchs")
 
         content = ttk.Treeview(self.new_frame, columns=columns, show='headings', padding=20, height=content_y)
         content.tag_configure('highlight', background='lightblue')
@@ -638,8 +648,8 @@ class TournamentsViews(extend_view.ExtendViews):
             content.column(columns[x], width=cols_x, anchor="center")
             content.heading(columns[x], text=head)
 
-        for rd in data_rounds:
-            list_matchs = [rd.id_round, rd.start, rd.finish, rd.matchs_list]
+        for rd in views_rounds:
+            list_matchs = [rd[0], rd[1], rd[2], rd[3]]
             content.insert('', END, values=list_matchs)
 
         def selected(event):
@@ -654,7 +664,6 @@ class TournamentsViews(extend_view.ExtendViews):
                     if _round.id_round == result[0]:
                         found = True
                         break
-
                     number += 1
 
                 if found:
