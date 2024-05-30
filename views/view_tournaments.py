@@ -57,11 +57,12 @@ class TournamentsViews(extend_view.ExtendViews):
 
         file_players = self.se.players_list()
         dt_player = sorted(file_players, key=lambda x: x['Nom'])
-        # Récupérer uniquement identité, nom et prénom avec self.se.instance_player
+        # Récupérer uniquement identité, nom et prénom avec self.se.format_player
+
         for plr in dt_player:
             ft_player: dict = {}
             for keys, values in plr.items():
-                instance_player = self.se.format_player(ft_player, keys, values)
+                ft_player = self.se.format_player(ft_player, keys, values)
             data_player.append(ft_player)
 
         select_players = [BooleanVar() for _ in data_player]
@@ -337,7 +338,7 @@ class TournamentsViews(extend_view.ExtendViews):
         if self.new_window:
             self.new_window[0].destroy()
 
-        self.new_window = self.se.listing_window(60, 90, 100, 30, f'Round n° {new_round.id_round}', '#FEF9E7')
+        self.new_window = self.se.listing_window(60, 90, 100, 30, f'Round n° {id_round}', '#FEF9E7')
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", pady=10)
         self.new_frame.grid()
@@ -529,12 +530,21 @@ class TournamentsViews(extend_view.ExtendViews):
         # En tète listing
         title_cols = 1
 
+
+
+
+
+        #############################################################
+
+
+        # PRénom dans la selection pas dans la liste du tournoi
+        header = ("Numéro d'Identité", "Nom du joueur")
         if not select_players:
             label = Label(frame, bg="#ffffff", height=1, underline=1)
             label.grid(row=1, column=title_cols, padx=40)
             title_cols += 1
 
-        for title_list in data_player[0]:
+        for title_list in header:
             self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=frame,
                        bg="#ffffff", justify="center", text=title_list, width=None, row=1,
                        cols=title_cols, colspan=None, sticky=None, padx=None, pady=5)
@@ -549,10 +559,7 @@ class TournamentsViews(extend_view.ExtendViews):
         if len(self.se.new_all_players) > 0:
             for nw_player in self.se.new_all_players:
                 value_cols = 1
-
-                for key in nw_player:
-                    if key == 'Identité':
-                        player_supp.append(nw_player[key])
+                player_supp.append(nw_player['identity'])
 
                     self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
                                justify="center", text=nw_player[key], row=next_line, cols=value_cols, colspan=None,
@@ -584,7 +591,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
             equal = None
             for sup_id in player_supp:
-                if sup_id == infos_player['Identité']:
+                if sup_id == infos_player['identity']:
                     equal = True
 
             if not equal:

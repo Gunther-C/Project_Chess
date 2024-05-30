@@ -52,9 +52,9 @@ class PlayersCtrl(core.Core):
             errors_dict['ctrl_year'] = self.number_verif("L'année joueur", year)
 
         if point:
-            errors_dict['ctrl_point'] = self.number_verif("Point", point)
+            errors_dict['ctrl_point'] = self.number_float_verif("Le Point", point)
             if not errors_dict['ctrl_point']:
-                point = int(point)
+                point = float(point)
 
         self.destroy_error(new_frame, 1)
 
@@ -66,7 +66,6 @@ class PlayersCtrl(core.Core):
 
         elif identity and last_name and first_name and day and month and year:
             birth = date_fr.FrenchDate().new_format_fr(year, month, day)
-            # birth = year + '-' + month + '-' + day
 
             result = self.searching(search_type="compare", last_name=last_name, first_name=first_name, birth=birth)
             result2 = self.searching(search_type="searching", identity=identity)
@@ -80,48 +79,35 @@ class PlayersCtrl(core.Core):
                                  name="error1", fg="red", pady=10, text="Ce numéro d'identité éxiste déja !")
             else:
                 # instance d'un joueur
-                self.new_player = model.PlayersMdl(identity=identity, last_name=last_name, first_name=first_name,
-                                                   birth=birth, point=point)
-
-                print(self.new_player.identity)
-                print(self.new_player.last_name)
-                print(self.new_player.first_name)
-                print(self.new_player.birth)
-                print(self.new_player.point)
-                # self.vue.insert_player(self.new_player)
+                self.new_player = self.instance_player(None, identity, last_name, first_name, birth, point)
+                self.vue.insert_player(self.new_player)
         else:
             pass
 
     def save_or_tournament(self, result, data_player):
         match result:
             case 'save':
-                if data.PlayersData(self.new_player):
+                if data.PlayersData(data_player):
                     self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
                                      bg="#FEF9E7",
-                                     name="success", fg="blue", pady=10, text="Joueur inséré")
+                                     name="success", fg="green", pady=10, text="Nouveau joueur inséré")
                 else:
                     self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
                                      bg="#FEF9E7", name="error", fg="red", pady=10,
                                      text="Une erreur est survenue, veuillez réessayer.")
 
             case 'tournament':
-                data_player.pop('Date de naissance', None)
-                if len(data_player) == 3:
-                    self.create_new_tournament(data_player)
-                else:
-                    self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
-                                     bg="#FEF9E7", name="error1", fg="red", pady=10,
-                                     text="La création du joueur à échoué")
+                self.create_new_tournament(data_player)
+
             case _:
                 pass
 
-    ###
-
     def search_menu(self, new_frame, result):
-        if 'Nom' in result:
+
+        if 'last_name' in result:
             self.search_ctrl_name(new_frame, result)
 
-        elif 'Identité' in result:
+        elif 'identity' in result:
             self.search_ctrl_identity(new_frame, result)
 
         else:
@@ -132,7 +118,7 @@ class PlayersCtrl(core.Core):
         if result:
             errors_dict = {}
 
-            last_name = result['Nom'].get()
+            last_name = result['last_name'].get()
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
             errors_dict['ctrl_lst_2'] = self.string_verif("Le Nom", last_name)
 
@@ -148,10 +134,20 @@ class PlayersCtrl(core.Core):
                 new_search = self.searching(search_type="searching", last_name=last_name)
 
                 if len(new_search) > 1:
-                    self.vue.matching_multi_players(new_search)
+                    player_list = []
+                    for player in new_search:
+                        inst_player = self.instance_player(player['id'], player['identity'], player['last_name'],
+                                                           player['first_name'], player['birth'], player['point'])
+                        player_list.append(inst_player)
+                    self.vue.matching_multi_players(player_list)
 
                 elif len(new_search) == 1:
-                    self.vue.matching_player(new_search[0])
+                    new_plr = new_search[0]
+                    # instance d'un joueur
+                    self.new_player = self.instance_player(new_plr['id'], new_plr['identity'], new_plr['last_name'],
+                                                           new_plr['first_name'], new_plr['birth'], new_plr['point'])
+                    self.vue.matching_player(self.new_player)
+
                 else:
                     self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
                                      bg="#FEF9E7", name="error1", fg="red", pady=10, text="Ce joueur n'éxiste pas")
@@ -161,7 +157,7 @@ class PlayersCtrl(core.Core):
     def search_ctrl_identity(self, new_frame, result=None):
 
         if result:
-            identity = result['Identité'].get()
+            identity = result['identity'].get()
             verif = self.identity_verif(identity)
             errors_dict = {'identity': verif}
 
@@ -175,7 +171,11 @@ class PlayersCtrl(core.Core):
             else:
                 new_search = self.searching(search_type="searching", identity=identity)
                 if len(new_search) > 0:
-                    self.vue.matching_player(new_search[0])
+                    new_plr = new_search[0]
+                    # instance d'un joueur
+                    self.new_player = self.instance_player(new_plr['id'], new_plr['identity'], new_plr['last_name'],
+                                                           new_plr['first_name'], new_plr['birth'], new_plr['point'])
+                    self.vue.matching_player(self.new_player)
 
                 else:
                     self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
@@ -183,24 +183,40 @@ class PlayersCtrl(core.Core):
         else:
             pass
 
+    def recover_list(self, type_list=None):
+
+        file_players = self.players_list()
+        title = ""
+        listing = []
+        ordered = None
+
+        match type_list:
+            case 'name':
+                ordered = sorted(file_players, key=lambda x: x['last_name'])
+                title = " Liste par ordre alphabétique "
+
+            case 'registration':
+                ordered = sorted(file_players, key=lambda x: x['id'])
+                title = " Liste par odre d'inscription "
+
+            case 'score':
+                # , reverse=True
+                ordered = sorted(file_players, key=lambda x: x['point'])
+                title = " Liste par ordre de point "
+
+        if ordered:
+            for player in ordered:
+                new_player = self.instance_player(player['id'], player['identity'], player['last_name'], player['first_name'],
+                                                  player['birth'], player['point'])
+                listing.append(new_player)
+
+            self.vue.list_players(title, listing)
+
     def create_new_tournament(self, player_tournament):
         self.destroy()
         rotation('t', player_tournament)
 
-    def recover_list(self, type_list=None):
-
-        file_players = self.players_list()
-
-        match type_list:
-            case 'names':
-                ordered = sorted(file_players, key=lambda x: x['Nom'])
-                self.vue.list_player('Liste par ordre alphabétique', ordered)
-
-            case 'tournaments':
-                ordered = sorted(file_players, key=lambda x: x['id'])
-                self.vue.list_player("Liste par odre d'inscription", ordered)
-
-            case 'games':
-                ordered = sorted(file_players, key=lambda x: x['Point'])
-                self.vue.list_player("Liste par point(s)", ordered)
-                # , reverse=True
+    def instance_player(self, id_player, identity, last_name, first_name, birth, point):
+        instance = model.PlayersMdl(id_player=id_player, identity=identity, last_name=last_name, first_name=first_name,
+                                    birth=birth, point=point)
+        return instance

@@ -13,22 +13,6 @@ from models.mdl_round import RoundMdl as Round_class
 from views import view_tournaments as view
 
 
-
-
-
-
-
-
-
-# si enregistrement du joueur avant la création tournoi ne pas mettre un doublons avec new_player
-# def __init__(self, new_player=None):
-
-
-
-
-
-
-
 class TournamentsCtrl(core.Core):
     def __init__(self, new_player=None):
         super().__init__()
@@ -184,22 +168,7 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
-    """def round_instance(self, new_round):
 
-        if type(new_round) is dict:
-            instance_round = Round_class(new_round['round'], new_round['start'], new_round['finish'],
-                                         new_round['matchs'])
-
-        elif type(new_round) is list:
-            instance_round = []
-            for _round in new_round:
-                rd_ = Round_class(_round['round'], _round['start'], _round['finish'], _round['matchs'])
-                instance_round.append(rd_)
-
-        else:
-            instance_round = new_round
-
-        return instance_round"""
 
     def update_score(self, new_scores):
         if data.TournamentData().update_scores(new_scores):

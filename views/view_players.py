@@ -31,22 +31,22 @@ class PlayersViews(extend_view.ExtendViews):
 
     def menu_list(self):
         if not self.se.widjets_menu2:
-            self.se.menu_listing.add_command(label="Ordre alphabétique", command=lambda: self.se.recover_list('names'))
+            self.se.menu_listing.add_command(label="Ordre alphabétique", command=lambda: self.se.recover_list('name'))
             self.se.menu_listing.add_command(label="Odre d'inscription",
-                                             command=lambda: self.se.recover_list('tournaments'))
-            self.se.menu_listing.add_command(label="Point(s) gagné(s)", command=lambda: self.se.recover_list('games'))
+                                             command=lambda: self.se.recover_list('registration'))
+            self.se.menu_listing.add_command(label="Point(s) gagné(s)", command=lambda: self.se.recover_list('score'))
             self.se.widjets_menu2 = True
 
     def menu_search(self):
         if not self.se.widjets_menu3:
-            self.se.menu_searching.add_command(label="Nom", command=lambda: self.search_player('Nom'))
-            self.se.menu_searching.add_command(label="Identifiant", command=lambda: self.search_player('Identité'))
+            self.se.menu_searching.add_command(label="Nom", command=lambda: self.search_player('last_name'))
+            self.se.menu_searching.add_command(label="Identifiant", command=lambda: self.search_player('identity'))
             self.se.widjets_menu3 = True
 
     def create_player(self):
         self.se.clear_frame(self.frame)
-        view_master = self.se.master_window(50, 60)
-        self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
+        master_geometrie = self.se.master_window(50, 60)
+        self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
@@ -86,38 +86,39 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=13, cols=6, colspan=None, sticky=None)
 
-    def insert_player(self, data_pl: object):
-        data_player = {
-            'Identité': data_pl.identity,
-            'Nom': data_pl.last_name,
-            'Prénom': data_pl.first_name,
-            'Date de naissance': data_pl.birth
-        }
+    def insert_player(self, dt_player: object):
 
         def click(type_choice):
             if type_choice == 'save':
-                self.se.save_or_tournament('save', data_player)
+                self.se.save_or_tournament('save', dt_player)
                 insert.config(state=DISABLED)
             else:
-                self.se.save_or_tournament('tournament', data_player)
+                self.se.save_or_tournament('tournament', dt_player)
 
         self.se.clear_frame(self.frame)
+        master_geometrie = self.se.master_window(50, 60)
+        self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         title = self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=self.frame,
                            bg="#FEF9E7", justify=None, text="Que voulez-vous faire : ", width=None, row=0, cols=None,
                            colspan=5, sticky=None, padx=None, pady=None)
+
+        header = ['Identité', 'Nom', 'Prénom', 'Date de naissance', 'Point(s)']
+        players = [dt_player.identity, dt_player.last_name, dt_player.first_name, dt_player.birth, dt_player.point]
         next_line = 2
-        for keys, values in data_player.items():
+
+        for head, player_val in zip(header, players):
             self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=self.frame,
-                       bg="#FEF9E7", justify="right", text=keys, width=None, row=next_line, cols=1,
+                       bg="#FEF9E7", justify="right", text=head, width=None, row=next_line, cols=1,
                        colspan=None, sticky="e", padx=None, pady=None)
             self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None,
-                       justify="left", text=values, row=next_line, cols=3, colspan=None, sticky="w")
+                       justify="left", text=player_val, row=next_line, cols=3, colspan=None, sticky="w")
             next_line += 1
 
         insert = ttk.Button(self.frame, text=" Ajouter à la liste des joueurs ", command=lambda: click('save'))
         insert.grid(row=(next_line + 2), columnspan=5)
+
         create = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ", command=lambda: click('tournament'))
         create.grid(row=(next_line + 1), columnspan=5, pady=20)
 
@@ -134,7 +135,6 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
     def search_player(self, choice_type):
-        # Recherche par nom
         self.se.clear_frame(self.frame)
         view_master = self.se.master_window(50, 60)
         self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
@@ -144,8 +144,12 @@ class PlayersViews(extend_view.ExtendViews):
                            mst=self.frame, bg="#FEF9E7", justify=None, text="Rechercher un joueur : ", width=None,
                            row=0, cols=None, colspan=3, sticky=None, padx=None, pady=None)
 
+        result_text = "Par Nom : "
+        if choice_type == "identity":
+            result_text = "Par numéro d'Identité"
+
         result = self.input_text(mst=self.frame, lb_row=2, ip_row=3, cols=1, colspan=None, bg="#FEF9E7",
-                                 text=choice_type + " : ", ip_wh=20)
+                                 text=result_text, ip_wh=20)
 
         data_player = {choice_type: result}
 
@@ -160,10 +164,12 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=4, cols=2, colspan=None, sticky=None)
 
     def matching_multi_players(self, multi_players: list):
-        self.se.clear_frame(self.frame)
+        print(f"matching_multi_players => {multi_players}")
 
+        self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(50, 60)
-        self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
+        self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
+        self.frame.place(relx=0.5, rely=0, anchor='n')
 
         list_system = self.se.listing_canvas(self.frame, 0, '#FEF9E7', master_geometrie)
         frame = list_system[0]
@@ -172,31 +178,22 @@ class PlayersViews(extend_view.ExtendViews):
         view_x = list_system[3]
         view_y = list_system[4]
 
-        self.frame.place(relx=0.5, rely=0, anchor='n')
-
         self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
                    justify=None, text="Plusieurs résultats : ", width=None, row=0, cols=1, colspan=2,  sticky=None,
                    padx=10, pady=None)
 
-        def player_button(lst_name, fst_name, dt_player, next_row):
-            button = ttk.Button(frame, text=f" {lst_name} {fst_name} ", command=lambda: self.matching_player(dt_player))
-            button.grid(row=next_row, column=1, columnspan=2, pady=10)
+        def player_button(data_player, next_row):
+            button = ttk.Button(frame, text=f" {data_player.last_name} {data_player.first_name} ",
+                                command=lambda: self.matching_player(data_player))
+            button.grid(row=next_row, column=1, columnspan=2, pady=10, ipadx=20)
 
         next_line = 2
         for player in multi_players:
-            last_name = None
-            first_name = None
-            for keys in player:
-                if keys == 'Nom':
-                    last_name = player[keys]
-                if keys == 'Prénom':
-                    first_name = player[keys]
-
-            player_button(last_name, first_name, player, next_line)
+            player_button(player, next_line)
             next_line += 1
 
         annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
-        annule.grid(row=next_line, column=1, columnspan=2)
+        annule.grid(row=next_line, column=1, columnspan=2, pady=30)
 
         canvas.update()
         canvas.create_window((0, 0), window=frame)
@@ -208,27 +205,31 @@ class PlayersViews(extend_view.ExtendViews):
         col0 = Label(frame, bg="#FEF9E7")
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
-    def matching_player(self, data_player: dict):
+    def matching_player(self, dt_player: object):
+        print(f"matching_player => {dt_player}")
+
         self.se.clear_frame(self.frame)
+        master_geometrie = self.se.master_window(50, 60)
+        self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         title = self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=self.frame,
                            bg="#FEF9E7", justify=None, text="Résultat de la recherche : ", width=None, row=0, cols=None,
                            colspan=5, sticky=None, padx=None, pady=None)
-        next_line = 2
-        list_player = {}
-        for keys, values in data_player.items():
-            self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=self.frame,
-                       bg="#FEF9E7", justify="right", text=keys, width=None, row=next_line, cols=1, colspan=None,
-                       sticky="e", padx=None, pady=None)
-            self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None, justify="left",
-                       text=values, row=next_line, cols=3, colspan=None, sticky="w")
 
-            list_player = self.se.format_player(list_player, keys, values)
+        header = ['Identité', 'Nom', 'Prénom', 'Date de naissance', 'Point(s)']
+        players = [dt_player.identity, dt_player.last_name, dt_player.first_name, dt_player.birth, dt_player.point]
+        next_line = 2
+        for head, player_val in zip(header, players):
+            self.title(family=None, size=10, weight="bold", slant="roman", underline=False, mst=self.frame,
+                       bg="#FEF9E7", justify="right", text=head, width=None, row=next_line, cols=1,
+                       colspan=None, sticky="e", padx=None, pady=None)
+            self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None,
+                       justify="left", text=player_val, row=next_line, cols=3, colspan=None, sticky="w")
             next_line += 1
 
         create_trt = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ",
-                                command=lambda: self.se.save_or_tournament('tournament', list_player))
+                                command=lambda: self.se.save_or_tournament('tournament', dt_player))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
         annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
@@ -243,9 +244,11 @@ class PlayersViews(extend_view.ExtendViews):
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
-    def list_player(self, title: str, data_players: list):
+    def list_players(self, title: str, data_players: list):
+        print(f"list_players => {data_players}")
+
         self.se.clear_frame(self.frame)
-        master_geometrie = self.se.master_window(70, 70)
+        master_geometrie = self.se.master_window(60, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
         self.frame.place(relx=0.5, rely=0.1, anchor='n')
 
@@ -253,7 +256,7 @@ class PlayersViews(extend_view.ExtendViews):
                    bg="#FEF9E7", justify=None, text=title, width=None, row=0, cols=None, colspan=2, sticky=None,
                    padx=None, pady=15)
 
-        cols_x = int(master_geometrie[0] - 200) // 9
+        cols_x = int(master_geometrie[0] - 200) // 6
         content_y = int(master_geometrie[1] / 3) // 12
 
         """data_tournament = []
@@ -261,21 +264,19 @@ class PlayersViews(extend_view.ExtendViews):
             for tournament in data_tour:
                 data_tournament.append(tournament)"""
 
-        columns: tuple = ()
-        for col_name in data_players[0]:
-            columns = columns + (col_name,)
+        columns: tuple = (1, 2, 3, 4, 5, 6)
+        header: tuple = ('Ordre d\'inscription', ' Identité', 'Nom', 'Prénom', 'Date de naissance', 'Point(s)')
 
         content = ttk.Treeview(self.frame, columns=columns, show='headings', padding=20, height=content_y)
         content.tag_configure('highlight', background='lightblue')
 
-        for head_name in data_players[0]:
-            content.column(head_name, width=cols_x, anchor="center")
-            content.heading(head_name, text=head_name)
+        for x, head in enumerate(header):
+            content.column(columns[x], width=cols_x, anchor="center")
+            content.heading(columns[x], text=head)
 
         for player in data_players:
-            list_players = []
-            for keys, values in player.items():
-                list_players.append(values)
+            list_players = [player.id_player, player.identity, player.last_name, player.first_name, player.birth,
+                            player.point]
             content.insert('', END, values=list_players)
 
         def item_selected(event):
@@ -285,11 +286,9 @@ class PlayersViews(extend_view.ExtendViews):
 
             if result:
                 data_player = None
-                for plr in data_players:
-                    for kys in plr:
-                        if kys == 'id' and plr[kys] == result[0]:
-                            data_player = plr
-
+                for dt_player in data_players:
+                    if dt_player.identity == result[1]:
+                        data_player = dt_player
                 if data_player:
                     self.matching_player(data_player)
 

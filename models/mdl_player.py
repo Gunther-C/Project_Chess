@@ -2,20 +2,23 @@
 
 class PlayersMdl:
 
-    def __init__(self, identity: str | None = None, last_name: str | None = None, first_name: str | None = None,
-                 birth: str | None = None, point: int | None = None):
+    def __init__(self, id_player: str | None = None, identity: str | None = None, last_name: str | None = None,
+                 first_name: str | None = None, birth: str | None = None, point: float | None = None):
 
+        self.id_player = None
         self.identity = None
         self.last_name = None
         self.first_name = None
         self.birth = None
         self.point = 0
 
-        self.instance_player(identity, last_name, first_name, birth, point)
+        self.instance_player(id_player, identity, last_name, first_name, birth, point)
 
-    def instance_player(self, identity, last_name, first_name, birth, point):
+    def instance_player(self, id_player, identity, last_name, first_name, birth, point):
 
         if identity and last_name and first_name and birth:
+            if id_player:
+                self.id_player = id_player
             id_last = identity[:2].upper()
             id_first = identity[2:]
             self.identity = id_last + id_first

@@ -3,24 +3,26 @@ from tkinter import font, Entry, Radiobutton, Checkbutton
 from tkinter import ttk
 
 
-
 class ExtendViews:
     def __init__(self, frame: any):
         self.frame = frame
 
-    def adjust_x(self, parent, child) -> list:
+    @staticmethod
+    def adjust_x(parent, child) -> list:
         screen_width = parent.winfo_width()
         child_width = child.winfo_width()
         modulo_width = (screen_width - child_width) // 2
         return [screen_width, child_width, modulo_width]
 
-    def adjust_y(self, parent, child) -> list:
+    @staticmethod
+    def adjust_y(parent, child) -> list:
         screen_height = parent.winfo_height()
         child_height = child.winfo_height()
         modulo_height = (screen_height - child_height) // 2
         return [screen_height, child_height, modulo_height]
 
-    def input_text(self, **kwargs: any) -> Entry:
+    @staticmethod
+    def input_text(**kwargs: any) -> Entry:
         label = Label(kwargs['mst'], bg=kwargs['bg'], text=kwargs['text'])
         new_input = Entry(kwargs['mst'], width=kwargs['ip_wh'])
         label.grid(column=kwargs['cols'], columnspan=kwargs['colspan'], row=kwargs['lb_row'], sticky=W)
@@ -28,7 +30,8 @@ class ExtendViews:
         new_input.update()
         return new_input
 
-    def input_date(self, **kwargs: any) -> any:
+    @staticmethod
+    def input_date(**kwargs: any) -> any:
         label = Label(kwargs['mst'], bg=kwargs['bg'], text=kwargs['text'])
         label.grid(column=1, columnspan=5, row=kwargs['lb_row'], sticky=W)
 
@@ -46,7 +49,8 @@ class ExtendViews:
 
         return {'day': new_day, 'month': new_month, 'year': new_year}
 
-    def radio_button(self, **kwargs: any) -> Radiobutton:
+    @staticmethod
+    def radio_button(**kwargs: any) -> Radiobutton:
         label = Label(kwargs['mst'], bg=kwargs['bg'], text=kwargs['text'], justify=kwargs['justify'])
         radio = Radiobutton(kwargs['mst'], bg='red', justify=kwargs['justify'], variable=kwargs['variable'],
                             value=kwargs['value'], indicatoron=False, offrelief="flat", overrelief="ridge",
@@ -56,7 +60,8 @@ class ExtendViews:
         radio.update()
         return radio
 
-    def check_button(self, **kwargs: any) -> Checkbutton:
+    @staticmethod
+    def check_button(**kwargs: any) -> Checkbutton:
         check = Checkbutton(kwargs['mst'], variable=kwargs['variable'], onvalue=kwargs['onvalue'],
                             offvalue=kwargs['offvalue'], bg=kwargs['bg'], justify=kwargs['justify'],
                             indicatoron=kwargs['indicatoron'], offrelief="flat", overrelief="ridge",
@@ -65,7 +70,8 @@ class ExtendViews:
         check.update()
         return check
 
-    def title(self, **kwargs: any) -> Label:
+    @staticmethod
+    def title(**kwargs: any) -> Label:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
                             slant=kwargs['slant'], underline=kwargs['underline'])
 
@@ -76,7 +82,8 @@ class ExtendViews:
         title.update()
         return title
 
-    def label(self, **kwargs: any) -> Label:
+    @staticmethod
+    def label(**kwargs: any) -> Label:
         label = Label(kwargs['mst'], width=kwargs['width'], height=kwargs['height'], bg=kwargs['bg'],
                       justify=kwargs['justify'], text=kwargs['text'])
         label.grid(row=kwargs['row'], ipadx=kwargs['ipadx'], ipady=kwargs['ipady'], column=kwargs['cols'],

@@ -8,14 +8,17 @@ class PlayersData:
 
         self.data: dict = {}
 
-        if player and player.identity and player.last_name and player.first_name and player.birth:
+        if player and player.identity and player.last_name and player.first_name and player.birth and player.point:
+            _point = 0.0
+            if player.point:
+                _point = player.point
             self.data = {
                 'id': int(1),
-                'Identité': str(player.identity),
-                'Nom': str(player.last_name).capitalize(),
-                'Prénom': str(player.first_name).capitalize(),
-                'Date de naissance': str(player.birth),
-                'Point': int(0),
+                'identity': str(player.identity),
+                'last_name': str(player.last_name).capitalize(),
+                'first_name': str(player.first_name).capitalize(),
+                'birth': str(player.birth),
+                'Point': float(_point),
             }
             self.insert_player()
 

@@ -110,21 +110,21 @@ class Core(Tk):
 
                 data_user = []
                 for keys, values in player.items():
-                    if keys == 'Nom':
+                    if keys == 'last_name':
                         values = values.strip().replace(' ', '').lower()
                         if last_name == values:
                             data_user.append(values)
 
-                    if keys == 'Prénom':
+                    if keys == 'first_name':
                         values = values.strip().replace(' ', '').lower()
                         if first_name == values:
                             data_user.append(values)
 
-                    if keys == 'Date de naissance':
+                    if keys == 'birth':
                         if birth == values:
                             data_user.append(values)
 
-                    if keys == 'Identité':
+                    if keys == 'identity':
                         if identity == values:
                             data_user.append(values)
 
@@ -169,32 +169,58 @@ class Core(Tk):
     @staticmethod
     def number_verif(arg_type, number) -> False:
 
-        if number:
-            number = number.replace(" ", "").strip()
-            new_nbr = number.isdigit()
-            if not new_nbr:
-                return f"{arg_type} doit comporter uniquement des chiffres"
-            else:
-                match arg_type:
-                    case "Le jour":
-                        if int(number) < 1 or int(number) > 31 or not len(number) == 2:
-                            return f"{arg_type} doit comporter un nombre entre 01 et 31"
-                    case "Le mois":
-                        if int(number) < 1 or int(number) > 12 or not len(number) == 2:
-                            return f"{arg_type} doit comporter un nombre entre 01 et 12"
-                    case "L'année joueur":
-                        if int(number) < 1900 or int(number) > 2016 or not len(number) == 4:
-                            return f"{arg_type} doit comporter un nombre entre 1900 et 2016"
-                        elif number[0] == '0':
-                            return f"{arg_type} ne doit pas commencer par un ( 0 )"
-                    case "L'année tournoi":
-                        if not len(number) == 4:
-                            return f"{arg_type} doit comporter un nombre à 4 chiffres"
-                        elif number[0] == '0':
-                            return f"{arg_type} ne doit pas commencer par un ( 0 )"
-                    case "numberRound":
-                        if int(number) < 1 or int(number) > 99:
-                            return f"Le nombre de rounds doit comporter un nombre entre 1 et 99"
+        number = number.replace(" ", "").strip()
+        new_nbr = number.isdigit()
+        if not new_nbr:
+            return f"{arg_type} doit comporter uniquement des chiffres"
+        else:
+            match arg_type:
+                case "Le jour":
+                    if int(number) < 1 or int(number) > 31 or not len(number) == 2:
+                        return f"{arg_type} doit comporter un nombre entre 01 et 31"
+                case "Le mois":
+                    if int(number) < 1 or int(number) > 12 or not len(number) == 2:
+                        return f"{arg_type} doit comporter un nombre entre 01 et 12"
+                case "L'année joueur":
+                    if int(number) < 1900 or int(number) > 2016 or not len(number) == 4:
+                        return f"{arg_type} doit comporter un nombre entre 1900 et 2016"
+                    elif number[0] == '0':
+                        return f"{arg_type} ne doit pas commencer par un ( 0 )"
+                case "L'année tournoi":
+                    if not len(number) == 4:
+                        return f"{arg_type} doit comporter un nombre à 4 chiffres"
+                    elif number[0] == '0':
+                        return f"{arg_type} ne doit pas commencer par un ( 0 )"
+                case "numberRound":
+                    if int(number) < 1 or int(number) > 99:
+                        return f"Le nombre de rounds doit comporter un nombre entre 1 et 99"
+
+    @staticmethod
+    def number_float_verif(arg_type, number) -> False:
+
+        result = False
+        text = f"{arg_type} Uniquement des chiffres (seul un 5 est accepté après le point, exemple :0.5 ou 10 ou 10.5"
+        number = number.replace(" ", "").strip()
+        point = re.search(r"[.]+", number)
+
+        if point:
+            new_number = number.find('.')
+            last_number = number[:new_number]
+            first_number = number[new_number + 1:]
+
+            verif_last = last_number.isdigit()
+            verif_first = first_number.isdigit()
+            if not verif_last or not verif_first or first_number != '5':
+                result = True
+
+        if not point:
+            verif_number = number.isdigit()
+            if not verif_number:
+                return text
+        elif result:
+            return text
+        else:
+            pass
 
     @staticmethod
     def date_verif(*args) -> False:
@@ -265,11 +291,11 @@ class Core(Tk):
     def format_player(data_player, key=None, value=None):
         if key and value:
             match key:
-                case 'Identité':
+                case 'identity':
                     data_player[key] = value
-                case 'Nom':
+                case 'last_name':
                     data_player[key] = value
-                case 'Prénom':
+                case 'first_name':
                     data_player[key] = value
                 case _:
                     pass
