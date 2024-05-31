@@ -10,7 +10,8 @@ class PlayersData:
 
         if player and player.identity and player.last_name and player.first_name and player.birth and player.point:
             _point = 0.0
-            if player.point:
+            # if player.point:
+            if player.point and type(player.point) is float:
                 _point = player.point
             self.data = {
                 'id': int(1),
@@ -18,7 +19,7 @@ class PlayersData:
                 'last_name': str(player.last_name).capitalize(),
                 'first_name': str(player.first_name).capitalize(),
                 'birth': str(player.birth),
-                'Point': float(_point),
+                'point': float(_point),
             }
             self.insert_player()
 

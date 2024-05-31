@@ -32,6 +32,9 @@ class Core(Tk):
         self.title(" Echec")
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
+        """background = PhotoImage(file="views/pictures/Chess.png")
+        img_background = Label(self, image=background, width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.70))
+        img_background.place(relx=0.5, rely=0.5, anchor='center')"""
         self.menu = Menu(self)
 
     def master_window(self, child_width, child_height):

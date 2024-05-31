@@ -71,6 +71,7 @@ class TournamentData:
                         if tournament['id'] == nw_sc[0]:
                             # liste des rounds
                             rounds = tournament['Rounds']
+                            # Dernier round
                             rd = rounds[-1]
 
                             # liste des matchs
@@ -80,21 +81,23 @@ class TournamentData:
                             player_1 = match[0]
                             player_2 = match[1]
 
+                            if len(player_1) > 2:
+                                player_1.remove(player_1[2])
+                                player_2.remove(player_2[2])
+
                             if player_1[0] == nw_sc[2][0][0]:
-                                if len(player_1) > 2:
-                                    player_1.remove(player_1[2])
-                                    player_2.remove(player_2[2])
                                 player_1.append(nw_sc[2][0][1])
                                 player_2.append(nw_sc[2][1][1])
 
-                            if player_2[0] == nw_sc[2][0][0]:
-                                if len(player_2) > 2:
-                                    player_2.remove(player_2[2])
-                                    player_1.remove(player_1[2])
+                            elif player_2[0] == nw_sc[2][0][0]:
                                 player_2.append(nw_sc[2][0][1])
                                 player_1.append(nw_sc[2][1][1])
 
+                            print(player_1)
+                            print(player_2)
                     file.seek(0)
+
+                    print(new_file)
 
                     json.dump(new_file, file, indent=4)
 
@@ -182,3 +185,17 @@ class TournamentData:
 # text_csv = csv.reader(file, delimiter=",")
 # text_csv = csv.DictReader(file)
 # text_csv = csv.writer(file, delimiter=',')
+
+"""                            if player_1[0] == nw_sc[2][0][0]:
+                                if len(player_1) > 2:
+                                    player_1.remove(player_1[2])
+                                    player_2.remove(player_2[2])
+                                player_1.append(nw_sc[2][0][1])
+                                player_2.append(nw_sc[2][1][1])
+
+                            if player_2[0] == nw_sc[2][0][0]:
+                                if len(player_2) > 2:
+                                    player_2.remove(player_2[2])
+                                    player_1.remove(player_1[2])
+                                player_2.append(nw_sc[2][0][1])
+                                player_1.append(nw_sc[2][1][1])"""

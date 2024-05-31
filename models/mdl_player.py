@@ -10,7 +10,7 @@ class PlayersMdl:
         self.last_name = None
         self.first_name = None
         self.birth = None
-        self.point = 0
+        self.point = 0.0
 
         self.instance_player(id_player, identity, last_name, first_name, birth, point)
 

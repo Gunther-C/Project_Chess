@@ -97,6 +97,7 @@ class PlayersCtrl(core.Core):
                                      text="Une erreur est survenue, veuillez réessayer.")
 
             case 'tournament':
+                self.destroy()
                 self.create_new_tournament(data_player)
 
             case _:
@@ -206,14 +207,13 @@ class PlayersCtrl(core.Core):
 
         if ordered:
             for player in ordered:
-                new_player = self.instance_player(player['id'], player['identity'], player['last_name'], player['first_name'],
-                                                  player['birth'], player['point'])
+                new_player = self.instance_player(player['id'], player['identity'], player['last_name'],
+                                                  player['first_name'], player['birth'], player['point'])
                 listing.append(new_player)
 
             self.vue.list_players(title, listing)
 
     def create_new_tournament(self, player_tournament):
-        self.destroy()
         rotation('t', player_tournament)
 
     def instance_player(self, id_player, identity, last_name, first_name, birth, point):

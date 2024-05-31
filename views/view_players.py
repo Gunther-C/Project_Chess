@@ -206,6 +206,7 @@ class PlayersViews(extend_view.ExtendViews):
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
     def matching_player(self, dt_player: object):
+
         print(f"matching_player => {dt_player}")
 
         self.se.clear_frame(self.frame)

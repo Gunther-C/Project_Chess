@@ -153,7 +153,6 @@ class TournamentsCtrl(core.Core):
         elif treatment == 'data':
             self.vue.detail_tournament(self.new_tournament)
 
-
     def tournament_lists(self, list_type):
         tournaments = self.tournaments_list()
         title = None
@@ -185,8 +184,6 @@ class TournamentsCtrl(core.Core):
 
         return data_players
 
-
-
     def update_score(self, new_scores):
         if data.TournamentData().update_scores(new_scores):
             pass
@@ -194,3 +191,8 @@ class TournamentsCtrl(core.Core):
     def update_date(self, data_date):
         new_date = data.TournamentData().update_date(data_date)
         return new_date
+
+    def new_round(self, _round):
+        pass
+
+
