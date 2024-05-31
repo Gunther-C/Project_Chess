@@ -66,7 +66,7 @@ class ExtendViews:
                             offvalue=kwargs['offvalue'], bg=kwargs['bg'], justify=kwargs['justify'],
                             indicatoron=kwargs['indicatoron'], offrelief="flat", overrelief="ridge",
                             selectcolor=kwargs['selectcolor'], state=kwargs['state'])
-        check.grid(column=kwargs['cols'], row=kwargs['row'], sticky=kwargs['sticky'])
+        check.grid(column=kwargs['cols'], row=kwargs['row'], sticky=kwargs['sticky'], padx=kwargs['padx'],)
         check.update()
         return check
 

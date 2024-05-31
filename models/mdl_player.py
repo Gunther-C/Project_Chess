@@ -16,15 +16,19 @@ class PlayersMdl:
 
     def instance_player(self, id_player, identity, last_name, first_name, birth, point):
 
-        if identity and last_name and first_name and birth:
-            if id_player:
-                self.id_player = id_player
+        if identity and last_name:
+
             id_last = identity[:2].upper()
             id_first = identity[2:]
             self.identity = id_last + id_first
             self.last_name = str(last_name).capitalize()
-            self.first_name = str(first_name).capitalize()
-            self.birth = str(birth)
+
+            if id_player:
+                self.id_player = id_player
+            if first_name:
+                self.first_name = str(first_name).capitalize()
+            if birth:
+                self.birth = str(birth)
             if point:
                 self.point = point
 

@@ -53,17 +53,8 @@ class TournamentsViews(extend_view.ExtendViews):
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         data_tournament: dict = {}
-        data_player: list = []
 
-        file_players = self.se.players_list()
-        dt_player = sorted(file_players, key=lambda x: x['Nom'])
-        # Récupérer uniquement identité, nom et prénom avec self.se.format_player
-
-        for plr in dt_player:
-            ft_player: dict = {}
-            for keys, values in plr.items():
-                ft_player = self.se.format_player(ft_player, keys, values)
-            data_player.append(ft_player)
+        data_player = self.se.instance_player()
 
         select_players = [BooleanVar() for _ in data_player]
 
@@ -78,8 +69,11 @@ class TournamentsViews(extend_view.ExtendViews):
         def unity_player_submit(plr_data):
             ctrl_result = self.se.tournament_ctrl_player(self.new_frame, plr_data)
             if ctrl_result:
-                infos_plr = {'Identité': ctrl_result[0], 'Nom': ctrl_result[1], 'Prénom': ctrl_result[2]}
-                self.se.new_all_players.append(infos_plr)
+                infos_plr = [{'identity': ctrl_result[0], 'last_name': ctrl_result[1], 'first_name': ctrl_result[2],
+                             'point': ctrl_result[3]}]
+                _data_player = self.se.instance_player(infos_plr)
+
+                self.se.new_all_players.append(_data_player[0])
                 all_player_submit('player')
 
         def all_player_submit(submit_type):
@@ -151,7 +145,7 @@ class TournamentsViews(extend_view.ExtendViews):
         def new_player():
             if self.new_window:
                 self.new_window[0].destroy()
-            self.new_window = self.se.listing_window(30, 50, 40, 40, 'Ajouter un joueur', '#FEF9E7')
+            self.new_window = self.se.listing_window(40, 50, 40, 40, 'Ajouter un joueur', '#FEF9E7')
 
             self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
             self.new_frame.grid()
@@ -167,8 +161,11 @@ class TournamentsViews(extend_view.ExtendViews):
                                         text="Nom : ", ip_wh=20)
             first_name = self.input_text(mst=self.new_frame, lb_row=8, ip_row=9, cols=1, colspan=5, bg="#FEF9E7",
                                          text="Prénom : ", ip_wh=20)
+            point = self.input_text(mst=self.new_frame, lb_row=11, ip_row=12, cols=1, colspan=5, bg="#FEF9E7",
+                                    text="Point(s) : ", ip_wh=10)
+            point.insert(0, "0")
 
-            plr_data = {'identity': identity, 'last_name': last_name, 'first_name': first_name}
+            plr_data = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'point': point}
 
             submit_players = ttk.Button(self.new_frame, text="  Valider  ",
                                         command=lambda: unity_player_submit(plr_data))
@@ -183,6 +180,9 @@ class TournamentsViews(extend_view.ExtendViews):
                        justify=None, text="", row=7, cols=0, colspan=None, sticky=None)
             self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
                        justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
+
+            self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
+                       justify=None, text="", row=13, cols=6, colspan=None, sticky=None)
 
     def list_tournament(self, title: str, data_tournament: list):
 
@@ -298,6 +298,7 @@ class TournamentsViews(extend_view.ExtendViews):
         plr_list.grid(row=6, columnspan=4, pady=40, ipadx=30, ipady=10)
 
         def players_list():
+            print('players_list', tournament.players)
             view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
             self.new_window = view_list[0]
 
@@ -309,12 +310,9 @@ class TournamentsViews(extend_view.ExtendViews):
             if not last_round.start:
                 last_round.start = self.se.update_date(('start', tournament.id_tour))
 
-            # new_round = self.se.round_instance(last_round)
             self.schema_round(tournament.id_tour, last_round)
 
         def round_list():
-            """rounds = self.se.round_instance(tournament.rounds)
-            self.list_rounds(tournament.id_tour, rounds)"""
             self.list_rounds(tournament.id_tour, tournament.rounds)
 
     def schema_round(self, tournament_id: object, new_round: object):
@@ -509,7 +507,7 @@ class TournamentsViews(extend_view.ExtendViews):
     def list_players(self, data_player, select_players, title):
         if self.new_window:
             self.new_window[0].destroy()
-        self.new_window = self.se.listing_window(40, 60, 30, 30, 'Liste des joueurs', '#FEF9E7')
+        self.new_window = self.se.listing_window(50, 60, 30, 30, 'Liste des joueurs', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
@@ -528,88 +526,70 @@ class TournamentsViews(extend_view.ExtendViews):
                    padx=None, pady=20)
 
         # En tète listing
-        title_cols = 1
-
-
-
-
-
-        #############################################################
-
-
-        # PRénom dans la selection pas dans la liste du tournoi
-        header = ("Numéro d'Identité", "Nom du joueur")
-        if not select_players:
-            label = Label(frame, bg="#ffffff", height=1, underline=1)
-            label.grid(row=1, column=title_cols, padx=40)
-            title_cols += 1
-
+        header = ("N° Identité", "Nom", "Prénom", "Score")
+        cols = 1
         for title_list in header:
             self.title(family="Times New Roman", size=12, weight="bold", slant="roman", underline=False, mst=frame,
                        bg="#ffffff", justify="center", text=title_list, width=None, row=1,
-                       cols=title_cols, colspan=None, sticky=None, padx=None, pady=5)
-            title_cols += 1
-
-            label = Label(frame, bg="#ffffff", height=1, underline=1)
-            label.grid(row=1, column=title_cols, padx=40)
-            title_cols += 1
+                       cols=cols, colspan=None, sticky=None, padx=30, pady=30)
+            cols += 1
 
         player_supp = []
         next_line = 2
         if len(self.se.new_all_players) > 0:
+
             for nw_player in self.se.new_all_players:
-                value_cols = 1
-                player_supp.append(nw_player['identity'])
 
-                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                               justify="center", text=nw_player[key], row=next_line, cols=value_cols, colspan=None,
-                               sticky=None)
-                    value_cols += 1
+                player_supp.append(nw_player.identity)
 
-                    label = Label(frame, bg="#ffffff", height=1, underline=1)
-                    label.grid(row=next_line, column=value_cols, padx=40)
-                    value_cols += 1
+                identity = Label(frame, bg="#ffffff", justify="center", text=nw_player.identity)
+                identity.grid(row=next_line, column=1, padx=30)
 
-                if select_players:
-                    check = self.check_button(mst=frame, variable=None, onvalue=1, offvalue=0,
-                                              bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
-                                              state="disabled", cols=value_cols, row=next_line, sticky=None)
-                    check.select()
+                last_name = Label(frame, bg="#ffffff", justify="center", text=nw_player.last_name)
+                last_name.grid(row=next_line, column=2, padx=30)
+
+                first_name = Label(frame, bg="#ffffff", justify="center", text=nw_player.first_name)
+                first_name.grid(row=next_line, column=3, padx=30)
+
+                score = Label(frame, bg="#ffffff", justify="center", text=nw_player.point)
+                score.grid(row=next_line, column=4, padx=30)
+
+                check = Checkbutton(frame, onvalue=1, offvalue=0, bg="#ffffff", offrelief="flat", overrelief="ridge",
+                                    indicatoron=True, state="disabled")
+                check.grid(row=next_line, column=5, padx=15)
+                check.select()
+
                 next_line += 1
 
             label = Label(frame, bg="#ffffff", height=1, underline=1)
-            label.grid(row=next_line, columnspan=6, sticky="w")
+            label.grid(row=next_line, columnspan=6, sticky="w", pady=20)
             next_line += 1
 
-        for i, infos_player in enumerate(data_player):
-            value_cols = 1
-
-            if not select_players:
-                label = Label(frame, bg="#ffffff", height=1, underline=1)
-                label.grid(row=next_line, column=value_cols, padx=40)
-                value_cols += 1
-
+        for i, dt_player in enumerate(data_player):
             equal = None
-            for sup_id in player_supp:
-                if sup_id == infos_player['identity']:
-                    equal = True
+            if select_players:
+                for sup_id in player_supp:
+                    if sup_id == dt_player.identity:
+                        equal = True
 
             if not equal:
-                for ks in infos_player:
-                    self.label(mst=frame, width=None, height=None, bg="#ffffff", ipadx=None, ipady=None,
-                               justify="center", text=infos_player[ks], row=next_line, cols=value_cols, colspan=None,
-                               sticky=None)
-                    value_cols += 1
+                identity = Label(frame, bg="#ffffff", justify="center", text=dt_player.identity)
+                identity.grid(row=next_line, column=1, padx=30)
 
-                    label = Label(frame, bg="#ffffff", height=1, underline=1)
-                    label.grid(row=next_line, column=value_cols, padx=40)
-                    value_cols += 1
+                last_name = Label(frame, bg="#ffffff", justify="center", text=dt_player.last_name)
+                last_name.grid(row=next_line, column=2, padx=30)
+
+                first_name = Label(frame, bg="#ffffff", justify="center", text=dt_player.first_name)
+                first_name.grid(row=next_line, column=3, padx=30)
+
+                score = Label(frame, bg="#ffffff", justify="center", text=dt_player.point)
+                score.grid(row=next_line, column=4, padx=30)
 
                 if select_players:
-                    self.check_button(mst=frame, variable=select_players[i], onvalue=1, offvalue=0,
-                                      bg="#ffffff", justify=None, indicatoron=True, selectcolor=None,
-                                      state="normal", cols=value_cols, row=next_line, sticky=None)
-            next_line += 1
+                    check = Checkbutton(frame, variable=select_players[i], onvalue=1, offvalue=0, bg="#ffffff",
+                                        offrelief="flat", overrelief="ridge", indicatoron=True)
+                    check.grid(row=next_line, column=5, padx=15)
+                next_line += 1
 
         canvas.update()
         canvas.create_window((0, 0), window=frame)
@@ -709,5 +689,5 @@ class TournamentsViews(extend_view.ExtendViews):
         label = Label(kwargs['mst'], bg=kwargs['bg'], font=lb_font, name=kwargs['name'], fg=kwargs['fg'],
                       pady=kwargs['pady'], text=kwargs['text'])
         label.grid(columnspan=10)
-        kwargs['mst'].after(10000, label.destroy)
+        kwargs['mst'].after(12000, label.destroy)
 

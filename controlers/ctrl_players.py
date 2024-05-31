@@ -5,7 +5,7 @@ from tkinter import ttk
 from core import core
 from rotate import rotation
 from database import data_players as data
-from models import mdl_player as model
+from models.mdl_player import PlayersMdl as P_mdl
 from views import view_players as view
 from core import french_date as date_fr
 
@@ -217,6 +217,6 @@ class PlayersCtrl(core.Core):
         rotation('t', player_tournament)
 
     def instance_player(self, id_player, identity, last_name, first_name, birth, point):
-        instance = model.PlayersMdl(id_player=id_player, identity=identity, last_name=last_name, first_name=first_name,
-                                    birth=birth, point=point)
+        instance = P_mdl(id_player=id_player, identity=identity, last_name=last_name, first_name=first_name,
+                         birth=birth, point=point)
         return instance

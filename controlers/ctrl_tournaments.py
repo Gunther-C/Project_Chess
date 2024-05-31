@@ -7,8 +7,9 @@ from core import french_date as date_fr
 from rotate import rotation
 from database import data_tournaments as data
 
-from models.mdl_tournament import TournamentMdl as T_class
-from models.mdl_round import RoundMdl as Round_class
+from models.mdl_tournament import TournamentMdl as T_mdl
+# from models.mdl_round import RoundMdl as R_class
+from models.mdl_player import PlayersMdl as P_mdl
 
 from views import view_tournaments as view
 
@@ -91,6 +92,7 @@ class TournamentsCtrl(core.Core):
         last_name = data_player['last_name'].get()
         first_name = data_player['first_name'].get()
         identity = data_player['identity'].get()
+        point = data_player['point'].get()
 
         if last_name:
             errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, last_name)
@@ -98,6 +100,10 @@ class TournamentsCtrl(core.Core):
             errors_dict['ctrl_fst_1'] = self.long_string_verif("Le Prénom", 2, 40, first_name)
         if identity:
             errors_dict['identity'] = self.identity_verif(identity)
+        if point:
+            errors_dict['ctrl_point'] = self.number_float_verif("Le Point", point)
+            if not errors_dict['ctrl_point']:
+                point = float(point)
 
         self.destroy_error(new_frame, 1)
 
@@ -127,15 +133,14 @@ class TournamentsCtrl(core.Core):
                 last_name = str(last_name).capitalize()
                 first_name = str(first_name).capitalize()
 
-                return identity, last_name, first_name
+                return identity, last_name, first_name, point
         else:
             pass
 
     def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players):
-
         # instance tournoi
-        self.new_tournament = T_class(id_tour=id_tour, name=name, address=address, birth=birth,
-                                      number_turns=number_turns, rounds=rounds, players=players)
+        self.new_tournament = T_mdl(id_tour=id_tour, name=name, address=address, birth=birth, number_turns=number_turns,
+                                    rounds=rounds, players=players)
         if treatment == 'create':
             # insertion json
             if data.TournamentData(self.new_tournament):
@@ -148,25 +153,37 @@ class TournamentsCtrl(core.Core):
         elif treatment == 'data':
             self.vue.detail_tournament(self.new_tournament)
 
-        """print(f"new_tour_choice_view =>")
-        print('NOM =>', self.new_tournament.name)
-        print('ADRESSE =>', self.new_tournament.address)
-        print('DATE =>', self.new_tournament.date)
-        print('JOUEURS =>', self.new_tournament.players)
-        print('ROUND =>', self.new_tournament.number_turns)
-        print('Match =>', self.new_tournament.rounds)"""
 
     def tournament_lists(self, list_type):
         tournaments = self.tournaments_list()
+        title = None
+        ordered = None
         if len(tournaments) > 0:
             if list_type == 'first':
                 ordered = sorted(tournaments, key=lambda x: x['Date'])
-                self.vue.list_tournament('Liste par dates croissantes', ordered)
+                title = 'Liste par dates croissantes'
             elif list_type == 'last':
                 ordered = sorted(tournaments, key=lambda x: x['Date'], reverse=True)
-                self.vue.list_tournament('Liste par dates décroissantes', ordered)
+                title = 'Liste par dates décroissantes'
+
+            if ordered:
+                self.vue.list_tournament(title, ordered)
         else:
             pass
+
+    def instance_player(self, _players_list=None):
+
+        data_players: list = []
+        if not _players_list:
+            file_players = self.players_list()
+            _players_list = sorted(file_players, key=lambda x: x['last_name'])
+
+        for player in _players_list:
+            instance = P_mdl(identity=player['identity'], last_name=player['last_name'],
+                             first_name=player['first_name'], point=player['point'])
+            data_players.append(instance)
+
+        return data_players
 
 
 

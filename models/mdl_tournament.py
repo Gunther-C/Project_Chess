@@ -4,6 +4,8 @@ import os
 import random
 from core import french_date as date_fr
 from models.mdl_round import RoundMdl as R_mdl
+from models.mdl_player import PlayersMdl as P_mdl
+
 fake = Faker("fr_FR")
 
 
@@ -25,37 +27,38 @@ class TournamentMdl:
 
     def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players):
 
-        if id_tour:
-            # Tournoi éxistant
-            self.id_tour = id_tour
-
         self.name = str(name).capitalize()
         self.address = str(address)
         self.date = str(birth)
         self.number_turns = int(number_turns)
-        self.players: list = players
 
-        if rounds:
-            # Tournoi éxistant
+        if id_tour and rounds:
+            """Tournoi éxistant"""
+            self.id_tour = id_tour
+
             for _round in rounds:
                 rd_ = R_mdl(_round['round'], _round['start'], _round['finish'], _round['matchs'])
                 self.rounds.append(rd_)
-            # self.rounds: list = rounds
+
+            for player in players:
+                instance = P_mdl(identity=player['identity'], last_name=player['last_name'],
+                                 first_name=player['first_name'], point=player['point'])
+                self.players.append(instance)
 
         else:
-            # Tournoi en création → Création premier round
+            """Tournoi en création → Création premier round"""
+            self.players: list = players
+
             players_lists: list = []
             for player in players:
-                first_name = player.pop('Prénom', None)
-                capital = first_name[0]
-                player['Nom'] = f"{player['Nom']}.{capital}"
-                player_list = [player['Identité'], player['Nom']]
+                capital = player.first_name[:2]
+                new_name = f"{player.last_name}-{capital}"
+                player_list = [player.identity, new_name]
                 players_lists.append(player_list)
 
             first_match = self.pair(players_lists)
             rd_ = R_mdl(1, None, None, first_match)
             self.rounds.append(rd_)
-            # self.rounds: list = [{"round": 1, "start": '', "finish": '', "matchs": first_match}]
 
     def pair(self, match) -> list:
         players_count = int(len(match) / 2)
