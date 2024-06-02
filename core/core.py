@@ -6,8 +6,8 @@ from database import data_players as dt_players
 from database import data_tournaments as dt_tournaments
 import re
 
-class Core(Tk):
 
+class Core(Tk):
     def __init__(self):
         super().__init__()
 
@@ -17,7 +17,6 @@ class Core(Tk):
         self.data_transfer = None
 
         self.new_player = None
-        # self.new_player_tournament = {}
         self.new_tournament = None
 
         self.menu_listing = None

@@ -1,12 +1,6 @@
-from faker import Faker
-import json
-import os
 import random
-from core import french_date as date_fr
-from models.mdl_round import RoundMdl as R_mdl
-from models.mdl_player import PlayersMdl as P_mdl
-
-fake = Faker("fr_FR")
+from models.mdl_round import RoundMdl
+from models.mdl_player import PlayersMdl
 
 
 class TournamentMdl:
@@ -37,12 +31,12 @@ class TournamentMdl:
             self.id_tour = id_tour
 
             for _round in rounds:
-                rd_ = R_mdl(_round['round'], _round['start'], _round['finish'], _round['matchs'])
+                rd_ = RoundMdl(_round['round'], _round['start'], _round['finish'], _round['matchs'])
                 self.rounds.append(rd_)
 
             for player in players:
-                instance = P_mdl(identity=player['identity'], last_name=player['last_name'],
-                                 first_name=player['first_name'], point=player['point'])
+                instance = PlayersMdl(identity=player['identity'], last_name=player['last_name'],
+                                      first_name=player['first_name'], point=player['point'])
                 self.players.append(instance)
 
         else:
@@ -57,7 +51,7 @@ class TournamentMdl:
                 players_lists.append(player_list)
 
             first_match = self.pair(players_lists)
-            rd_ = R_mdl(1, None, None, first_match)
+            rd_ = RoundMdl(1, None, None, first_match)
             self.rounds.append(rd_)
 
     def pair(self, match) -> list:
@@ -71,9 +65,3 @@ class TournamentMdl:
             players_lists.append(match_players)
 
         return players_lists
-
-    """players = []
-    for x in range(self.tour_type):
-        last_name = fake.last_name()
-        first_name = fake.first_name()
-        players.append((last_name, first_name))"""

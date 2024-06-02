@@ -317,7 +317,7 @@ class TournamentsViews(extend_view.ExtendViews):
         def round_list():
             self.list_rounds(tournament.id_tour, tournament.rounds)
 
-    def schema_round(self, tournament_id: object, new_round: object):
+    def schema_round(self, id_tournament: object, new_round: object):
 
         print(f"schema_round => {new_round}")
 
@@ -391,11 +391,9 @@ class TournamentsViews(extend_view.ExtendViews):
                 match_key = parent.winfo_name()
 
                 if not loser:
-                    # winner => [[plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2]]
                     id_player1 = winner[0][0]
                     id_player2 = winner[1][0]
-                    print(id_player1)
-                    print(id_player2)
+
                     results = [(id_player1, 0.5), (id_player2, 0.5)]
                 else:
                     id_player1 = winner[0]
@@ -414,7 +412,6 @@ class TournamentsViews(extend_view.ExtendViews):
                             child.configure(foreground='red')
                         if id_name == 'score':
                             child['text'] = winner[1]
-
                     else:
                         if identity == id_player1:
                             child.configure(foreground='blue')
@@ -424,7 +421,7 @@ class TournamentsViews(extend_view.ExtendViews):
                             child['text'] = 'Match null'
 
                 if winner:
-                    data_match = (tournament_id, match_key, results)
+                    data_match = (id_tournament, match_key, results)
                     self.se.update_score(data_match)
             else:
                 pass
@@ -484,10 +481,7 @@ class TournamentsViews(extend_view.ExtendViews):
             view_player1([plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2],
                          match_frame, foreground1)
 
-            """espace = Label(match_frame, width=5, bg="#f5cb8e")
-            espace.grid(row=1, column=1)"""
             result_null([[plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2]], match_frame)
-
             result = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                            font=lb_font, text=result_match, name="score")
             result.grid(row=1, column=2, padx=10)
@@ -514,7 +508,7 @@ class TournamentsViews(extend_view.ExtendViews):
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
         submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {id_round}",
-                                 command=lambda: self.se.new_round())
+                                 command=lambda: self.se.new_round(id_tournament))
         submit_list.grid(column=0, columnspan=2, pady=20, ipadx=5)
 
     def list_players(self, data_player, select_players, title):
@@ -616,7 +610,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         return self.new_window, self.new_frame
 
-    def list_rounds(self, tournament_id: object,  data_rounds: list):
+    def list_rounds(self, id_tournament: object,  data_rounds: list):
         if self.new_window:
             self.new_window[0].destroy()
         self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des rounds', '#FEF9E7')
@@ -680,7 +674,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
                 if found:
                     # new_round = self.se.round_instance(data_rounds[number])
-                    self.schema_round(tournament_id, data_rounds[number])
+                    self.schema_round(id_tournament, data_rounds[number])
 
         def hover(event):
             tree = event.widget

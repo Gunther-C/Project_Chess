@@ -11,13 +11,14 @@ class TournamentData:
 
         if new_data:
 
+            _rd = new_data.rounds[0]
+            match_list = []
             player_list = []
+
             for player in new_data.players:
                 player_list.append({"identity": player.identity, "last_name": player.last_name,
                                     "first_name": player.first_name, "point": player.point})
 
-            _rd = new_data.rounds[0]
-            match_list = []
             for match in _rd.matchs_list:
                 match_list.append(([match.identity_plr1, match.name_plr1], [match.identity_plr2, match.name_plr2]))
             round_1: list = [{"round": _rd.id_round, "start": '', "finish": '', "matchs": match_list}]
@@ -59,7 +60,8 @@ class TournamentData:
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
 
-    def update_scores(self, new_scores):
+    @staticmethod
+    def update_scores(new_scores):
         nw_sc = new_scores
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
@@ -93,17 +95,11 @@ class TournamentData:
                                 player_2.append(nw_sc[2][0][1])
                                 player_1.append(nw_sc[2][1][1])
 
-                            print(player_1)
-                            print(player_2)
                     file.seek(0)
-
-                    print(new_file)
-
                     json.dump(new_file, file, indent=4)
 
                 except json.JSONDecodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")
-
 
         except IOError as er:
             print("Erreur lors de l'ouverture du fichier :", er)
@@ -112,7 +108,8 @@ class TournamentData:
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
 
-    def update_date(self, data_date):
+    @staticmethod
+    def update_date(data_date):
 
         to_day = date_fr.FrenchDate().date_hour_fr
         try:
@@ -131,6 +128,9 @@ class TournamentData:
                             if data_date[0] == 'start' and len(rd['start']) < 1:
                                 rd['start'] = to_day
 
+                            elif data_date[0] == 'finish' and len(rd['finish']) < 1:
+                                rd['finish'] = to_day
+
                     file.seek(0)
 
                     json.dump(new_file, file, indent=4)
@@ -146,8 +146,6 @@ class TournamentData:
 
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
-
-
 
     @staticmethod
     def load_tournament_file():

@@ -7,9 +7,8 @@ from core import french_date as date_fr
 from rotate import rotation
 from database import data_tournaments as data
 
-from models.mdl_tournament import TournamentMdl as T_mdl
-# from models.mdl_round import RoundMdl as R_class
-from models.mdl_player import PlayersMdl as P_mdl
+from models.mdl_tournament import TournamentMdl
+from models.mdl_player import PlayersMdl
 
 from views import view_tournaments as view
 
@@ -139,8 +138,8 @@ class TournamentsCtrl(core.Core):
 
     def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players):
         # instance tournoi
-        self.new_tournament = T_mdl(id_tour=id_tour, name=name, address=address, birth=birth, number_turns=number_turns,
-                                    rounds=rounds, players=players)
+        self.new_tournament = TournamentMdl(id_tour=id_tour, name=name, address=address, birth=birth,
+                                            number_turns=number_turns, rounds=rounds, players=players)
         if treatment == 'create':
             # insertion json
             if data.TournamentData(self.new_tournament):
@@ -178,8 +177,8 @@ class TournamentsCtrl(core.Core):
             _players_list = sorted(file_players, key=lambda x: x['last_name'])
 
         for player in _players_list:
-            instance = P_mdl(identity=player['identity'], last_name=player['last_name'],
-                             first_name=player['first_name'], point=player['point'])
+            instance = PlayersMdl(identity=player['identity'], last_name=player['last_name'],
+                                  first_name=player['first_name'], point=player['point'])
             data_players.append(instance)
 
         return data_players
@@ -192,7 +191,138 @@ class TournamentsCtrl(core.Core):
         new_date = data.TournamentData().update_date(data_date)
         return new_date
 
-    def new_round(self, _round):
-        pass
+    def new_round(self, id_tournament):
+
+        tournaments = self.tournaments_list()
+
+        _tour = None
+        for _tr in tournaments:
+            if _tr['id'] == id_tournament:
+                _tour = _tr
+                break
+
+        if _tour:
+
+            _number_turn = int(_tour['Nombre de manche'])
+            _players: list = _tour['Joueurs']
+            _rounds: list = _tour['Rounds']
+
+            number_player = len(_players)
+            number_round = len(_rounds)
+
+            # date de fin round en cours
+            current_round: dict = _rounds[-1]
+            current_round['finish'] = date_fr.FrenchDate().date_hour_fr
+
+            # Récupération des joueurs du round en cours
+            match_players = []
+            for _match in current_round['matchs']:
+                match_players.append(_match[0])
+                match_players.append(_match[1])
+
+            # Mise à jour point des joueurs / Création liste pour nouveau round
+            players_list = []
+            for player in _players:
+                player_name = None
+                # Liste des joueurs classés par nombre de points
+                match_plrs = sorted(match_players, key=lambda x: x[2], reverse=True)
+                for ch_plr in match_plrs:
+                    if player['identity'] == ch_plr[0]:
+                        player_name = ch_plr[1]
+                        player['point'] = float(player['point'] + ch_plr[2])
+                players_list.append([player['identity'], player_name])
+
+            def restart():
+                match_count = int(number_player / 2)
+                new_matchs_list = []
+
+                for x in range(match_count):
+                    xx = x + 1
+                    player1 = players_list[x]
+                    player2 = players_list[xx]
+                    match_players: tuple = (player1, player2)
+                    new_matchs_list.append(match_players)
+
+                    for rm_player in match_players:
+                        players_list.remove(rm_player)
+                _rounds.append({"round": int(id_round + 1), "start": '', "finish": '', "matchs": new_matchs_list})
+                # Mise à jour du tournoi
+
+            def new_round():
+
+                new_matchs_list = []
+                matchs_list = []
+
+                # récupération des matchs
+                for _rds in _rounds:
+                    for _match in _rds['matchs']:
+                        matchs_list.append(_match)
+
+                # Créer une liste comprenant les matchs
+                for _player in players_list:
+                    id_player = _player[0]
+
+                    # Liste des joueurs classés par nombre de points
+                    ordered_list = sorted(players_list, key=lambda x: x[2], reverse=True)
+                    ordered_list.remove(_player)
+
+                    # tous les matchs de chaque round du tournoi
+                    for _mts in matchs_list:
+                        plr1 = _mts[0]
+                        plr2 = _mts[1]
+                        if id_player == plr1[0]:
+                            ordered_list.remove(plr2)
+                        if id_player == plr2[0]:
+                            ordered_list.remove(plr1)
+
+                    # s'il reste des joueurs
+                    if len(ordered_list) > 0:
+                        new_matchs_list.append((_player, ordered_list[0]))
+
+                _rounds.append({"round": int(id_round + 1), "start": '', "finish": '', "matchs": new_matchs_list})
+                # Mise à jour du tournoi
 
 
+
+            # Fin des tours
+            if _number_turn == number_round:
+                # Mise à jour du tournoi et fin
+                print('Application data')
+
+            else:
+                # nombre de fois qu'un joueur en rencontre un autre
+                adversary = int(number_player - 1)
+                reste = _number_turn - number_round
+
+                # tout le monde s'est rencontrés au moins 1 fois
+                if number_round == adversary:
+                    restart()
+
+                # tout le monde s'est rencontrés au moins 2 fois
+                if reste == adversary:
+                    restart()
+
+                # si moins de deux rencontres restes avec les mêmes joueurs
+                if reste < adversary:
+                    new_round()
+
+                # si plus de deux rencontres restes avec les mêmes joueurs
+                if reste > adversary:
+                    """
+                    lancez un nouveau round
+                    """
+
+
+
+
+
+
+
+
+
+
+
+            """ new_round = {"round": int(id_round + 1), "start": '', "finish": '', "matchs": match_list}
+
+                first_match = TournamentMdl().pair(players_lists)
+            """
