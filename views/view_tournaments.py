@@ -507,9 +507,15 @@ class TournamentsViews(extend_view.ExtendViews):
         col0 = Label(frame, bg="#ffffff")
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
+        def submit_l():
+            self.se.round_treatment(id_tournament)
+            self.new_window[0].destroy()
+
         submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {id_round}",
-                                 command=lambda: self.se.new_round(id_tournament))
-        submit_list.grid(column=0, columnspan=2, pady=20, ipadx=5)
+                                 command=lambda: submit_l())
+        submit_list.grid(column=0, columnspan=2, pady=20, ipadx=20, ipady=15)
+
+
 
     def list_players(self, data_player, select_players, title):
         if self.new_window:
