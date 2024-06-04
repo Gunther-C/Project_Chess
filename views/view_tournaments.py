@@ -312,12 +312,12 @@ class TournamentsViews(extend_view.ExtendViews):
             if not last_round.start:
                 last_round.start = self.se.update_date(('start', tournament.id_tour))
 
-            self.schema_round(tournament.id_tour, last_round)
+            self.schema_round(tournament, last_round)
 
         def round_list():
-            self.list_rounds(tournament.id_tour, tournament.rounds)
+            self.list_rounds(tournament, tournament.rounds)
 
-    def schema_round(self, id_tournament: object, new_round: object):
+    def schema_round(self, tournament: object, new_round: object):
 
         print(f"schema_round => {new_round}")
 
@@ -421,7 +421,7 @@ class TournamentsViews(extend_view.ExtendViews):
                             child['text'] = 'Match null'
 
                 if winner:
-                    data_match = (id_tournament, match_key, results)
+                    data_match = (tournament.id_tour, match_key, results)
                     self.se.update_score(data_match)
             else:
                 pass
@@ -508,14 +508,12 @@ class TournamentsViews(extend_view.ExtendViews):
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
         def submit_l():
-            self.se.round_treatment(id_tournament)
+            self.se.round_treatment(tournament)
             self.new_window[0].destroy()
 
         submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {id_round}",
                                  command=lambda: submit_l())
         submit_list.grid(column=0, columnspan=2, pady=20, ipadx=20, ipady=15)
-
-
 
     def list_players(self, data_player, select_players, title):
         if self.new_window:
@@ -616,7 +614,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         return self.new_window, self.new_frame
 
-    def list_rounds(self, id_tournament: object,  data_rounds: list):
+    def list_rounds(self, tournament: object,  data_rounds: list):
         if self.new_window:
             self.new_window[0].destroy()
         self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des rounds', '#FEF9E7')
@@ -680,7 +678,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
                 if found:
                     # new_round = self.se.round_instance(data_rounds[number])
-                    self.schema_round(id_tournament, data_rounds[number])
+                    self.schema_round(tournament, data_rounds[number])
 
         def hover(event):
             tree = event.widget

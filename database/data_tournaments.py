@@ -73,7 +73,6 @@ class TournamentData:
                         if tournament['id'] == nw_sc[0]:
                             # liste des rounds
                             rounds = tournament['Rounds']
-                            # Dernier round
                             rd = rounds[-1]
 
                             # liste des matchs
@@ -147,6 +146,31 @@ class TournamentData:
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
 
+    def treatment_round(self, new_tournament):
+        try:
+            with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
+
+                try:
+                    new_file = json.load(file)
+                    # tournoi
+                    for tournament in new_file:
+                        if tournament['id'] == new_tournament['id']:
+                            tournament['Joueurs'] = new_tournament['players']
+                            tournament['Rounds'] = new_tournament['rounds']
+
+                    file.seek(0)
+                    json.dump(new_file, file, indent=4)
+
+                except json.JSONDecodeError as e:
+                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+
+        except IOError as er:
+            print("Erreur lors de l'ouverture du fichier :", er)
+            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+
+        except UnicodeEncodeError as err:
+            print("Erreur D'encodage :", err)
+
     @staticmethod
     def load_tournament_file():
         try:
@@ -165,10 +189,6 @@ class TournamentData:
 
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
-
-
-
-
 
 
 
