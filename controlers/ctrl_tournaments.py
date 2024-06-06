@@ -195,69 +195,7 @@ class TournamentsCtrl(core.Core):
 
     def round_treatment(self, tournament):
 
-        """ METTRE UNE ALERTE A LA VUE SI TOUS LES MATCHS NE SONT PAS CLOS
-            ALERTE FENETRE SUR VALID
-        """
         if tournament:
-            _number_turn: int = tournament.number_turns
-            _players: list = tournament.players
-            _rounds: list = tournament.rounds
-
-            number_player = len(_players)
-            number_round = len(_rounds)
-
-            # round avant le round en cours
-            previous_round = None
-            if len(_rounds) > 0:
-                previous_round = _rounds[-2]
-
-            print(f"previous_round => {previous_round} \n")
-
-            # round en cours / date de fin
-            current_round: dict = _rounds[-1]
-            current_round.finish = date_fr.FrenchDate().date_hour_fr
-
-            # Nouveau round
-            id_new_round = int(current_round.id_round + 1)
-            new_matchs_list = []
-
-            # Récupération des joueurs du round en cours
-            current_players = []
-            for _match in current_round.matchs_list:
-                current_players.append([_match.identity_plr1, _match.name_plr1, _match.score_plr1])
-                current_players.append([_match.identity_plr2, _match.name_plr2, _match.score_plr2])
-            print(f"current_players => {current_players} \n")
-
-            # récupération de tous les matchs du tournoi
-            matchs_list = []
-            for _rds in _rounds:
-                for match_ in _rds.matchs_list:
-                    matchs_list.append([[match_.identity_plr1, match_.name_plr1, match_.score_plr1],
-                                        [match_.identity_plr2, match_.name_plr2, match_.score_plr2]])
-            print(f"matchs_list => {matchs_list} \n")
-
-            # Mise à jour des points du joueur / Création liste pour traitement nouveau round
-            disorderly_list = []
-            for crt_plrs in current_players:
-
-                for player in _players:
-                    if player.identity == crt_plrs[0]:
-                        player.point = float(player.point + crt_plrs[2])
-
-                if previous_round:
-                    for prv_player in previous_round.matchs_list:
-                        if prv_player.identity_plr1 == crt_plrs[0]:
-                            crt_plrs[2] = float(crt_plrs[2] + prv_player.score_plr1)
-                        if prv_player.identity_plr2 == crt_plrs[0]:
-                            crt_plrs[2] = float(crt_plrs[2] + prv_player.score_plr2)
-
-                disorderly_list.append([crt_plrs[0], crt_plrs[1], crt_plrs[2]])
-
-            # Liste des joueurs classés par nombre de points
-            players_list = sorted(disorderly_list, key=lambda x: x[2], reverse=True)
-
-            print(f"players_list => {players_list} \n")
-
             def restart():
                 match_count = int(number_player / 2)
                 for x in range(match_count):
@@ -267,42 +205,9 @@ class TournamentsCtrl(core.Core):
                         players_list.remove(element)
                     new_matchs_list.append(match_players)
 
-                refactor_tournament()
+                if len(new_matchs_list) > 0:
+                    refactor_tournament()
                 # Mise à jour du tournoi
-
-            def refactor_tournament():
-                player_lists = []
-                rounds_lists = []
-                matchs_lists = []
-
-                for _player in _players:
-                    player_lists.append({"identity": _player.identity, "last_name": _player.last_name,
-                                        "first_name": _player.first_name, "point": _player.point})
-
-                for rds in _rounds:
-                    for ch_ in rds.matchs_list:
-                        matchs_lists.append([[ch_.identity_plr1, ch_.name_plr1, ch_.score_plr1],
-                                            [ch_.identity_plr2, ch_.name_plr2, ch_.score_plr2]])
-
-                    rounds_lists.append({"round": rds.id_round, "start": rds.start, "finish": rds.finish,
-                                         "matchs": matchs_lists})
-
-                for new_match in new_matchs_list:
-                    new_match[0].remove(new_match[0][2])
-                    new_match[1].remove(new_match[1][2])
-
-                rounds_lists.append({"round": id_new_round, "start": '', "finish": '', "matchs": new_matchs_list})
-
-                data_tour = {
-                    'id': tournament.id_tour,
-                    'players': player_lists,
-                    'rounds': rounds_lists
-                }
-
-                data.TournamentData().treatment_round(data_tour)
-
-                rd_ = RoundMdl(id_new_round, "", "", new_matchs_list)
-                _rounds.append(rd_)
 
             def new_round():
                 # Copie liste des joueurs classés par nombre de points
@@ -321,7 +226,7 @@ class TournamentsCtrl(core.Core):
                     confronted = copy_list.copy()
 
                     # tous les matchs de chaque round du tournoi
-                    for _mts in matchs_list:
+                    for _mts in match_lists:
                         plr1 = _mts[0]
                         plr2 = _mts[1]
 
@@ -333,16 +238,105 @@ class TournamentsCtrl(core.Core):
 
                     # s'il reste des joueurs
                     if len(confronted) > 0:
+                        _player[2] = 0.0
+                        confronted[0][2] = 0.0
                         new_matchs_list.append((_player, confronted[0]))
                         copy_list.remove(confronted[0])
 
                 if len(new_matchs_list) > 0:
-                    refactor_tournament()
+                    refactor_tournament(new_matchs_list)
 
-                    # Mise à jour du tournoi
-                    """for ii in tournament.rounds:
-                        print(f"{ii} \n")
-                        print(f"{ii.matchs_list} \n")"""
+            def refactor_tournament(new_mt_list):
+                player_lists = []
+                rounds_lists = []
+
+                for _player in _players:
+                    player_lists.append({"identity": _player.identity, "last_name": _player.last_name,
+                                         "first_name": _player.first_name, "point": _player.point})
+
+                for rds in _rounds:
+                    matchs_lists = []
+                    for ch_ in rds.matchs_list:
+                        matchs_lists.append(([ch_.identity_plr1, ch_.name_plr1, ch_.score_plr1],
+                                             [ch_.identity_plr2, ch_.name_plr2, ch_.score_plr2]))
+
+                    rounds_lists.append({"round": rds.id_round, "start": rds.start, "finish": rds.finish,
+                                         "matchs": matchs_lists})
+
+                rounds_lists.append({"round": id_new_round, "start": '', "finish": '', "matchs": new_mt_list})
+
+                data_tour = {
+                    'id': tournament.id_tour,
+                    'players': player_lists,
+                    'rounds': rounds_lists
+                }
+
+                data.TournamentData().treatment_round(data_tour)
+
+                rd_ = RoundMdl(id_new_round, "", "", new_matchs_list)
+                _rounds.append(rd_)
+
+            _number_turn: int = tournament.number_turns
+            _players: list = tournament.players
+            _rounds: list = tournament.rounds
+
+            number_player = len(_players)
+            number_round = len(_rounds)
+
+            # nombre de fois qu'un joueur en rencontre un autre
+            adversary = int(number_player - 1)
+            reste = _number_turn - number_round
+
+            # round avant le round en cours
+            previous_round = None
+            if len(_rounds) > 1:
+                previous_round = _rounds[-2]
+
+            # round en cours / date de fin
+            current_round: dict = _rounds[-1]
+            current_round.finish = date_fr.FrenchDate().date_hour_fr
+
+            # Nouveau round
+            id_new_round = int(current_round.id_round + 1)
+            new_matchs_list = []
+
+            # Récupération des joueurs du round en cours
+            current_players = []
+            for _match in current_round.matchs_list:
+                current_players.append([_match.identity_plr1, _match.name_plr1, _match.score_plr1])
+                current_players.append([_match.identity_plr2, _match.name_plr2, _match.score_plr2])
+            print(f"current_players => {current_players} \n")
+
+            # récupération de tous les matchs du tournoi
+            match_lists = []
+            for _rds in _rounds:
+                for match_ in _rds.matchs_list:
+                    match_lists.append([[match_.identity_plr1, match_.name_plr1, match_.score_plr1],
+                                        [match_.identity_plr2, match_.name_plr2, match_.score_plr2]])
+            print(f"match_lists => {match_lists} \n")
+
+            # Mise à jour des points du joueur / Création liste pour traitement nouveau round
+            disorderly_list = []
+            for crt_plrs in current_players:
+                player_score = 0.0
+                for player in _players:
+                    if player.identity == crt_plrs[0]:
+                        player.point = float(player.point + crt_plrs[2])
+                        player_score = player.point
+                """if previous_round:
+                    for prv_player in previous_round.matchs_list:
+                        if prv_player.identity_plr1 == crt_plrs[0]:
+                            crt_plrs[2] = float(crt_plrs[2] + prv_player.score_plr1)
+                        if prv_player.identity_plr2 == crt_plrs[0]:
+                            crt_plrs[2] = float(crt_plrs[2] + prv_player.score_plr2)"""
+
+                disorderly_list.append([crt_plrs[0], crt_plrs[1], player_score])
+
+
+            # Liste des joueurs classés par nombre de points
+            players_list = sorted(disorderly_list, key=lambda x: x[2], reverse=True)
+
+            print(f"players_list => {players_list} \n")
 
             if _number_turn == number_round:
                 # Fin des tours, mise à jour du tournoi et fin
@@ -353,8 +347,11 @@ class TournamentsCtrl(core.Core):
                 adversary = int(number_player - 1)
                 reste = _number_turn - number_round
 
+                """# tout le monde s'est rencontrés 1 ou plusieurs fois
+                restart()"""
+                new_round()
                 # tout le monde s'est rencontrés
-                if number_round == adversary:
+                """if number_round == adversary:
                     restart()
 
                 # tout le monde s'est rencontrés encore
@@ -362,36 +359,5 @@ class TournamentsCtrl(core.Core):
                     restart()
 
                 else:
-                    new_round()
+                    new_round()"""
 
-
-
-
-
-
-
-
-
-
-            """ 
-                # nombre de fois qu'un joueur en rencontre un autre
-                adversary = int(number_player - 1)
-                reste = _number_turn - number_round
-
-                # tout le monde s'est rencontrés au moins 1 fois
-                if number_round == adversary:
-                    restart()
-
-                # tout le monde s'est rencontrés au moins 2 fois
-                if reste == adversary:
-                    restart()
-
-                # si moins de deux rencontres restes avec les mêmes joueurs
-                if reste < adversary:
-                    new_round()
-
-                # si plus de deux rencontres restes avec les mêmes joueurs
-                if reste > adversary:
-                    pass
-
-            """

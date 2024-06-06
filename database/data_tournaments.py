@@ -17,10 +17,11 @@ class TournamentData:
 
             for player in new_data.players:
                 player_list.append({"identity": player.identity, "last_name": player.last_name,
-                                    "first_name": player.first_name, "point": player.point})
+                                    "first_name": player.first_name, "point": 0.0})
 
             for match in _rd.matchs_list:
-                match_list.append(([match.identity_plr1, match.name_plr1], [match.identity_plr2, match.name_plr2]))
+                match_list.append(([match.identity_plr1, match.name_plr1, 0.0],
+                                   [match.identity_plr2, match.name_plr2, 0.0]))
             round_1: list = [{"round": _rd.id_round, "start": '', "finish": '', "matchs": match_list}]
 
             self.data = {
@@ -71,6 +72,7 @@ class TournamentData:
                     for tournament in new_file:
                         # tournoi
                         if tournament['id'] == nw_sc[0]:
+
                             # liste des rounds
                             rounds = tournament['Rounds']
                             rd = rounds[-1]
@@ -82,17 +84,13 @@ class TournamentData:
                             player_1 = match[0]
                             player_2 = match[1]
 
-                            if len(player_1) > 2:
-                                player_1.remove(player_1[2])
-                                player_2.remove(player_2[2])
-
                             if player_1[0] == nw_sc[2][0][0]:
-                                player_1.append(nw_sc[2][0][1])
-                                player_2.append(nw_sc[2][1][1])
+                                player_1[2] = nw_sc[2][0][1]
+                                player_2[2] = nw_sc[2][1][1]
 
                             elif player_2[0] == nw_sc[2][0][0]:
-                                player_2.append(nw_sc[2][0][1])
-                                player_1.append(nw_sc[2][1][1])
+                                player_2[2] = nw_sc[2][0][1]
+                                player_1[2] = nw_sc[2][1][1]
 
                     file.seek(0)
                     json.dump(new_file, file, indent=4)
@@ -157,9 +155,13 @@ class TournamentData:
                         if tournament['id'] == new_tournament['id']:
                             tournament['Joueurs'] = new_tournament['players']
                             tournament['Rounds'] = new_tournament['rounds']
+                            for trbl in tournament['Rounds']:
 
-                    file.seek(0)
-                    json.dump(new_file, file, indent=4)
+                                print(f"{trbl} \n")
+                            break
+
+                    """file.seek(0)
+                    json.dump(new_file, file, indent=4)"""
 
                 except json.JSONDecodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")

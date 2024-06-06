@@ -24,6 +24,7 @@ class TournamentsViews(extend_view.ExtendViews):
         """font_families = font.families()
         for family in font_families:
             print(family)"""
+
     def new_menu(self):
         self.se.menu_tour = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_tour)
@@ -70,7 +71,7 @@ class TournamentsViews(extend_view.ExtendViews):
             ctrl_result = self.se.tournament_ctrl_player(self.new_frame, plr_data)
             if ctrl_result:
                 infos_plr = [{'identity': ctrl_result[0], 'last_name': ctrl_result[1], 'first_name': ctrl_result[2],
-                             'point': ctrl_result[3]}]
+                              'point': ctrl_result[3]}]
                 _data_player = self.se.instance_player(infos_plr)
 
                 self.se.new_all_players.append(_data_player[0])
@@ -163,7 +164,7 @@ class TournamentsViews(extend_view.ExtendViews):
                                          text="Prénom : ", ip_wh=20)
             point = self.input_text(mst=self.new_frame, lb_row=11, ip_row=12, cols=1, colspan=5, bg="#FEF9E7",
                                     text="Point(s) : ", ip_wh=10)
-            point.insert(0, "0")
+            point.insert(0, "0.0")
 
             plr_data = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'point': point}
 
@@ -287,7 +288,7 @@ class TournamentsViews(extend_view.ExtendViews):
                    row=4, cols=0, colspan=None, sticky=None)
 
         plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: players_list())
-        plr_create.grid(row=5, column=1,  ipadx=20, ipady=5)
+        plr_create.grid(row=5, column=1, ipadx=20, ipady=5)
 
         self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=20, ipady=None, justify=None, text="",
                    row=5, cols=2, colspan=None, sticky=None)
@@ -309,50 +310,47 @@ class TournamentsViews(extend_view.ExtendViews):
 
         def round_start():
             last_round = tournament.rounds[-1]
-            if not last_round.start:
-                last_round.start = self.se.update_date(('start', tournament.id_tour))
-
-            self.schema_round(tournament, last_round)
+            self.schema_round('round_start', tournament, last_round)
 
         def round_list():
             self.list_rounds(tournament, tournament.rounds)
 
-    def schema_round(self, tournament: object, new_round: object):
+    def schema_round(self, type_round, tournament: object, new_round: object):
 
         print(f"schema_round => {new_round}")
 
+        text_start = "Ce round n'est pas encore lancé"
+        text_finish = 'En attente'
+
         id_round = None
-        tex_start = None
-        text_finish = None
+        start_text = None
+        finish_text = None
         matchs_list = None
 
         if new_round:
             id_round = new_round.id_round
-            tex_start = new_round.start
-            text_finish = new_round.finish
+            start_text = new_round.start
+            finish_text = new_round.finish
             matchs_list = new_round.matchs_list
+
+            if start_text:
+                text_start = start_text
+
+            if finish_text:
+                text_finish = finish_text
+
+            elif start_text and not finish_text:
+                text_finish = 'En cours'
 
         else:
             messagebox.showwarning(title='Avertissement', message='Erreur programme veuillez recommencer')
 
         if self.new_window:
             self.new_window[0].destroy()
-
         self.new_window = self.se.listing_window(60, 90, 100, 30, f'Round n° {id_round}', '#FEF9E7')
-
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", pady=10)
         self.new_frame.grid()
         self.new_frame.place(relx=0.5, rely=0, anchor='n')
-
-        if not tex_start:
-            start_text = "Ce round n'est pas encore lancé"
-            finish_text = 'En attente'
-        else:
-            start_text = tex_start
-            if not text_finish:
-                finish_text = 'En cours'
-            else:
-                finish_text = text_finish
 
         name = self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
                           mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round n° {id_round}",
@@ -360,11 +358,11 @@ class TournamentsViews(extend_view.ExtendViews):
 
         start = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
                            mst=self.new_frame, bg="#FEF9E7", justify=None,
-                           text=f"Ouverture du round le : {start_text}", width=None, row=1, cols=0, colspan=2,
+                           text=f"Ouverture du round le : {text_start}", width=None, row=1, cols=0, colspan=2,
                            sticky="w", padx=20, pady=5)
 
         finish = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
-                            mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round terminé le : {finish_text}",
+                            mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round terminé le : {text_finish}",
                             width=None, row=2, cols=0, colspan=2, sticky="w", padx=20, pady=5)
 
         name.update()
@@ -385,10 +383,23 @@ class TournamentsViews(extend_view.ExtendViews):
         next_line = 0
         number_key = 0
 
-        def action(winner, loser, parent):
+        def action(winner, loser, parent, frames_lists):
 
-            if tex_start and not text_finish:
+            if not finish_text and type_round == 'round_start':
+
                 match_key = parent.winfo_name()
+
+                # Démarrage du round
+                if not start_text:
+                    new_round.start = self.se.update_date(('start', tournament.id_tour))
+                    start.config(text=f"Ouverture du round le : {new_round.start}")
+                    for _frame in frames_lists:
+                        key_frames = _frame.winfo_name()
+                        if not match_key == key_frames:
+                            for child in _frame.winfo_children():
+                                child_name = child.winfo_name()
+                                if child_name == 'score':
+                                    child['text'] = 'En cours'
 
                 if not loser:
                     id_player1 = winner[0][0]
@@ -426,34 +437,38 @@ class TournamentsViews(extend_view.ExtendViews):
             else:
                 pass
 
-        def view_player1(player1, player2, parent, color):
+        def view_player1(player1, player2, parent, frames_list, color):
             plr1_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                                 font=lb_font, foreground=color, text=player1[1],
                                 name=f"id-{player1[0]}")
-            plr1_widget.bind("<Button-1>", lambda e: action(player1, player2, parent))
+            plr1_widget.bind("<Button-1>", lambda e: action(player1, player2, parent, frames_list))
             plr1_widget.grid(row=0, padx=10)
 
-        def view_player2(player2, player1, parent, color):
+        def view_player2(player2, player1, parent, frames_list, color):
             plr2_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                                 font=lb_font, foreground=color, text=player2[1],
                                 name=f"id-{player2[0]}")
-            plr2_widget.bind("<Button-1>", lambda e: action(player2, player1, parent))
+            plr2_widget.bind("<Button-1>", lambda e: action(player2, player1, parent, frames_list))
             plr2_widget.grid(row=2, padx=10)
 
-        def result_null(players, parent):
+        def result_null(players, parent, frames_list):
             null = Label(match_frame, width=10, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                          font=lb_font_mini, foreground='blue', text="Match null")
-            null.bind("<Button-1>", lambda e: action(players, None, parent))
+            null.bind("<Button-1>", lambda e: action(players, None, parent, frames_list))
             null.grid(row=1, column=0, pady=15)
 
+        frame_list = []
         for plr in matchs_list:
-            result_match = 'En cours'
             foreground1 = 'black'
             foreground2 = 'black'
+            result_match = 'Non lancé'
 
-            if plr.score_plr1 or plr.score_plr2:
+            if new_round.start:
 
-                if plr.score_plr1 > plr.score_plr2:
+                if plr.score_plr1 == 0.0 and plr.score_plr2 == 0.0:
+                    result_match = 'En cours'
+
+                elif plr.score_plr1 > plr.score_plr2:
                     result_match = plr.name_plr1
                     foreground1 = 'green'
                     foreground2 = 'red'
@@ -468,27 +483,21 @@ class TournamentsViews(extend_view.ExtendViews):
                     foreground1 = 'blue'
                     foreground2 = 'blue'
 
-                else:
-                    result_match = 'Annulé'
-
-            elif not new_round.start:
-                result_match = 'non lancé'
-
             match_frame = Frame(frame, name=str(number_key), highlightbackground="black", highlightthickness=1,
                                 bg="#f5cb8e", pady=30)
             match_frame.grid(row=next_line, column=1)
 
             view_player1([plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2],
-                         match_frame, foreground1)
+                         match_frame, frame_list, foreground1)
 
-            result_null([[plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2]], match_frame)
+            result_null([[plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2]], match_frame,
+                        frame_list)
             result = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                            font=lb_font, text=result_match, name="score")
             result.grid(row=1, column=2, padx=10)
 
             view_player2([plr.identity_plr2, plr.name_plr2], [plr.identity_plr1, plr.name_plr1],
-                         match_frame, foreground2)
-
+                         match_frame, frame_list, foreground2)
             next_line += 1
 
             espace_ext = Label(frame)
@@ -496,6 +505,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
             next_line += 1
             number_key += 1
+            frame_list.append(match_frame)
 
         canvas.update()
         canvas.create_window((0, 0), window=frame)
@@ -508,8 +518,28 @@ class TournamentsViews(extend_view.ExtendViews):
         col0.grid(row=0, column=0, ipadx=col0_x[2])
 
         def submit_l():
-            self.se.round_treatment(tournament)
-            self.new_window[0].destroy()
+            not_submit = False
+            text_list = ['En cours', 'Non lancé']
+
+            if not finish_text:
+                for _frame in frame_list:
+                    for child in _frame.winfo_children():
+                        child_name = child.winfo_name()
+                        child_text = child['text']
+                        if child_text in text_list and child_name == 'score':
+                            not_submit = child_text
+
+                if not not_submit and type_round == 'round_start':
+                    self.se.round_treatment(tournament)
+                    self.new_window[0].destroy()
+
+                if not_submit == 'En cours':
+                    messagebox.showwarning(title='Avertissement', message='Un ou plusieurs match(s) sont en cours')
+
+                elif not_submit == 'Non lancé':
+                    messagebox.showwarning(title='Avertissement', message='Lancer le round dans la fenêtre tournoi et '
+                                                                          'cliqué sur un joueur ou match null pour '
+                                                                          'lancer le tour')
 
         submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {id_round}",
                                  command=lambda: submit_l())
@@ -550,7 +580,6 @@ class TournamentsViews(extend_view.ExtendViews):
         if len(self.se.new_all_players) > 0:
 
             for nw_player in self.se.new_all_players:
-
                 player_supp.append(nw_player.identity)
 
                 identity = Label(frame, bg="#ffffff", justify="center", text=nw_player.identity)
@@ -614,7 +643,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         return self.new_window, self.new_frame
 
-    def list_rounds(self, tournament: object,  data_rounds: list):
+    def list_rounds(self, tournament: object, data_rounds: list):
         if self.new_window:
             self.new_window[0].destroy()
         self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des rounds', '#FEF9E7')
@@ -678,7 +707,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
                 if found:
                     # new_round = self.se.round_instance(data_rounds[number])
-                    self.schema_round(tournament, data_rounds[number])
+                    self.schema_round('list_rounds', tournament, data_rounds[number])
 
         def hover(event):
             tree = event.widget
@@ -701,4 +730,3 @@ class TournamentsViews(extend_view.ExtendViews):
                       pady=kwargs['pady'], text=kwargs['text'])
         label.grid(columnspan=10)
         kwargs['mst'].after(12000, label.destroy)
-
