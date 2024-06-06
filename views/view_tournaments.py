@@ -321,39 +321,23 @@ class TournamentsViews(extend_view.ExtendViews):
 
         text_start = "Ce round n'est pas encore lancé"
         text_finish = 'En attente'
+        if new_round.start:
+            text_start = new_round.start
 
-        id_round = None
-        start_text = None
-        finish_text = None
-        matchs_list = None
-
-        if new_round:
-            id_round = new_round.id_round
-            start_text = new_round.start
-            finish_text = new_round.finish
-            matchs_list = new_round.matchs_list
-
-            if start_text:
-                text_start = start_text
-
-            if finish_text:
-                text_finish = finish_text
-
-            elif start_text and not finish_text:
-                text_finish = 'En cours'
-
-        else:
-            messagebox.showwarning(title='Avertissement', message='Erreur programme veuillez recommencer')
+        if new_round.finish:
+            text_finish = new_round.finish
+        elif new_round.start and not new_round.finish:
+            text_finish = 'En cours'
 
         if self.new_window:
             self.new_window[0].destroy()
-        self.new_window = self.se.listing_window(60, 90, 100, 30, f'Round n° {id_round}', '#FEF9E7')
+        self.new_window = self.se.listing_window(60, 90, 100, 30, f'Round n° {new_round.id_round}', '#FEF9E7')
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", pady=10)
         self.new_frame.grid()
         self.new_frame.place(relx=0.5, rely=0, anchor='n')
 
         name = self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
-                          mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round n° {id_round}",
+                          mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round n° {new_round.id_round}",
                           width=None, row=0, cols=0, colspan=2, sticky="w", padx=20, pady=15)
 
         start = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
@@ -383,14 +367,16 @@ class TournamentsViews(extend_view.ExtendViews):
         next_line = 0
         number_key = 0
 
-        def action(winner, loser, parent, frames_lists):
+        def action(action_type, mtch, parent, frames_lists):
 
-            if not finish_text and type_round == 'round_start':
-
+            if not new_round.finish and type_round == 'round_start':
                 match_key = parent.winfo_name()
+                widget_player1 = None
+                widget_player2 = None
+                widget_score = None
 
-                # Démarrage du round
-                if not start_text:
+                # Lancement du round
+                if not new_round.start:
                     new_round.start = self.se.update_date(('start', tournament.id_tour))
                     start.config(text=f"Ouverture du round le : {new_round.start}")
                     for _frame in frames_lists:
@@ -401,84 +387,99 @@ class TournamentsViews(extend_view.ExtendViews):
                                 if child_name == 'score':
                                     child['text'] = 'En cours'
 
-                if not loser:
-                    id_player1 = winner[0][0]
-                    id_player2 = winner[1][0]
-
-                    results = [(id_player1, 0.5), (id_player2, 0.5)]
-                else:
-                    id_player1 = winner[0]
-                    id_player2 = loser[0]
-                    results = [(id_player1, 1.0), (id_player2, 0.0)]
-
+                # Récupération des vues
                 for child in parent.winfo_children():
-                    id_name = child.winfo_name()
-                    id_n = id_name.find('id-')
-                    identity = id_name[id_n + 3:]
+                    widget_name = child.winfo_name()
+                    id_n = widget_name.find('id-')
+                    widget_id_player = widget_name[id_n + 3:]
 
-                    if loser:
-                        if identity == id_player1:
-                            child.configure(foreground='green')
-                        if identity == id_player2:
-                            child.configure(foreground='red')
-                        if id_name == 'score':
-                            child['text'] = winner[1]
-                    else:
-                        if identity == id_player1:
-                            child.configure(foreground='blue')
-                        if identity == id_player2:
-                            child.configure(foreground='blue')
-                        if id_name == 'score':
-                            child['text'] = 'Match null'
+                    if widget_id_player == mtch.identity_plr1:
+                        widget_player1 = child
 
-                if winner:
+                    if widget_id_player == mtch.identity_plr2:
+                        widget_player2 = child
+
+                    if widget_name == 'score':
+                        widget_score = child
+
+                # traitement
+                match action_type:
+
+                    case 'equal':
+                        mtch.score_plr1 = 0.5
+                        mtch.score_plr2 = 0.5
+                        results = [(mtch.identity_plr1, 0.5), (mtch.identity_plr2, 0.5)]
+                        widget_player1.configure(foreground='blue')
+                        widget_player2.configure(foreground='blue')
+                        widget_score['text'] = 'Match null'
+
+                    case 'player1':
+                        mtch.score_plr1 = 1.0
+                        mtch.score_plr2 = 0.0
+                        results = [(mtch.identity_plr1, mtch.score_plr1), (mtch.identity_plr2, mtch.score_plr2)]
+                        widget_player1.configure(foreground='green')
+                        widget_player2.configure(foreground='red')
+                        widget_score['text'] = mtch.name_plr1
+
+                    case 'player2':
+                        mtch.score_plr1 = 0.0
+                        mtch.score_plr2 = 1.0
+                        results = [(mtch.identity_plr2, mtch.score_plr2), (mtch.identity_plr1, mtch.score_plr1)]
+                        widget_player1.configure(foreground='red')
+                        widget_player2.configure(foreground='green')
+                        widget_score['text'] = mtch.name_plr2
+                    case _:
+                        results = None
+
+                if results:
                     data_match = (tournament.id_tour, match_key, results)
                     self.se.update_score(data_match)
+
             else:
                 pass
 
-        def view_player1(player1, player2, parent, frames_list, color):
-            plr1_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                                font=lb_font, foreground=color, text=player1[1],
-                                name=f"id-{player1[0]}")
-            plr1_widget.bind("<Button-1>", lambda e: action(player1, player2, parent, frames_list))
+        def view_player1(_match, parent, frames_list, color):
+            plr1_widget = Label(parent, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
+                                font=lb_font, foreground=color, text=_match.name_plr1,
+                                name=f"id-{_match.identity_plr1}")
+            plr1_widget.bind("<Button-1>", lambda e: action('player1', _match, parent, frames_list))
             plr1_widget.grid(row=0, padx=10)
 
-        def view_player2(player2, player1, parent, frames_list, color):
-            plr2_widget = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                                font=lb_font, foreground=color, text=player2[1],
-                                name=f"id-{player2[0]}")
-            plr2_widget.bind("<Button-1>", lambda e: action(player2, player1, parent, frames_list))
+        def view_player2(_match, parent, frames_list, color):
+            plr2_widget = Label(parent, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
+                                font=lb_font, foreground=color, text=_match.name_plr2,
+                                name=f"id-{_match.identity_plr2}")
+            plr2_widget.bind("<Button-1>", lambda e: action('player2', _match, parent, frames_list))
             plr2_widget.grid(row=2, padx=10)
 
-        def result_null(players, parent, frames_list):
-            null = Label(match_frame, width=10, bg="#ffffff", highlightbackground="black", highlightthickness=1,
+        def result_null(_match, parent, frames_list):
+            null = Label(parent, width=10, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                          font=lb_font_mini, foreground='blue', text="Match null")
-            null.bind("<Button-1>", lambda e: action(players, None, parent, frames_list))
+            null.bind("<Button-1>", lambda e: action('equal', _match, parent, frames_list))
             null.grid(row=1, column=0, pady=15)
 
         frame_list = []
-        for plr in matchs_list:
+        for _matchs in new_round.matchs_list:
             foreground1 = 'black'
             foreground2 = 'black'
             result_match = 'Non lancé'
 
             if new_round.start:
 
-                if plr.score_plr1 == 0.0 and plr.score_plr2 == 0.0:
+                if _matchs.score_plr1 == 0.0 and _matchs.score_plr2 == 0.0:
                     result_match = 'En cours'
 
-                elif plr.score_plr1 > plr.score_plr2:
-                    result_match = plr.name_plr1
+                elif _matchs.score_plr1 > _matchs.score_plr2:
+                    result_match = _matchs.name_plr1
                     foreground1 = 'green'
                     foreground2 = 'red'
 
-                elif plr.score_plr2 > plr.score_plr1:
-                    result_match = plr.name_plr2
+                elif _matchs.score_plr2 > _matchs.score_plr1:
+                    result_match = _matchs.name_plr2
                     foreground1 = 'red'
                     foreground2 = 'green'
 
-                elif plr.score_plr1 == plr.score_plr2:
+                elif _matchs.score_plr1 == _matchs.score_plr2:
                     result_match = 'Match null'
                     foreground1 = 'blue'
                     foreground2 = 'blue'
@@ -487,17 +488,15 @@ class TournamentsViews(extend_view.ExtendViews):
                                 bg="#f5cb8e", pady=30)
             match_frame.grid(row=next_line, column=1)
 
-            view_player1([plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2],
-                         match_frame, frame_list, foreground1)
+            view_player1(_matchs, match_frame, frame_list, foreground1)
 
-            result_null([[plr.identity_plr1, plr.name_plr1], [plr.identity_plr2, plr.name_plr2]], match_frame,
-                        frame_list)
+            result_null(_matchs, match_frame, frame_list)
+
             result = Label(match_frame, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                            font=lb_font, text=result_match, name="score")
             result.grid(row=1, column=2, padx=10)
 
-            view_player2([plr.identity_plr2, plr.name_plr2], [plr.identity_plr1, plr.name_plr1],
-                         match_frame, frame_list, foreground2)
+            view_player2(_matchs, match_frame, frame_list, foreground2)
             next_line += 1
 
             espace_ext = Label(frame)
@@ -521,7 +520,7 @@ class TournamentsViews(extend_view.ExtendViews):
             not_submit = False
             text_list = ['En cours', 'Non lancé']
 
-            if not finish_text:
+            if not new_round.finish:
                 for _frame in frame_list:
                     for child in _frame.winfo_children():
                         child_name = child.winfo_name()
@@ -541,7 +540,7 @@ class TournamentsViews(extend_view.ExtendViews):
                                                                           'cliqué sur un joueur ou match null pour '
                                                                           'lancer le tour')
 
-        submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {id_round}",
+        submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {new_round.id_round}",
                                  command=lambda: submit_l())
         submit_list.grid(column=0, columnspan=2, pady=20, ipadx=20, ipady=15)
 

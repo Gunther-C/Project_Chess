@@ -276,6 +276,11 @@ class TournamentsCtrl(core.Core):
                 rd_ = RoundMdl(id_new_round, "", "", new_matchs_list)
                 _rounds.append(rd_)
 
+
+
+
+
+
             _number_turn: int = tournament.number_turns
             _players: list = tournament.players
             _rounds: list = tournament.rounds
@@ -317,6 +322,10 @@ class TournamentsCtrl(core.Core):
 
             # Mise à jour des points du joueur / Création liste pour traitement nouveau round
             disorderly_list = []
+            tutu = []
+            # for _match in current_round.matchs_list:
+
+
             for crt_plrs in current_players:
                 player_score = 0.0
                 for player in _players:
@@ -329,13 +338,15 @@ class TournamentsCtrl(core.Core):
                             crt_plrs[2] = float(crt_plrs[2] + prv_player.score_plr1)
                         if prv_player.identity_plr2 == crt_plrs[0]:
                             crt_plrs[2] = float(crt_plrs[2] + prv_player.score_plr2)"""
-
+                tutu.append(crt_plrs[0])
+                tutu.append(player_score)
                 disorderly_list.append([crt_plrs[0], crt_plrs[1], player_score])
 
 
             # Liste des joueurs classés par nombre de points
             players_list = sorted(disorderly_list, key=lambda x: x[2], reverse=True)
 
+            print(f"tutu => {tutu} \n")
             print(f"players_list => {players_list} \n")
 
             if _number_turn == number_round:
