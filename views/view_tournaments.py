@@ -434,7 +434,6 @@ class TournamentsViews(extend_view.ExtendViews):
                 if results:
                     data_match = (tournament.id_tour, match_key, results)
                     self.se.update_score(data_match)
-
             else:
                 pass
 
