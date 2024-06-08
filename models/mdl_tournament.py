@@ -34,7 +34,9 @@ class TournamentMdl:
                 rd_ = RoundMdl(_round['round'], _round['start'], _round['finish'], _round['matchs'])
                 self.rounds.append(rd_)
 
-            for player in players:
+            players_lists = sorted(players, key=lambda x: x['point'], reverse=True)
+
+            for player in players_lists:
                 instance = PlayersMdl(identity=player['identity'], last_name=player['last_name'],
                                       first_name=player['first_name'], point=player['point'])
                 self.players.append(instance)

@@ -297,11 +297,11 @@ class TournamentsViews(extend_view.ExtendViews):
                               command=lambda: round_list())
         plr_list.grid(row=5, column=3, ipadx=20, ipady=5)
 
-        plr_list = ttk.Button(self.frame, text="<= Lancer le tour =>", command=lambda: round_start())
-        plr_list.grid(row=6, columnspan=4, pady=40, ipadx=30, ipady=10)
+        if len(tournament.rounds) < tournament.number_turns:
+            plr_list = ttk.Button(self.frame, text="<= Lancer le tour =>", command=lambda: round_start())
+            plr_list.grid(row=6, columnspan=4, pady=40, ipadx=30, ipady=10)
 
         def players_list():
-            print('players_list', tournament.players)
             view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
             self.new_window = view_list[0]
 

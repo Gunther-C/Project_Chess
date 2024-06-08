@@ -210,7 +210,11 @@ class TournamentsCtrl(core.Core):
 
             # Nouveau round
             id_new_round = int(current_round.id_round + 1)
-            new_matchs_list = []
+            #
+
+            # nombre de fois qu'un joueur en rencontre un autre
+            adversary = int(number_player - 1)
+            reste = _number_turn - number_round
 
             # récupération de tous les matchs du tournoi
             match_lists = []
@@ -224,7 +228,6 @@ class TournamentsCtrl(core.Core):
 
             # Mise à jour des points du joueur / Création liste ordonnée pour traitement nouveau round
             disorderly_list = []
-            tutu = []
             for _match in current_round.matchs_list:
 
                 for player in _players:
@@ -233,22 +236,15 @@ class TournamentsCtrl(core.Core):
                         player_score = player.point
                         disorderly_list.append([_match.identity_plr1, _match.name_plr1, player_score])
 
-                        tutu.append(_match.name_plr1)
-                        tutu.append(player_score)
-
                     if player.identity == _match.identity_plr2:
                         player.point = float(player.point + _match.score_plr2)
                         player_score = player.point
                         disorderly_list.append([_match.identity_plr2, _match.name_plr2, player_score])
 
-                        tutu.append(_match.name_plr2)
-                        tutu.append(player_score)
-
             # Liste des joueurs classés par nombre de points
-            players_list = sorted(disorderly_list, key=lambda x: x[2], reverse=True)
+            players_lists = sorted(disorderly_list, key=lambda x: x[2], reverse=True)
 
-
-            def refactor_tournament(new_mt_list):
+            def refactor_tournament(new_mt_list=None):
                 player_lists = []
                 rounds_lists = []
 
@@ -264,8 +260,8 @@ class TournamentsCtrl(core.Core):
 
                     rounds_lists.append({"round": rds.id_round, "start": rds.start, "finish": rds.finish,
                                          "matchs": matchs_lists})
-
-                rounds_lists.append({"round": id_new_round, "start": '', "finish": '', "matchs": new_mt_list})
+                if new_mt_list:
+                    rounds_lists.append({"round": id_new_round, "start": '', "finish": '', "matchs": new_mt_list})
 
                 data_tour = {
                     'id': tournament.id_tour,
@@ -274,26 +270,31 @@ class TournamentsCtrl(core.Core):
                 }
 
                 data.TournamentData().treatment_round(data_tour)
-
-                rd_ = RoundMdl(id_new_round, "", "", new_matchs_list)
-                _rounds.append(rd_)
+                if new_mt_list:
+                    rd_ = RoundMdl(id_new_round, "", "", new_mt_list)
+                    _rounds.append(rd_)
 
             def restart():
+                new_matchs_list = []
+                for _player in players_lists:
+                    _player[2] = 0.0
                 match_count = int(number_player / 2)
                 for x in range(match_count):
-                    pair = random.sample(players_list, 2)
+                    pair = random.sample(players_lists, 2)
                     match_players: tuple = (pair[0], pair[1])
                     for element in pair:
-                        players_list.remove(element)
+                        players_lists.remove(element)
                     new_matchs_list.append(match_players)
 
                 if len(new_matchs_list) > 0:
                     refactor_tournament(new_matchs_list)
                 # Mise à jour du tournoi
 
-            def new_round():
-
+            # _turn = 0
+            def new_round(_turn, players_list):
+                new_matchs_list = []
                 copy_list = players_list.copy()
+
                 # Créer une liste comprenant les matchs
                 for _player in players_list:
                     id_player = _player[0]
@@ -301,13 +302,12 @@ class TournamentsCtrl(core.Core):
                     if _player not in copy_list:
                         continue
                     copy_list.remove(_player)
+
                     # Copie liste des joueurs classés par nombre de points
                     confronted = []
+                    insert_confronted = []
                     for _plr in copy_list:
                         confronted.append([_plr[0], _plr[1]])
-
-                    """print(f"{_player[1]} copy_list haut => {copy_list}")
-                    print(f"{_player[1]} confronted haut => {confronted} \n")"""
 
                     # tous les matchs de chaque round du tournoi
                     for _mts in match_lists:
@@ -316,11 +316,18 @@ class TournamentsCtrl(core.Core):
 
                         if id_player == plr1[0] and plr2 in confronted:
                             confronted.remove(plr2)
+                            insert_confronted.append(plr2)
 
                         if id_player == plr2[0] and plr1 in confronted:
                             confronted.remove(plr1)
+                            insert_confronted.append(plr2)
 
-                    if len(confronted) > 0:
+                    if len(insert_confronted) == adversary:
+                        print(f"insert_confronted  => {insert_confronted} {adversary} \n")
+                        restart()
+                        break
+
+                    elif len(confronted) > 0:
                         print(f"confronted bas => {confronted} \n")
                         _player[2] = 0.0
                         confronted[0].append(0.0)
@@ -328,38 +335,53 @@ class TournamentsCtrl(core.Core):
                         for plr in copy_list:
                             if plr[0] == confronted[0][0]:
                                 copy_list.remove(plr)
-
                     else:
-                        print(f"confronted basbas => {new_matchs_list} \n")
+                        print(f"n_turn < adversary => {_turn} \n")
+                        if _turn < adversary:
 
-                        next_match1 = new_matchs_list[-1]
-                        copy_list.insert(0, next_match1[0])
-                        copy_list.append(next_match1[1])
-                        copy_list.append(_player)
+                            new_matchs_list.clear()
+                            key_pop = -1
+                            key_pop -= _turn
+                            key_insert = -3
+                            key_insert -= _turn
+                            if key_insert + adversary <= 0:
+                                key_insert = _turn - adversary
+
+                            first_value = players_list.pop(key_pop)
+                            players_list.insert(key_insert, first_value)
+
+                            _turn += 1
+                            new_round(_turn, players_list)
+                            break
+
+                        else:
+                            print(f"restart => {restart} \n")
+                            restart()
+                            break
 
                 if len(new_matchs_list) > 0:
+                    print(f"new_matchs_list bas2 => {new_matchs_list} \n")
                     refactor_tournament(new_matchs_list)
 
-
+            # Fin des tours, mise à jour du tournoi et fin
             if _number_turn == number_round:
-                # Fin des tours, mise à jour du tournoi et fin
-                print('Application data')
+                refactor_tournament()
+
+            # tout le monde s'est rencontrés
+            elif number_round == adversary:
+                print('restart')
+                restart()
 
             else:
-                # nombre de fois qu'un joueur en rencontre un autre
-                adversary = int(number_player - 1)
-                reste = _number_turn - number_round
+                print('new_round')
+                new_round(0, players_lists)
 
-                # tout le monde s'est rencontrés
-                if number_round == adversary:
-                    print('Applicaooo')
-                    restart()
 
-                else:
-                    new_round()
+
 
 
                 # tout le monde s'est rencontrés encore
                 """elif reste == adversary:
                     print('Application daoota')
                     restart()"""
+
