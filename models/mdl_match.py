@@ -4,11 +4,11 @@ class MatchMdl:
 
         self.identity_plr1 = None
         self.name_plr1 = None
-        self.score_plr1 = None
+        self.score_plr1 = 0.0
 
         self.identity_plr2 = None
         self.name_plr2 = None
-        self.score_plr2 = None
+        self.score_plr2 = 0.0
 
         if len(pair) == 2:
             self.instance_match(pair)
@@ -18,15 +18,13 @@ class MatchMdl:
         if len(pair[0]) > 1 and len(pair[1]) > 1:
             self.identity_plr1 = pair[0][0]
             self.name_plr1 = pair[0][1]
-            self.score_plr1 = pair[0][2]
-            """if len(pair[0]) > 2:
-                self.score_plr1 = pair[0][2]"""
+            if len(pair[0]) > 2:
+                self.score_plr1 = pair[0][2]
 
             self.identity_plr2 = pair[1][0]
             self.name_plr2 = pair[1][1]
-            self.score_plr2 = pair[1][2]
-            """if len(pair[1]) > 2:
-                self.score_plr2 = pair[1][2]"""
+            if len(pair[1]) > 2:
+                self.score_plr2 = pair[1][2]
 
 
 

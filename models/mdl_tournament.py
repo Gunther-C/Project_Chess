@@ -6,7 +6,7 @@ from models.mdl_player import PlayersMdl
 class TournamentMdl:
     def __init__(self, id_tour: int | None = None, name: str | None = None, address: str | None = None,
                  birth: str | None = None, number_turns: int | None = None, rounds: list | None = None,
-                 players: list | None = None):
+                 players: list | None = None, comment: str | None = None):
 
         self.id_tour = None
         self.name = None
@@ -15,16 +15,19 @@ class TournamentMdl:
         self.number_turns = None
         self.players = []
         self.rounds = []
+        self.comment = ""
 
         if name and address and birth and number_turns and len(players) > 1:
-            self.instance_tournament(id_tour, name, address, birth, number_turns, rounds, players)
+            self.instance_tournament(id_tour, name, address, birth, number_turns, rounds, players, comment)
 
-    def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players):
+    def instance_tournament(self, id_tour, name, address, birth, number_turns, rounds, players, comment):
 
         self.name = str(name).capitalize()
         self.address = str(address)
         self.date = str(birth)
         self.number_turns = int(number_turns)
+        if comment:
+            self.comment = str(comment)
 
         if id_tour and rounds:
             """Tournoi éxistant"""

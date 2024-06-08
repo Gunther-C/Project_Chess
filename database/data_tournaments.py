@@ -31,7 +31,8 @@ class TournamentData:
                 'Date': str(new_data.date),
                 'Nombre de manche': int(new_data.number_turns),
                 'Joueurs': player_list,
-                'Rounds': round_1
+                'Rounds': round_1,
+                'Commentaires': str(new_data.comment)
             }
             self.insert_tournament()
 

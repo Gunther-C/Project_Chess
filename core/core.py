@@ -207,12 +207,12 @@ class Core(Tk):
 
         if point:
             new_number = number.find('.')
-            last_number = number[:new_number]
-            first_number = number[new_number + 1:]
+            first_number = number[:new_number]
+            last_number = number[new_number + 1:]
 
-            verif_last = last_number.isdigit()
             verif_first = first_number.isdigit()
-            if not verif_last or not verif_first or first_number != '5':
+            verif_last = last_number.isdigit()
+            if not verif_first or not verif_last or last_number != '5' and last_number != '0':
                 result = True
 
         if not point:

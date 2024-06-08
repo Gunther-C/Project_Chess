@@ -83,7 +83,7 @@ class TournamentsCtrl(core.Core):
             birth = date_fr.FrenchDate().new_format_fr(year, month, day)
 
             self.tournament_treatment('create', new_frame, None, name, address, birth, number_turns,
-                                      None, players)
+                                      None, players, None)
             self.new_all_players.clear()
         else:
             pass
@@ -138,10 +138,12 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
-    def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players):
+    def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players,
+                             comment):
         # instance tournoi
         self.new_tournament = TournamentMdl(id_tour=id_tour, name=name, address=address, birth=birth,
-                                            number_turns=number_turns, rounds=rounds, players=players)
+                                            number_turns=number_turns, rounds=rounds, players=players,
+                                            comment=comment)
         if treatment == 'create':
             # insertion json
             if data.TournamentData(self.new_tournament):
