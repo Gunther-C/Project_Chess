@@ -36,7 +36,6 @@ class TournamentsViews(extend_view.ExtendViews):
         if not self.se.widjets_menu1:
             self.se.menu_listing = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_list())
             self.se.menu_tour.add_command(label="Ajouter un tournoi", command=lambda: self.se.result_menu('create'))
-            self.se.menu_tour.add_command(label="Chercher un tournoi", command=lambda: self.se.result_menu('search'))
             self.se.menu_tour.add_cascade(label="Liste des tournois par:", menu=self.se.menu_listing)
             self.se.widjets_menu1 = True
 
@@ -257,12 +256,13 @@ class TournamentsViews(extend_view.ExtendViews):
         content.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=1, column=1, sticky='ns')
 
-    def detail_tournament(self, tournament: object):
+    def detail_tournament(self, tournament: object, result_round=None):
 
         print(f"detail_tournament => {tournament}")
 
         last_rd = tournament.rounds[-1]
         last_finish = last_rd.finish
+
         def comment():
             new_comment = _comment.get("1.0", "end-1c")
             new_comment.strip()
@@ -272,7 +272,7 @@ class TournamentsViews(extend_view.ExtendViews):
             self.se.new_all_players.clear()
 
         self.se.clear_frame(self.frame)
-        master_geometrie = self.se.master_window(50, 75)
+        master_geometrie = self.se.master_window(50, 85)
         self.se.minsize(width=(master_geometrie[0] - 100), height=(master_geometrie[1] - 100))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -317,6 +317,11 @@ class TournamentsViews(extend_view.ExtendViews):
         if not last_finish:
             plr_list = ttk.Button(self.frame, text="<= Lancer le tour =>", command=lambda: round_start())
             plr_list.grid(row=12, columnspan=4, pady=40, ipadx=30, ipady=10)
+
+        if result_round:
+            self.message(mst=self.frame, family=None, size=12, weight="normal", slant="roman", underline=False,
+                         bg="#FEF9E7", name="error", fg=result_round[1], pady=10,
+                         text=result_round[0])
 
         def players_list():
             view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
@@ -375,9 +380,8 @@ class TournamentsViews(extend_view.ExtendViews):
         list_system = self.se.listing_canvas(self.new_frame, 3, '#ffffff', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
-        scroll_mouse = list_system[2]
-        view_x = list_system[3]
-        view_y = list_system[4]
+        view_x = list_system[2]
+        view_y = list_system[3]
 
         lb_font = font.Font(family='Times New Roman', size=15)
         lb_font_mini = font.Font(family='Times New Roman', size=10)
@@ -474,6 +478,14 @@ class TournamentsViews(extend_view.ExtendViews):
             null.bind("<Button-1>", lambda e: action('equal', _match, parent, frames_list))
             null.grid(row=1, column=0, pady=15)
 
+        def roll_wheel(event):
+            direction = 0
+            if event.num == 5 or event.delta == -120:
+                direction = 1
+            if event.num == 4 or event.delta == 120:
+                direction = -1
+            event.widget.yview_scroll(direction, UNITS)
+
         frame_list = []
         for _matchs in new_round.matchs_list:
             foreground1 = 'black'
@@ -525,7 +537,9 @@ class TournamentsViews(extend_view.ExtendViews):
         canvas.update()
         canvas.create_window((0, 0), window=frame)
         frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 80), height=view_y))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
+        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
+        canvas.bind('<Button-5>', lambda event: roll_wheel(event))
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)
@@ -578,9 +592,8 @@ class TournamentsViews(extend_view.ExtendViews):
         list_system = self.se.listing_canvas(self.new_frame, 1, '#ffffff', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
-        scroll_mouse = list_system[2]
-        view_x = list_system[3]
-        view_y = list_system[4]
+        view_x = list_system[2]
+        view_y = list_system[3]
 
         self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="roman", underline=True,
                    mst=self.new_frame, bg="#FEF9E7", justify="center", text=title, width=None, row=0, cols=0,
@@ -652,10 +665,20 @@ class TournamentsViews(extend_view.ExtendViews):
                     check.grid(row=next_line, column=5, padx=15)
                 next_line += 1
 
+        def roll_wheel(event):
+            direction = 0
+            if event.num == 5 or event.delta == -120:
+                direction = 1
+            if event.num == 4 or event.delta == 120:
+                direction = -1
+            event.widget.yview_scroll(direction, UNITS)
+
         canvas.update()
         canvas.create_window((0, 0), window=frame)
         frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
+        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
+        canvas.bind('<Button-5>', lambda event: roll_wheel(event))
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)

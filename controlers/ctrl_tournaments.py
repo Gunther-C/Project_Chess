@@ -6,7 +6,9 @@ import random
 from core import core
 from core import french_date as date_fr
 from rotate import rotation
-from database import data_tournaments as data
+
+from database.data_tournaments import TournamentData
+from database.data_players import PlayersData
 
 from models.mdl_tournament import TournamentMdl
 from models.mdl_round import RoundMdl
@@ -142,7 +144,7 @@ class TournamentsCtrl(core.Core):
 
         self.new_tournament.comment = comment
 
-        if data.TournamentData().update_comment(self.new_tournament):
+        if TournamentData().update_comment(self.new_tournament):
             return True
 
     def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players,
@@ -153,7 +155,7 @@ class TournamentsCtrl(core.Core):
                                             comment=comment)
         if treatment == 'create':
             # insertion json
-            if data.TournamentData(self.new_tournament):
+            if TournamentData(self.new_tournament):
                 self.vue.detail_tournament(self.new_tournament)
             else:
                 self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
@@ -193,14 +195,6 @@ class TournamentsCtrl(core.Core):
             data_players.append(instance)
 
         return data_players
-
-    def update_score(self, new_scores):
-        if data.TournamentData().update_scores(new_scores):
-            pass
-
-    def update_date(self, data_date):
-        new_date = data.TournamentData().update_date(data_date)
-        return new_date
 
     def round_treatment(self, tournament):
 
@@ -276,14 +270,20 @@ class TournamentsCtrl(core.Core):
                     'players': player_lists,
                     'rounds': rounds_lists
                 }
-                data.TournamentData().treatment_round(data_tour)
+                TournamentData().treatment_round(data_tour)
 
                 if not new_mt_list:
+
+                    if PlayersData().update_score(player_lists):
+                        error_players = ("le score de chaque joueurs est actualisé.", "blue")
+                    else:
+                        error_players = ("Erreur, Modifier directement le score de chaque joueurs.", "red")
+
                     self.new_tournament = TournamentMdl(id_tour=tournament.id_tour, name=tournament.name,
                                                         address=tournament.address, birth=tournament.date,
                                                         number_turns=tournament.number_turns, rounds=rounds_lists,
                                                         players=player_lists, comment=tournament.comment)
-                    self.vue.detail_tournament(self.new_tournament)
+                    self.vue.detail_tournament(self.new_tournament, error_players)
 
             def restart():
                 new_matchs_list = []
@@ -383,3 +383,13 @@ class TournamentsCtrl(core.Core):
             elif number_round == adversary:
                 print('restart')
                 restart()"""
+
+    @staticmethod
+    def update_score(new_scores):
+        if TournamentData().update_scores(new_scores):
+            pass
+
+    @staticmethod
+    def update_date(data_date):
+        new_date = TournamentData().update_date(data_date)
+        return new_date

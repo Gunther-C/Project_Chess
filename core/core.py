@@ -31,9 +31,13 @@ class Core(Tk):
         self.title(" Echec")
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
-        """background = PhotoImage(file="views/pictures/Chess.png")
-        img_background = Label(self, image=background, width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.70))
-        img_background.place(relx=0.5, rely=0.5, anchor='center')"""
+
+        """background_image = PhotoImage(file="views/pictures/Chess_mini.png")
+        print(background_image)
+        background_label = Label(self, image=background_image, width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.50))
+        background_label.grid()
+        background_label.place(relx=0.5, rely=0.5, anchor='center')"""
+
         self.menu = Menu(self)
 
     def master_window(self, child_width, child_height):
@@ -56,28 +60,6 @@ class Core(Tk):
         new_window.config(bg=bg)
         new_window.iconbitmap("views/pictures/horse.ico")
         return new_window, view_x[0], view_y[0]
-
-    def listing_canvas(self, curent_frame, rw, bg_color, dimension):
-
-        dimension_x = int(dimension[0] - 60)
-        dimension_y = int((dimension[1] - 20))
-
-        canvas = Canvas(curent_frame)
-        frame_list = Frame(canvas, bg=bg_color, pady=40)
-
-        scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
-        scrollbar.grid(row=rw, column=1, sticky='ns')
-
-        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension_x, height=dimension_y,
-                         highlightthickness=0)
-        canvas.grid(row=rw, column=0)
-
-        def scroll_mouse(event):
-            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-        canvas.update()
-        frame_list.update()
-        return frame_list, canvas, scroll_mouse, dimension_x, dimension_y
 
     def searching(self, **kwargs: any) -> False:
         """
@@ -137,6 +119,26 @@ class Core(Tk):
                     multi_player.append(player)
 
             return multi_player
+
+    @staticmethod
+    def listing_canvas(curent_frame, rw, bg_color, dimension):
+
+        dimension_x = int(dimension[0] - 60)
+        dimension_y = int((dimension[1] - 20))
+
+        canvas = Canvas(curent_frame)
+        frame_list = Frame(canvas, bg=bg_color, pady=40)
+
+        scrollbar = Scrollbar(curent_frame, orient="vertical", command=canvas.yview)
+        scrollbar.grid(row=rw, column=1, sticky='ns')
+
+        canvas.configure(yscrollcommand=scrollbar.set, bg=bg_color, width=dimension_x, height=dimension_y,
+                         highlightthickness=0)
+        canvas.grid(row=rw, column=0)
+
+        canvas.update()
+        frame_list.update()
+        return frame_list, canvas, dimension_x, dimension_y
 
     @staticmethod
     def players_list():

@@ -3,11 +3,13 @@ from tkinter import font, Entry
 from tkinter import ttk
 
 from core import core
-from rotate import rotation
-from database import data_players as data
-from models.mdl_player import PlayersMdl as P_mdl
-from views import view_players as view
 from core import french_date as date_fr
+from rotate import rotation
+
+from database.data_players import PlayersData
+
+from models.mdl_player import PlayersMdl
+from views import view_players as view
 
 
 class PlayersCtrl(core.Core):
@@ -87,7 +89,7 @@ class PlayersCtrl(core.Core):
     def save_or_tournament(self, result, data_player):
         match result:
             case 'save':
-                if data.PlayersData(data_player):
+                if PlayersData(data_player):
                     self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
                                      bg="#FEF9E7",
                                      name="success", fg="green", pady=10, text="Nouveau joueur inséré")
@@ -213,10 +215,12 @@ class PlayersCtrl(core.Core):
 
             self.vue.list_players(title, listing)
 
-    def create_new_tournament(self, player_tournament):
+    @staticmethod
+    def create_new_tournament(player_tournament):
         rotation('t', player_tournament)
 
-    def instance_player(self, id_player, identity, last_name, first_name, birth, point):
-        instance = P_mdl(id_player=id_player, identity=identity, last_name=last_name, first_name=first_name,
-                         birth=birth, point=point)
+    @staticmethod
+    def instance_player(id_player, identity, last_name, first_name, birth, point):
+        instance = PlayersMdl(id_player=id_player, identity=identity, last_name=last_name, first_name=first_name,
+                              birth=birth, point=point)
         return instance

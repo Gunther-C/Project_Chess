@@ -174,9 +174,8 @@ class PlayersViews(extend_view.ExtendViews):
         list_system = self.se.listing_canvas(self.frame, 0, '#FEF9E7', master_geometrie)
         frame = list_system[0]
         canvas = list_system[1]
-        scroll_mouse = list_system[2]
-        view_x = list_system[3]
-        view_y = list_system[4]
+        view_x = list_system[2]
+        view_y = list_system[3]
 
         self.title(family=None, size=15, weight="bold", slant="roman", underline=True,  mst=frame, bg="#FEF9E7",
                    justify=None, text="Plusieurs résultats : ", width=None, row=0, cols=1, colspan=2,  sticky=None,
@@ -195,10 +194,20 @@ class PlayersViews(extend_view.ExtendViews):
         annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
         annule.grid(row=next_line, column=1, columnspan=2, pady=30)
 
+        def roll_wheel(event):
+            direction = 0
+            if event.num == 5 or event.delta == -120:
+                direction = 1
+            if event.num == 4 or event.delta == 120:
+                direction = -1
+            event.widget.yview_scroll(direction, UNITS)
+
         canvas.update()
         canvas.create_window((0, 0), window=frame)
         frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind_all("<MouseWheel>", scroll_mouse)
+        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
+        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
+        canvas.bind('<Button-5>', lambda event: roll_wheel(event))
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)
