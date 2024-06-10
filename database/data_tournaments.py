@@ -145,7 +145,35 @@ class TournamentData:
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
 
-    def treatment_round(self, new_tournament):
+    @staticmethod
+    def update_comment(new_tournament):
+        try:
+            with open("database/data_tournaments.json", "r", encoding="utf-8-sig", newline="") as file:
+
+                try:
+                    new_file = json.load(file)
+                    for tournament in new_file:
+                        if tournament['id'] == new_tournament.id_tour:
+                            tournament['Commentaires'] = new_tournament.comment
+                except json.JSONDecodeError as e:
+                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+
+            with open("database/data_tournaments.json", "w", encoding="utf-8-sig", newline="") as fl:
+
+                try:
+                    json.dump(new_file, fl, indent=4)
+                except json.JSONEncodeError as e:
+                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+
+        except IOError as er:
+            print("Erreur lors de l'ouverture du fichier :", er)
+            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+
+        except UnicodeEncodeError as err:
+            print("Erreur D'encodage :", err)
+
+    @staticmethod
+    def treatment_round(new_tournament):
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
 
@@ -156,13 +184,10 @@ class TournamentData:
                         if tournament['id'] == new_tournament['id']:
                             tournament['Joueurs'] = new_tournament['players']
                             tournament['Rounds'] = new_tournament['rounds']
-                            for trbl in tournament['Rounds']:
-
-                                print(f"{trbl} \n")
                             break
 
-                    """file.seek(0)
-                    json.dump(new_file, file, indent=4)"""
+                    file.seek(0)
+                    json.dump(new_file, file, indent=4)
 
                 except json.JSONDecodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")
@@ -193,30 +218,3 @@ class TournamentData:
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
 
-
-
-
-
-# with open("packageCsv/essai.csv") as file:
-# with open("packageCsv/essai.csv", mode="r") as file: r __lire
-# with open("packageCsv/essai.csv", mode="r+") as file: r+ __lire,écrire(sans écraser)
-# with open("packageCsv/essai.csv", mode="w") as file: w __écrire(écraser)
-# with open("packageCsv/essai.csv", mode="a") as file: a __continuer d'écrire
-# text_csv = csv.reader
-# text_csv = csv.reader(file, delimiter=",")
-# text_csv = csv.DictReader(file)
-# text_csv = csv.writer(file, delimiter=',')
-
-"""                            if player_1[0] == nw_sc[2][0][0]:
-                                if len(player_1) > 2:
-                                    player_1.remove(player_1[2])
-                                    player_2.remove(player_2[2])
-                                player_1.append(nw_sc[2][0][1])
-                                player_2.append(nw_sc[2][1][1])
-
-                            if player_2[0] == nw_sc[2][0][0]:
-                                if len(player_2) > 2:
-                                    player_2.remove(player_2[2])
-                                    player_1.remove(player_1[2])
-                                player_2.append(nw_sc[2][0][1])
-                                player_1.append(nw_sc[2][1][1])"""

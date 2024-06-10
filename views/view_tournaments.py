@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import font
 from tkinter import messagebox
+from tkinter.scrolledtext import ScrolledText
 from core import extend_view
 
 
@@ -260,14 +261,18 @@ class TournamentsViews(extend_view.ExtendViews):
 
         print(f"detail_tournament => {tournament}")
 
-        def comment(commentaires):
-            print(commentaires)
+        last_rd = tournament.rounds[-1]
+        last_finish = last_rd.finish
+        def comment():
+            new_comment = _comment.get("1.0", "end-1c")
+            new_comment.strip()
+            self.se.tournament_comment(new_comment)
 
         if len(self.se.new_all_players) > 0:
             self.se.new_all_players.clear()
 
         self.se.clear_frame(self.frame)
-        master_geometrie = self.se.master_window(50, 65)
+        master_geometrie = self.se.master_window(50, 75)
         self.se.minsize(width=(master_geometrie[0] - 100), height=(master_geometrie[1] - 100))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -287,26 +292,31 @@ class TournamentsViews(extend_view.ExtendViews):
                    bg="#FEF9E7", justify=None, text=f"En : {tournament.number_turns} manche(s)", width=None, row=3,
                    cols=1, colspan=3, sticky="w", padx=None, pady=10)
 
-        lb_font = font.Font(family='Times New Roman', size=15)
-        _comment = Label(self.frame, bg="#ffffff", highlightbackground="black", highlightthickness=1,
-                         font=lb_font, foreground='black', text='Commentaires')
-        _comment.bind("<Button-1>", lambda e: comment('commentaires'))
-        _comment.grid(row=4, column=1)
+        self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
+                   bg="#FEF9E7", justify=None, text=f"Commentaire :", width=None, row=4, cols=1, colspan=3, sticky="w",
+                   padx=None, pady=10)
 
-        Label(self.frame, bg="#FEF9E7").grid(row=5, column=0, ipady=10)
+        lb_font = font.Font(family='Times New Roman', size=12)
+        _comment = ScrolledText(self.frame, height=10, highlightbackground="black", highlightthickness=1, font=lb_font)
+        _comment.grid(column=1, columnspan=3, row=5, sticky=W)
+        _comment.insert(INSERT, tournament.comment)
+        _comment.bind("<KeyRelease>", lambda e: comment())
+        if last_finish:
+            _comment.config(state="disabled")
+
+        Label(self.frame, bg="#FEF9E7").grid(row=10, column=0, ipady=10)
 
         plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: players_list())
-        plr_create.grid(row=6, column=1, ipadx=20, ipady=5)
+        plr_create.grid(row=11, column=1, ipadx=20, ipady=5)
 
-        Label(self.frame, bg="#FEF9E7").grid(row=6, column=2, ipadx=20)
+        Label(self.frame, bg="#FEF9E7").grid(row=11, column=2, ipadx=20)
 
-        plr_list = ttk.Button(self.frame, text="Liste des tours",
-                              command=lambda: round_list())
-        plr_list.grid(row=6, column=3, ipadx=20, ipady=5)
+        plr_list = ttk.Button(self.frame, text="Liste des tours", command=lambda: round_list())
+        plr_list.grid(row=11, column=3, ipadx=20, ipady=5)
 
-        if len(tournament.rounds) <= tournament.number_turns:
+        if not last_finish:
             plr_list = ttk.Button(self.frame, text="<= Lancer le tour =>", command=lambda: round_start())
-            plr_list.grid(row=7, columnspan=4, pady=40, ipadx=30, ipady=10)
+            plr_list.grid(row=12, columnspan=4, pady=40, ipadx=30, ipady=10)
 
         def players_list():
             view_list = self.list_players(tournament.players, None, 'Liste des joueurs')
@@ -545,12 +555,16 @@ class TournamentsViews(extend_view.ExtendViews):
                     messagebox.showwarning(title='Avertissement', message='Lancer le round dans la fenêtre tournoi et '
                                                                           'cliqué sur un joueur ou match null pour '
                                                                           'lancer le tour')
+            else:
+                self.new_window[0].destroy()
 
         submit_list = ttk.Button(self.new_frame, text=f"Valider le tour n° {new_round.id_round}",
                                  command=lambda: submit_l())
         submit_list.grid(column=0, columnspan=2, pady=20, ipadx=20, ipady=15)
 
     def list_players(self, data_player, select_players, title):
+
+        data_player.sort(key=lambda x: x.point, reverse=True)
 
         if self.new_window:
             self.new_window[0].destroy()
@@ -653,7 +667,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         if self.new_window:
             self.new_window[0].destroy()
-        self.new_window = self.se.listing_window(50, 50, 30, 40, 'Liste des rounds', '#FEF9E7')
+        self.new_window = self.se.listing_window(50, 60, 30, 40, 'Liste des rounds', '#FEF9E7')
         master_geometrie = self.new_window[1], self.new_window[2]
 
         self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
@@ -728,6 +742,9 @@ class TournamentsViews(extend_view.ExtendViews):
         scrollbar = ttk.Scrollbar(self.new_frame, orient="vertical", command=content.yview)
         content.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=1, column=1, sticky='ns')
+
+        close_list = ttk.Button(self.new_frame, text="Fermer", command=lambda: self.new_window[0].destroy())
+        close_list.grid(row=2, column=0, columnspan=2, pady=20, ipadx=20)
 
     def message(self, **kwargs: any) -> any:
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
