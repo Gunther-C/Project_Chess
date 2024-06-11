@@ -51,16 +51,20 @@ class TournamentData:
             with open("database/data_tournaments.json", "w", encoding="utf-8-sig", newline="") as file:
                 try:
                     json.dump(current_file, file, indent=4)
-                    return True
+                    return self.data
+
                 except json.JSONEncodeError as e:
                     print(f"Erreur lors de l'écriture des données JSON : {e}")
+                    return False
 
         except IOError as er:
             print("Erreur lors de l'ouverture du fichier :", er)
             print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+            return False
 
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
+            return False
 
     @staticmethod
     def update_scores(new_scores):

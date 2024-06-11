@@ -203,8 +203,7 @@ class PlayersCtrl(core.Core):
                 title = " Liste par odre d'inscription "
 
             case 'score':
-                # , reverse=True
-                ordered = sorted(file_players, key=lambda x: x['point'])
+                ordered = sorted(file_players, key=lambda x: x['point'], reverse=True)
                 title = " Liste par ordre de point "
 
         if ordered:

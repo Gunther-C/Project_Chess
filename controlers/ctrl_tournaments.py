@@ -85,7 +85,7 @@ class TournamentsCtrl(core.Core):
             birth = date_fr.FrenchDate().new_format_fr(year, month, day)
 
             self.tournament_treatment('create', new_frame, None, name, address, birth, number_turns,
-                                      None, players, None)
+                                      None, players, "")
             self.new_all_players.clear()
         else:
             pass
@@ -155,8 +155,12 @@ class TournamentsCtrl(core.Core):
                                             comment=comment)
         if treatment == 'create':
             # insertion json
-            if TournamentData(self.new_tournament):
+            new_data = TournamentData(self.new_tournament)
+
+            if new_data:
+                self.new_tournament.id_tour = new_data.data['id']
                 self.vue.detail_tournament(self.new_tournament)
+
             else:
                 self.vue.message(mst=new_frame, family=None, size=12, weight="bold", slant="roman", underline=False,
                                  bg="#FEF9E7", name="error", fg="red", pady=10,
@@ -211,9 +215,6 @@ class TournamentsCtrl(core.Core):
             current_round: dict = _rounds[-1]
             current_round.finish = date_fr.FrenchDate().date_hour_fr
 
-            # Nouveau round
-            id_new_round = int(current_round.id_round + 1)
-
             # nombre de fois qu'un joueur en rencontre un autre
             adversary = int(number_player - 1)
             reste = _number_turn - number_round
@@ -243,146 +244,144 @@ class TournamentsCtrl(core.Core):
             # Liste des joueurs classés par nombre de points
             players_lists = sorted(disorderly_list, key=lambda x: x[2], reverse=True)
 
-            def refactor_tournament(new_mt_list=None):
-                player_lists = []
-                rounds_lists = []
-
-                for _player in _players:
-                    player_lists.append({"identity": _player.identity, "last_name": _player.last_name,
-                                         "first_name": _player.first_name, "point": _player.point})
-
-                for rds in _rounds:
-                    matchs_lists = []
-                    for ch_ in rds.matchs_list:
-                        matchs_lists.append(([ch_.identity_plr1, ch_.name_plr1, ch_.score_plr1],
-                                             [ch_.identity_plr2, ch_.name_plr2, ch_.score_plr2]))
-
-                    rounds_lists.append({"round": rds.id_round, "start": rds.start, "finish": rds.finish,
-                                         "matchs": matchs_lists})
-
-                if new_mt_list:
-                    rounds_lists.append({"round": id_new_round, "start": '', "finish": '', "matchs": new_mt_list})
-                    rd_ = RoundMdl(id_new_round, "", "", new_mt_list)
-                    _rounds.append(rd_)
-
-                data_tour = {
-                    'id': tournament.id_tour,
-                    'players': player_lists,
-                    'rounds': rounds_lists
-                }
-                TournamentData().treatment_round(data_tour)
-
-                if not new_mt_list:
-
-                    if PlayersData().update_score(player_lists):
-                        error_players = ("le score de chaque joueurs est actualisé.", "blue")
-                    else:
-                        error_players = ("Erreur, Modifier directement le score de chaque joueurs.", "red")
-
-                    self.new_tournament = TournamentMdl(id_tour=tournament.id_tour, name=tournament.name,
-                                                        address=tournament.address, birth=tournament.date,
-                                                        number_turns=tournament.number_turns, rounds=rounds_lists,
-                                                        players=player_lists, comment=tournament.comment)
-                    self.vue.detail_tournament(self.new_tournament, error_players)
-
-            def restart():
-                new_matchs_list = []
-                for _player in players_lists:
-                    _player[2] = 0.0
-                match_count = int(number_player / 2)
-                for x in range(match_count):
-                    pair = random.sample(players_lists, 2)
-                    match_players: tuple = (pair[0], pair[1])
-                    for element in pair:
-                        players_lists.remove(element)
-                    new_matchs_list.append(match_players)
-
-                if len(new_matchs_list) > 0:
-                    refactor_tournament(new_matchs_list)
-
-            def new_round(_turn, players_list):
-                new_matchs_list = []
-                copy_list = players_list.copy()
-
-                # Créer une liste comprenant les matchs (joueurs non affrontés, classé par point)
-                for _player in players_list:
-                    id_player = _player[0]
-
-                    if _player not in copy_list:
-                        continue
-                    copy_list.remove(_player)
-
-                    # Copie liste des joueurs classés par nombre de points
-                    confronted = []
-                    insert_confronted = []
-                    for _plr in copy_list:
-                        confronted.append([_plr[0], _plr[1]])
-
-                    # tous les matchs de chaque round du tournoi
-                    for _mts in match_lists:
-                        plr1 = [_mts[0][0], _mts[0][1]]
-                        plr2 = [_mts[1][0], _mts[1][1]]
-
-                        if id_player == plr1[0] and plr2 in confronted:
-                            confronted.remove(plr2)
-                            insert_confronted.append(plr2)
-
-                        if id_player == plr2[0] and plr1 in confronted:
-                            confronted.remove(plr1)
-                            insert_confronted.append(plr2)
-
-                    # le nombre de joueurs à rencontrer est atteint
-                    if len(insert_confronted) == adversary:
-                        restart()
-                        break
-
-                    # Match validé, on passe au suivant
-                    elif len(confronted) > 0:
-                        _player[2] = 0.0
-                        confronted[0].append(0.0)
-                        new_matchs_list.append((_player, confronted[0]))
-                        for plr in copy_list:
-                            if plr[0] == confronted[0][0]:
-                                copy_list.remove(plr)
-
-                    # le nombre de joueurs à rencontrer n'est pas atteint
-                    # autant d'éssais qu'il y a de joueurs
-                    elif _turn < adversary:
-                        new_matchs_list.clear()
-                        key_pop = -1
-                        key_pop -= _turn
-                        key_insert = -3
-                        key_insert -= _turn
-                        if key_insert + adversary <= 0:
-                            key_insert = _turn - adversary
-
-                        first_value = players_list.pop(key_pop)
-                        players_list.insert(key_insert, first_value)
-
-                        _turn += 1
-                        new_round(_turn, players_list)
-                        break
-
-                    # Relance des matchs au hazard
-                    else:
-                        restart()
-                        break
-
-                if len(new_matchs_list) > 0:
-                    refactor_tournament(new_matchs_list)
-
             # Fin des tours, mise à jour du tournoi et fin
             if _number_turn == number_round:
-                refactor_tournament()
+                self.refactor_tournament(tournament, _rounds, _players, None)
 
             else:
-                new_round(0, players_lists)
+                self.new_round(0, players_lists, match_lists, adversary, tournament, _rounds, _players)
 
-                """
-            # tout le monde s'est rencontrés
-            elif number_round == adversary:
-                print('restart')
-                restart()"""
+    # refactor_tournament(), new_round(), restart(), attachées a la fonction round_treatment()
+    def refactor_tournament(self, tournament, _rounds, _players, new_mt_list=None):
+
+        current_round: dict = _rounds[-1]
+        id_new_round = int(current_round.id_round + 1)
+        player_lists = []
+        rounds_lists = []
+
+        for _player in _players:
+            player_lists.append({"identity": _player.identity, "last_name": _player.last_name,
+                                 "first_name": _player.first_name, "point": _player.point})
+
+        for rds in _rounds:
+            matchs_lists = []
+            for ch_ in rds.matchs_list:
+                matchs_lists.append(([ch_.identity_plr1, ch_.name_plr1, ch_.score_plr1],
+                                     [ch_.identity_plr2, ch_.name_plr2, ch_.score_plr2]))
+
+            rounds_lists.append({"round": rds.id_round, "start": rds.start, "finish": rds.finish,
+                                 "matchs": matchs_lists})
+
+        if new_mt_list:
+            rounds_lists.append({"round": id_new_round, "start": '', "finish": '', "matchs": new_mt_list})
+            rd_ = RoundMdl(id_new_round, "", "", new_mt_list)
+            _rounds.append(rd_)
+
+        data_tour = {
+            'id': tournament.id_tour,
+            'players': player_lists,
+            'rounds': rounds_lists
+        }
+        TournamentData().treatment_round(data_tour)
+
+        if not new_mt_list:
+
+            if PlayersData().update_score(player_lists):
+                error_players = ("le score de chaque joueurs est actualisé.", "blue")
+            else:
+                error_players = ("Erreur, Modifier directement le score de chaque joueurs.", "red")
+
+            self.new_tournament = TournamentMdl(id_tour=tournament.id_tour, name=tournament.name,
+                                                address=tournament.address, birth=tournament.date,
+                                                number_turns=tournament.number_turns, rounds=rounds_lists,
+                                                players=player_lists, comment=tournament.comment)
+            self.vue.detail_tournament(self.new_tournament, error_players)
+
+    def new_round(self, _turn, players_lists, match_lists, adversary, tournament, _rounds, _players):
+        new_matchs_list = []
+        copy_list = players_lists.copy()
+
+        # Créer une liste comprenant les matchs (joueurs non affrontés, classé par point)
+        for _player in players_lists:
+            id_player = _player[0]
+
+            if _player not in copy_list:
+                continue
+            copy_list.remove(_player)
+
+            # Copie liste des joueurs classés par nombre de points
+            confronted = []
+            insert_confronted = []
+            for _plr in copy_list:
+                confronted.append([_plr[0], _plr[1]])
+
+            # tous les matchs de chaque round du tournoi
+            for _mts in match_lists:
+                plr1 = [_mts[0][0], _mts[0][1]]
+                plr2 = [_mts[1][0], _mts[1][1]]
+
+                if id_player == plr1[0] and plr2 in confronted:
+                    confronted.remove(plr2)
+                    insert_confronted.append(plr2)
+
+                if id_player == plr2[0] and plr1 in confronted:
+                    confronted.remove(plr1)
+                    insert_confronted.append(plr2)
+
+            # le nombre de joueurs à rencontrer est atteint
+            if len(insert_confronted) == adversary:
+                self.restart(players_lists, tournament, _rounds, _players)
+                break
+
+            # Match validé, on passe au suivant
+            elif len(confronted) > 0:
+                _player[2] = 0.0
+                confronted[0].append(0.0)
+                new_matchs_list.append((_player, confronted[0]))
+                for plr in copy_list:
+                    if plr[0] == confronted[0][0]:
+                        copy_list.remove(plr)
+
+            # le nombre de joueurs à rencontrer n'est pas atteint
+            # autant d'éssais qu'il y a de joueurs
+            elif _turn < adversary:
+                new_matchs_list.clear()
+                key_pop = -1
+                key_pop -= _turn
+                key_insert = -3
+                key_insert -= _turn
+                if key_insert + adversary <= 0:
+                    key_insert = _turn - adversary
+
+                first_value = players_lists.pop(key_pop)
+                players_lists.insert(key_insert, first_value)
+
+                _turn += 1
+                self.new_round(_turn, players_lists, match_lists, adversary, tournament, _rounds, _players)
+                break
+
+            # Relance des matchs au hazard
+            else:
+                self.restart(players_lists, tournament, _rounds, _players)
+                break
+
+        if len(new_matchs_list) > 0:
+            self.refactor_tournament(tournament, _rounds, _players, new_matchs_list)
+
+    def restart(self, players_lists, tournament, _rounds, _players):
+        new_matchs_list = []
+        for _player in players_lists:
+            _player[2] = 0.0
+        match_count = int(len(_players) / 2)
+        for x in range(match_count):
+            pair = random.sample(players_lists, 2)
+            match_players: tuple = (pair[0], pair[1])
+            for element in pair:
+                players_lists.remove(element)
+            new_matchs_list.append(match_players)
+
+        if len(new_matchs_list) > 0:
+            self.refactor_tournament(tournament, _rounds, _players, new_matchs_list)
 
     @staticmethod
     def update_score(new_scores):

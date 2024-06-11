@@ -46,6 +46,8 @@ class TournamentMdl:
 
         else:
             """Tournoi en création → Création premier round"""
+            for player in players:
+                player.point = 0.0
             self.players: list = players
 
             players_lists: list = []
@@ -59,7 +61,8 @@ class TournamentMdl:
             rd_ = RoundMdl(1, None, None, first_match)
             self.rounds.append(rd_)
 
-    def pair(self, match) -> list:
+    @staticmethod
+    def pair(match) -> list:
         players_count = int(len(match) / 2)
         players_lists: list = []
         for y in range(players_count):

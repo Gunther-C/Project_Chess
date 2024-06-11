@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter import font, Entry
 from tkinter import ttk
+
 from datetime import date
-from database import data_players as dt_players
-from database import data_tournaments as dt_tournaments
 import re
+
+from database.data_players import PlayersData
+from database.data_tournaments import TournamentData
 
 
 class Core(Tk):
@@ -32,11 +34,11 @@ class Core(Tk):
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
 
-        """background_image = PhotoImage(file="views/pictures/Chess_mini.png")
-        print(background_image)
-        background_label = Label(self, image=background_image, width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.50))
-        background_label.grid()
-        background_label.place(relx=0.5, rely=0.5, anchor='center')"""
+        background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.50))
+        background.image = PhotoImage(file="views/pictures/Chess_mini.png")
+        background['image'] = background.image
+        background.grid()
+        background.place(relx=0.5, rely=0.5, anchor='center')
 
         self.menu = Menu(self)
 
@@ -143,14 +145,14 @@ class Core(Tk):
     @staticmethod
     def players_list():
         # fichier json des joueurs
-        file_players = dt_players.PlayersData().load_players_file()
+        file_players = PlayersData().load_players_file()
         if file_players:
             return file_players
 
     @staticmethod
     def tournaments_list():
         # fichier json des tournois
-        tournament = dt_tournaments.TournamentData().load_tournament_file()
+        tournament = TournamentData().load_tournament_file()
         if tournament:
             return tournament
 
