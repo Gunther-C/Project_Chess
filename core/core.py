@@ -1,4 +1,4 @@
-from tkinter import Tk, Menu, Toplevel, Frame, Canvas, Scrollbar, Label, PhotoImage
+from tkinter import Tk, Menu, Toplevel, Frame, Canvas, Scrollbar, Label, PhotoImage, UNITS
 from datetime import date
 import re
 
@@ -138,6 +138,25 @@ class Core(Tk):
         canvas.update()
         frame_list.update()
         return frame_list, canvas, dimension_x, dimension_y
+
+    def canvas_roll(self, canvas, frame, view_x, view_y):
+        def roll_wheel(event):
+            direction = 0
+            if event.num == 5 or event.delta == -120:
+                direction = 1
+            if event.num == 4 or event.delta == 120:
+                direction = -1
+            event.widget.yview_scroll(direction, UNITS)
+
+        def new_scroll(vw_x, vw_y):
+            canvas.configure(scrollregion=canvas.bbox("all"), width=vw_x, height=vw_y)
+
+        canvas.update()
+        canvas.create_window((0, 0), window=frame)
+        frame.bind("<Configure>", lambda e: new_scroll(view_x, view_y), add=True)
+        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event), add=True)
+        canvas.bind('<Button-4>', lambda event: roll_wheel(event), add=True)
+        canvas.bind('<Button-5>', lambda event: roll_wheel(event), add=True)
 
     @staticmethod
     def players_list():

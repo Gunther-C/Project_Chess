@@ -1,4 +1,4 @@
-from tkinter import ttk, font, Menu, Frame, Canvas, Scrollbar, Label, END
+from tkinter import ttk, font, Menu, Frame, Label, DISABLED, END
 from core import extend_view
 
 
@@ -16,6 +16,8 @@ class PlayersViews(extend_view.ExtendViews):
         self.se.menu_players = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Joueurs", menu=self.se.menu_players)
         self.se.menu.add_command(label="Quitter", command=self.se.destroy)
+        self.se.menu.add_command(label="Debug",
+                                 command=subprocess.run(["flake8", "--format=html", "--htmldir=flake8_rapport"]))
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):
@@ -192,25 +194,11 @@ class PlayersViews(extend_view.ExtendViews):
         annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
         annule.grid(row=next_line, column=1, columnspan=2, pady=30)
 
-        def roll_wheel(event):
-            direction = 0
-            if event.num == 5 or event.delta == -120:
-                direction = 1
-            if event.num == 4 or event.delta == 120:
-                direction = -1
-            event.widget.yview_scroll(direction, UNITS)
-
-        canvas.update()
-        canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-5>', lambda event: roll_wheel(event))
+        self.se.canvas_roll(canvas, frame, view_x, view_y)
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)
-        col0 = Label(frame, bg="#FEF9E7")
-        col0.grid(row=0, column=0, ipadx=col0_x[2])
+        Label(frame, bg="#ffffff").grid(row=0, column=0, ipadx=col0_x[2])
 
     def matching_player(self, dt_player: object):
 
@@ -222,8 +210,8 @@ class PlayersViews(extend_view.ExtendViews):
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         title = self.title(family=None, size=15, weight="bold", slant="roman", underline=True, mst=self.frame,
-                           bg="#FEF9E7", justify=None, text="Résultat de la recherche : ", width=None, row=0, cols=None,
-                           colspan=5, sticky=None, padx=None, pady=None)
+                           bg="#FEF9E7", justify=None, text="Résultat de la recherche : ", width=None, row=0,
+                           cols=None, colspan=5, sticky=None, padx=None, pady=None)
 
         header = ['Identité', 'Nom', 'Prénom', 'Date de naissance', 'Point(s)']
         players = [dt_player.identity, dt_player.last_name, dt_player.first_name, dt_player.birth, dt_player.point]
@@ -306,8 +294,8 @@ class PlayersViews(extend_view.ExtendViews):
             tree.tk.call(tree, "tag", "remove", "highlight")
             tree.tk.call(tree, "tag", "add", "highlight", item)
 
-        content.bind("<Motion>", hover)
-        content.bind('<<TreeviewSelect>>', item_selected)
+        content.bind("<Motion>", hover, add=True)
+        content.bind('<<TreeviewSelect>>', item_selected, add=True)
         content.grid(row=1, column=0, sticky='nsew')
 
         scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=content.yview)

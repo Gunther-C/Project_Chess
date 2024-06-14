@@ -1,6 +1,7 @@
-from tkinter import ttk, font, Menu, Frame, Canvas, Scrollbar, Label, messagebox, END, BooleanVar, Checkbutton, INSERT
+from tkinter import ttk, font, Menu, Frame, Label, Checkbutton, BooleanVar, messagebox, END, INSERT
 from tkinter.scrolledtext import ScrolledText
 from core import extend_view
+import subprocess
 
 
 class TournamentsViews(extend_view.ExtendViews):
@@ -27,6 +28,8 @@ class TournamentsViews(extend_view.ExtendViews):
         self.se.menu_tour = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_tour)
         self.se.menu.add_command(label="Quitter", command=self.se.destroy)
+        self.se.menu.add_command(label="Debug",
+                                 command=subprocess.run(["flake8", "--format=html", "--htmldir=flake8_rapport"]))
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):
@@ -78,7 +81,8 @@ class TournamentsViews(extend_view.ExtendViews):
 
         def all_player_submit(submit_type):
             if submit_type == 'list':
-                data_tournament['players'] = [data_player[x] for x, select in enumerate(select_players) if select.get()]
+                data_tournament['players'] = \
+                    [data_player[x] for x, select in enumerate(select_players) if select.get()]
 
             self.new_window[0].destroy()
             ctrl_name = self.se.search_name_widget(self.frame, 'selectPlayers')
@@ -152,8 +156,8 @@ class TournamentsViews(extend_view.ExtendViews):
             self.new_frame.place(relx=0.5, rely=0.4, anchor='center')
 
             plr_title = self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="italic", underline=True,
-                                   mst=self.new_frame, bg="#FEF9E7", justify=None, text="Nouveau joueur : ", width=None,
-                                   row=0, cols=None, colspan=7, sticky=None, padx=None, pady=None)
+                                   mst=self.new_frame, bg="#FEF9E7", justify=None, text="Nouveau joueur : ",
+                                   width=None, row=0, cols=None, colspan=7, sticky=None, padx=None, pady=None)
 
             identity = self.input_text(mst=self.new_frame, lb_row=2, ip_row=3, cols=1, colspan=5, bg="#FEF9E7",
                                        text="Identifiant : ", ip_wh=20)
@@ -247,8 +251,8 @@ class TournamentsViews(extend_view.ExtendViews):
             tree.tk.call(tree, "tag", "remove", "highlight")
             tree.tk.call(tree, "tag", "add", "highlight", item)
 
-        content.bind("<Motion>", hover)
-        content.bind('<<TreeviewSelect>>', selected)
+        content.bind("<Motion>", hover, add=True)
+        content.bind('<<TreeviewSelect>>', selected, add=True)
         content.grid(row=1, column=0, sticky='nsew')
 
         scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=content.yview)
@@ -292,14 +296,14 @@ class TournamentsViews(extend_view.ExtendViews):
                    cols=1, colspan=3, sticky="w", padx=None, pady=10)
 
         self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
-                   bg="#FEF9E7", justify=None, text=f"Commentaire :", width=None, row=4, cols=1, colspan=3, sticky="w",
+                   bg="#FEF9E7", justify=None, text="Commentaire :", width=None, row=4, cols=1, colspan=3, sticky="w",
                    padx=None, pady=10)
 
         lb_font = font.Font(family='Times New Roman', size=12)
         _comment = ScrolledText(self.frame, height=10, highlightbackground="black", highlightthickness=1, font=lb_font)
         _comment.grid(column=1, columnspan=3, row=5, sticky="w")
         _comment.insert(INSERT, tournament.comment)
-        _comment.bind("<KeyRelease>", lambda e: comment())
+        _comment.bind("<KeyRelease>", lambda e: comment(), add=True)
         if last_finish:
             _comment.config(state="disabled")
 
@@ -360,8 +364,9 @@ class TournamentsViews(extend_view.ExtendViews):
                           mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round n° {new_round.id_round}",
                           width=None, row=0, cols=0, colspan=2, sticky="w", padx=20, pady=15)
         start = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
-                           mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Ouverture du round le : {text_start}",
-                           width=None, row=1, cols=0, colspan=2, sticky="w", padx=20, pady=5)
+                           mst=self.new_frame, bg="#FEF9E7", justify=None,
+                           text=f"Ouverture du round le : {text_start}", width=None, row=1, cols=0, colspan=2,
+                           sticky="w", padx=20, pady=5)
         finish = self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False,
                             mst=self.new_frame, bg="#FEF9E7", justify=None, text=f"Round terminé le : {text_finish}",
                             width=None, row=2, cols=0, colspan=2, sticky="w", padx=20, pady=5)
@@ -381,30 +386,25 @@ class TournamentsViews(extend_view.ExtendViews):
             plr1_ = Label(parent, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                           font=lb_font, foreground=color, text=_match.name_plr1, name=f"id-{_match.identity_plr1}")
             plr1_.bind("<Button-1>", lambda e: self.schema_round_action('player1', type_round, tournament,
-                                                                        new_round, start, _match, parent, frames_list))
+                                                                        new_round, start, _match, parent, frames_list),
+                       add=True)
             plr1_.grid(row=0, padx=10)
 
         def view_player2(_match, parent, frames_list, color):
             plr2_ = Label(parent, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                           font=lb_font, foreground=color, text=_match.name_plr2, name=f"id-{_match.identity_plr2}")
             plr2_.bind("<Button-1>", lambda e: self.schema_round_action('player2', type_round, tournament,
-                                                                        new_round, start, _match, parent, frames_list))
+                                                                        new_round, start, _match, parent, frames_list),
+                       add=True)
             plr2_.grid(row=2, padx=10)
 
         def result_null(_match, parent, frames_list):
             null = Label(parent, width=10, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                          font=lb_font_mini, foreground='blue', text="Match null")
             null.bind("<Button-1>", lambda e: self.schema_round_action('equal', type_round, tournament,
-                                                                       new_round, start, _match, parent, frames_list))
+                                                                       new_round, start, _match, parent, frames_list),
+                      add=True)
             null.grid(row=1, column=0, pady=15)
-
-        def roll_wheel(event):
-            direction = 0
-            if event.num == 5 or event.delta == -120:
-                direction = 1
-            if event.num == 4 or event.delta == 120:
-                direction = -1
-            event.widget.yview_scroll(direction, UNITS)
 
         frame_list = []
         for _matchs in new_round.matchs_list:
@@ -453,17 +453,11 @@ class TournamentsViews(extend_view.ExtendViews):
             number_key += 1
             frame_list.append(match_frame)
 
-        canvas.update()
-        canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=(view_x - 80), height=view_y))
-        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-5>', lambda event: roll_wheel(event))
+        self.se.canvas_roll(canvas, frame, view_x, view_y)
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)
-        col0 = Label(frame, bg="#ffffff")
-        col0.grid(row=0, column=0, ipadx=col0_x[2])
+        Label(frame, bg="#ffffff").grid(row=0, column=0, ipadx=col0_x[2])
 
         def submit_l():
             not_submit = False
@@ -572,20 +566,8 @@ class TournamentsViews(extend_view.ExtendViews):
                     check.grid(row=next_line, column=5, padx=15)
                 next_line += 1
 
-        def roll_wheel(event):
-            direction = 0
-            if event.num == 5 or event.delta == -120:
-                direction = 1
-            if event.num == 4 or event.delta == 120:
-                direction = -1
-            event.widget.yview_scroll(direction, UNITS)
+        self.se.canvas_roll(canvas, frame, view_x, view_y)
 
-        canvas.update()
-        canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-5>', lambda event: roll_wheel(event))
         frame.update()
         col0_x = self.adjust_x(canvas, frame)
         Label(frame, bg="#ffffff").grid(row=0, column=0, ipadx=col0_x[2])
@@ -664,8 +646,8 @@ class TournamentsViews(extend_view.ExtendViews):
             tree.tk.call(tree, "tag", "remove", "highlight")
             tree.tk.call(tree, "tag", "add", "highlight", item)
 
-        content.bind("<Motion>", hover)
-        content.bind('<<TreeviewSelect>>', selected)
+        content.bind("<Motion>", hover, add=True)
+        content.bind('<<TreeviewSelect>>', selected, add=True)
         content.grid(row=1, column=0, sticky='nsew')
 
         scrollbar = ttk.Scrollbar(self.new_frame, orient="vertical", command=content.yview)
