@@ -1,11 +1,7 @@
-"""from tkinter import *
-from tkinter import font, Entry
-from tkinter import ttk"""
 import random
 
 from core import core
 from core import french_date as date_fr
-# from rotate import rotation
 
 from database.data_tournaments import TournamentData
 from database.data_players import PlayersData

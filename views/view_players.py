@@ -1,4 +1,5 @@
 from tkinter import ttk, font, Menu, Frame, Label, DISABLED, END
+
 from core import extend_view
 
 
@@ -15,9 +16,8 @@ class PlayersViews(extend_view.ExtendViews):
     def new_menu(self):
         self.se.menu_players = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Joueurs", menu=self.se.menu_players)
+        self.se.menu.add_command(label="Debug", command=lambda: self.se.debug())
         self.se.menu.add_command(label="Quitter", command=self.se.destroy)
-        self.se.menu.add_command(label="Debug",
-                                 command=subprocess.run(["flake8", "--format=html", "--htmldir=flake8_rapport"]))
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):
@@ -140,6 +140,8 @@ class PlayersViews(extend_view.ExtendViews):
         self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.3, anchor='center')
 
+
+
         title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
                            mst=self.frame, bg="#FEF9E7", justify=None, text="Rechercher un joueur : ", width=None,
                            row=0, cols=None, colspan=3, sticky=None, padx=None, pady=None)
@@ -155,7 +157,7 @@ class PlayersViews(extend_view.ExtendViews):
 
         submit = ttk.Button(self.frame, text="  Valider  ",
                             command=lambda: self.se.search_menu(self.frame, data_player))
-        submit.grid(columnspan=7, pady=20)
+        submit.grid(columnspan=3, pady=20)
 
         space_x: list = self.adjust_x(title, result)
         self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7",  ipadx=space_x[2] // 2, ipady=None,

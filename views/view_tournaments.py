@@ -1,7 +1,7 @@
 from tkinter import ttk, font, Menu, Frame, Label, Checkbutton, BooleanVar, messagebox, END, INSERT
 from tkinter.scrolledtext import ScrolledText
+
 from core import extend_view
-import subprocess
 
 
 class TournamentsViews(extend_view.ExtendViews):
@@ -27,9 +27,8 @@ class TournamentsViews(extend_view.ExtendViews):
     def new_menu(self):
         self.se.menu_tour = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_tour)
+        self.se.menu.add_command(label="Debug", command=lambda: self.se.debug())
         self.se.menu.add_command(label="Quitter", command=self.se.destroy)
-        self.se.menu.add_command(label="Debug",
-                                 command=subprocess.run(["flake8", "--format=html", "--htmldir=flake8_rapport"]))
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):

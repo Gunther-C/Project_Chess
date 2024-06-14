@@ -1,5 +1,8 @@
-from tkinter import Tk, Menu, Toplevel, Frame, Canvas, Scrollbar, Label, PhotoImage, UNITS
+from tkinter import Tk, Menu, Toplevel, Frame, Label, Canvas, messagebox, Scrollbar, PhotoImage, UNITS
 from datetime import date
+import subprocess
+import webbrowser
+import os
 import re
 
 from database.data_players import PlayersData
@@ -31,11 +34,11 @@ class Core(Tk):
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
 
-        background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.50))
-        background.image = PhotoImage(file="views/pictures/Chess_mini.png")
-        background['image'] = background.image
-        background.grid()
-        background.place(relx=0.5, rely=0.5, anchor='center')
+        self.background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.50))
+        self.background.image = PhotoImage(file="views/pictures/Chess_mini.png")
+        self.background['image'] = self.background.image
+        self.background.grid()
+        self.background.place(relx=0.5, rely=0.5, anchor='center')
 
         self.menu = Menu(self)
 
@@ -120,6 +123,23 @@ class Core(Tk):
             return multi_player
 
     @staticmethod
+    def debug():
+
+        try:
+            subprocess.run(["flake8", "--format=html", "--htmldir=flake8_rapport"])
+
+            try:
+                chemin = os.getcwd()
+                fichier_html = f"{chemin}/flake8_rapport/index.html"
+                webbrowser.open(fichier_html)
+
+            except ValueError as er:
+                print("Erreur lors de l'ouverture du fichier :", er)
+
+        except subprocess.CalledProcessError as e:
+            messagebox.showwarning(title='Avertissement', message=f"Erreur : {e}")
+
+    @staticmethod
     def listing_canvas(curent_frame, rw, bg_color, dimension):
 
         dimension_x = int(dimension[0] - 60)
@@ -139,7 +159,8 @@ class Core(Tk):
         frame_list.update()
         return frame_list, canvas, dimension_x, dimension_y
 
-    def canvas_roll(self, canvas, frame, view_x, view_y):
+    @staticmethod
+    def canvas_roll(canvas, frame, view_x, view_y):
         def roll_wheel(event):
             direction = 0
             if event.num == 5 or event.delta == -120:
