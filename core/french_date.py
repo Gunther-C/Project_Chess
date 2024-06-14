@@ -1,13 +1,13 @@
 import datetime
-import locale
+# import locale
 
 
 class FrenchDate:
     def __init__(self) -> None:
 
         self.array_month_fr = (
-            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre',
-            'Décembre')
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre',
+            'Novembre', 'Décembre')
 
         # locale.setlocale(locale.LC_TIME, 'fr_FR')
 

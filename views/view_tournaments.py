@@ -1,7 +1,4 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import font
-from tkinter import messagebox
+from tkinter import ttk, font, Menu, Frame, Canvas, Scrollbar, Label, messagebox, END, BooleanVar, Checkbutton, INSERT
 from tkinter.scrolledtext import ScrolledText
 from core import extend_view
 
@@ -60,9 +57,11 @@ class TournamentsViews(extend_view.ExtendViews):
         select_players = [BooleanVar() for _ in data_player]
 
         def tournament_submit(dt_tournament):
+
             if len(self.se.new_all_players) > 0:
                 for nw_player in self.se.new_all_players:
-                    dt_tournament['players'].insert(0, nw_player)
+                    if nw_player not in dt_tournament['players']:
+                        dt_tournament['players'].insert(0, nw_player)
 
             self.new_window[0].destroy()
             self.se.tournament_ctrl(self.frame, dt_tournament)
@@ -298,7 +297,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
         lb_font = font.Font(family='Times New Roman', size=12)
         _comment = ScrolledText(self.frame, height=10, highlightbackground="black", highlightthickness=1, font=lb_font)
-        _comment.grid(column=1, columnspan=3, row=5, sticky=W)
+        _comment.grid(column=1, columnspan=3, row=5, sticky="w")
         _comment.insert(INSERT, tournament.comment)
         _comment.bind("<KeyRelease>", lambda e: comment())
         if last_finish:
@@ -754,11 +753,3 @@ class TournamentsViews(extend_view.ExtendViews):
                 self.se.update_score(data_match)
         else:
             pass
-
-
-        """name = Label(self.new_frame, width=15, bg="#FEF9E7", font=title_font, text=f"Round n° {new_round.id_round}")
-        name.grid(row=0, column=0, columnspan=2, sticky="w", padx=20, pady=15)
-        start = Label(self.new_frame, width=15, bg="#FEF9E7", font=lb_font, text=f"Début du round le : {text_start}")
-        start.grid(row=1, column=0, columnspan=2, sticky="w", padx=20, pady=5)
-        finish = Label(self.new_frame, width=15, bg="#FEF9E7", font=lb_font, text=f"Round terminé le : {text_finish}")
-        finish.grid(row=2, column=0, columnspan=2, sticky="w", padx=20, pady=5)"""

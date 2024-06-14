@@ -26,5 +26,3 @@ class RoundMdl:
         for match in matchs:
             object_match = M_mdl(match)
             self.matchs_list.append(object_match)
-
-

@@ -1,6 +1,4 @@
-from tkinter import *
-from tkinter import font, Entry, Radiobutton, Checkbutton
-from tkinter import ttk
+from tkinter import Entry, Label, Radiobutton, Checkbutton, font
 
 
 class ExtendViews:
@@ -25,15 +23,15 @@ class ExtendViews:
     def input_text(**kwargs: any) -> Entry:
         label = Label(kwargs['mst'], bg=kwargs['bg'], text=kwargs['text'])
         new_input = Entry(kwargs['mst'], width=kwargs['ip_wh'])
-        label.grid(column=kwargs['cols'], columnspan=kwargs['colspan'], row=kwargs['lb_row'], sticky=W)
-        new_input.grid(column=kwargs['cols'], columnspan=kwargs['colspan'], row=kwargs['ip_row'], sticky=W)
+        label.grid(column=kwargs['cols'], columnspan=kwargs['colspan'], row=kwargs['lb_row'], sticky='w')
+        new_input.grid(column=kwargs['cols'], columnspan=kwargs['colspan'], row=kwargs['ip_row'], sticky='w')
         new_input.update()
         return new_input
 
     @staticmethod
     def input_date(**kwargs: any) -> any:
         label = Label(kwargs['mst'], bg=kwargs['bg'], text=kwargs['text'])
-        label.grid(column=1, columnspan=5, row=kwargs['lb_row'], sticky=W)
+        label.grid(column=1, columnspan=5, row=kwargs['lb_row'], sticky='w')
 
         new_day = Entry(kwargs['mst'], width=5, justify='center')
         new_month = Entry(kwargs['mst'], width=5, justify='center')
@@ -41,7 +39,7 @@ class ExtendViews:
         slash1 = Label(kwargs['mst'], width=1, height=1, bg="#FEF9E7", border=0, text="/")
         slash2 = Label(kwargs['mst'], width=1, height=1, bg=kwargs['bg'], border=0, text="/")
 
-        new_day.grid(column=1, row=kwargs['ip_row'], sticky=W)
+        new_day.grid(column=1, row=kwargs['ip_row'], sticky='w')
         slash1.grid(column=2, row=kwargs['ip_row'])
         new_month.grid(column=3, row=kwargs['ip_row'])
         slash2.grid(column=4, row=kwargs['ip_row'])

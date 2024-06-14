@@ -1,6 +1,6 @@
-from tkinter import *
+"""from tkinter import *
 from tkinter import font, Entry
-from tkinter import ttk
+from tkinter import ttk"""
 
 from core import core
 from core import french_date as date_fr
@@ -130,8 +130,8 @@ class PlayersCtrl(core.Core):
             ctrl_errors = self.create_error(errors_dict)
             if len(ctrl_errors) > 0:
                 for er in ctrl_errors:
-                    self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
-                                     name=er[0], fg="red", pady=None, text=er[1])
+                    self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False,
+                                     bg="#FEF9E7", name=er[0], fg="red", pady=None, text=er[1])
             else:
 
                 new_search = self.searching(search_type="searching", last_name=last_name)
@@ -169,8 +169,8 @@ class PlayersCtrl(core.Core):
             ctrl_errors = self.create_error(errors_dict)
             if len(ctrl_errors) > 0:
                 for er in ctrl_errors:
-                    self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
-                                     name=er[0], fg="red", pady=None, text=er[1])
+                    self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False,
+                                     bg="#FEF9E7", name=er[0], fg="red", pady=None, text=er[1])
             else:
                 new_search = self.searching(search_type="searching", identity=identity)
                 if len(new_search) > 0:

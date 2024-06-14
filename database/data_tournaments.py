@@ -221,4 +221,3 @@ class TournamentData:
 
         except UnicodeEncodeError as err:
             print("Erreur D'encodage :", err)
-

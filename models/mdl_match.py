@@ -25,6 +25,3 @@ class MatchMdl:
             self.name_plr2 = pair[1][1]
             if len(pair[1]) > 2:
                 self.score_plr2 = pair[1][2]
-
-
-

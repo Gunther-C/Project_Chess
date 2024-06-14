@@ -1,11 +1,11 @@
-from tkinter import *
+"""from tkinter import *
 from tkinter import font, Entry
-from tkinter import ttk
+from tkinter import ttk"""
 import random
 
 from core import core
 from core import french_date as date_fr
-from rotate import rotation
+# from rotate import rotation
 
 from database.data_tournaments import TournamentData
 from database.data_players import PlayersData
@@ -71,7 +71,7 @@ class TournamentsCtrl(core.Core):
             if not errors_dict['ctrl_day'] and not errors_dict['ctrl_month'] and not errors_dict['ctrl_year']:
                 errors_dict['ctrl_date'] = self.date_verif(year, month, day)
         if not ctrl_number_players % 2 == 0:
-            errors_dict['ctrl_nbr_plrs'] = f"Vous devez sélectionner un nombre pair de joueurs"
+            errors_dict['ctrl_nbr_plrs'] = "Vous devez sélectionner un nombre pair de joueurs"
 
         self.destroy_error(new_frame, 1)
 
@@ -217,7 +217,6 @@ class TournamentsCtrl(core.Core):
 
             # nombre de fois qu'un joueur en rencontre un autre
             adversary = int(number_player - 1)
-            reste = _number_turn - number_round
 
             # récupération de tous les matchs du tournoi
             match_lists = []

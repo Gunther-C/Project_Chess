@@ -31,8 +31,3 @@ class PlayersMdl:
                 self.birth = str(birth)
             if point:
                 self.point = point
-
-
-
-
-

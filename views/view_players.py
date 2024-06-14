@@ -1,6 +1,4 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import font
+from tkinter import ttk, font, Menu, Frame, Canvas, Scrollbar, Label, END
 from core import extend_view
 
 

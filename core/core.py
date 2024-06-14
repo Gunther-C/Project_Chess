@@ -1,7 +1,4 @@
-from tkinter import *
-from tkinter import font, Entry
-from tkinter import ttk
-
+from tkinter import Tk, Menu, Toplevel, Frame, Canvas, Scrollbar, Label, PhotoImage
 from datetime import date
 import re
 
@@ -199,7 +196,7 @@ class Core(Tk):
                         return f"{arg_type} ne doit pas commencer par un ( 0 )"
                 case "numberRound":
                     if int(number) < 1 or int(number) > 99:
-                        return f"Le nombre de rounds doit comporter un nombre entre 1 et 99"
+                        return "Le nombre de rounds doit comporter un nombre entre 1 et 99"
 
     @staticmethod
     def number_float_verif(arg_type, number) -> False:
@@ -234,7 +231,7 @@ class Core(Tk):
 
         date_verif = date(int(args[0]), int(args[1]), int(args[2]))
         if date_verif < now:
-            return f"La date de départ ne peut être antérieure à la date du jour !"
+            return "La date de départ ne peut être antérieure à la date du jour !"
 
     @staticmethod
     def string_verif(arg_type, text) -> False:
@@ -306,4 +303,3 @@ class Core(Tk):
                 case _:
                     pass
         return data_player
-
