@@ -29,7 +29,7 @@ class TournamentData:
                 'Nom': str(new_data.name).capitalize(),
                 'Adresse': str(new_data.address).capitalize(),
                 'Date': str(new_data.date),
-                'Nombre de manche': int(new_data.number_turns),
+                'Manches': int(new_data.number_turns),
                 'Joueurs': player_list,
                 'Rounds': round_1,
                 'Commentaires': str(new_data.comment)

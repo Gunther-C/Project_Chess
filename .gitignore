@@ -1,0 +1,3 @@
+.venv/
+pack_stock/data_players.json
+pack_stock/data_tournaments.json

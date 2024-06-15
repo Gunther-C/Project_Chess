@@ -8,7 +8,7 @@ class PlayersData:
 
         self.data: dict = {}
 
-        if player and player.identity and player.last_name and player.first_name and player.birth and player.point:
+        if player and player.identity and player.last_name and player.first_name and player.birth:
 
             _point = 0.0
             if player.point and type(player.point) is float:

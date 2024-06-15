@@ -1,4 +1,4 @@
-from tkinter import ttk, font, Menu, Frame, Label, DISABLED, END
+from tkinter import ttk, font, Menu, Frame, Entry, Label, DISABLED, END
 
 from core import extend_view
 
@@ -135,35 +135,29 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
     def search_player(self, choice_type):
+
+        self.se.background['image'] = ""
         self.se.clear_frame(self.frame)
         view_master = self.se.master_window(50, 60)
         self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.3, anchor='center')
 
-
-
-        title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
-                           mst=self.frame, bg="#FEF9E7", justify=None, text="Rechercher un joueur : ", width=None,
-                           row=0, cols=None, colspan=3, sticky=None, padx=None, pady=None)
+        (Label(self.frame, bg="#FEF9E7", font=self.lc_cal, text="Rechercher un joueur : ")
+         .grid(row=0, columnspan=3, pady=20))
 
         result_text = "Par Nom : "
         if choice_type == "identity":
             result_text = "Par numéro d'Identité"
 
-        result = self.input_text(mst=self.frame, lb_row=2, ip_row=3, cols=1, colspan=None, bg="#FEF9E7",
-                                 text=result_text, ip_wh=20)
+        Label(self.frame, bg="#FEF9E7", text=result_text).grid(row=2, column=1, columnspan=3, sticky='w')
+
+        result = Entry(self.frame, width=20)
+        result.grid(row=3, column=1, columnspan=3, sticky='w')
 
         data_player = {choice_type: result}
 
-        submit = ttk.Button(self.frame, text="  Valider  ",
-                            command=lambda: self.se.search_menu(self.frame, data_player))
-        submit.grid(columnspan=3, pady=20)
-
-        space_x: list = self.adjust_x(title, result)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7",  ipadx=space_x[2] // 2, ipady=None,
-                   justify=None, text="", row=1, cols=0, colspan=None, sticky=None)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7",  ipadx=space_x[2] // 2, ipady=None,
-                   justify=None, text="", row=4, cols=2, colspan=None, sticky=None)
+        (ttk.Button(self.frame, text="  Valider  ", command=lambda: self.se.search_menu(self.frame, data_player))
+         .grid(row=4, columnspan=3, pady=20))
 
     def matching_multi_players(self, multi_players: list):
         print(f"matching_multi_players => {multi_players}")
@@ -200,7 +194,7 @@ class PlayersViews(extend_view.ExtendViews):
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)
-        Label(frame, bg="#ffffff").grid(row=0, column=0, ipadx=col0_x[2])
+        Label(frame, bg="#FEF9E7").grid(row=0, column=0, ipadx=col0_x[2] // 2)
 
     def matching_player(self, dt_player: object):
 

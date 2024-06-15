@@ -1,6 +1,3 @@
-"""from tkinter import *
-from tkinter import font, Entry
-from tkinter import ttk"""
 
 from core import core
 from core import french_date as date_fr
@@ -14,7 +11,7 @@ from views import view_players as view
 
 class PlayersCtrl(core.Core):
 
-    def __init__(self, data_transfer=None):
+    def __init__(self):
         super().__init__()
 
         self.vue = view.PlayersViews(self)

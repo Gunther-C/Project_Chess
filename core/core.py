@@ -34,7 +34,8 @@ class Core(Tk):
         self.config(bg="#FEF9E7")
         self.iconbitmap("views/pictures/horse.ico")
 
-        self.background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40), height=int(view_master[1] * 0.50))
+        self.background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40),
+                                height=int(view_master[1] * 0.50))
         self.background.image = PhotoImage(file="views/pictures/Chess_mini.png")
         self.background['image'] = self.background.image
         self.background.grid()
@@ -71,8 +72,9 @@ class Core(Tk):
             Si plusieurs joueurs ont le mème nom retourne une list des joueurs
         """
         file_players = self.players_list()
+        multi_player = []
+
         if file_players:
-            multi_player = []
             type_search = 1
             last_name = None
             first_name = None
@@ -120,7 +122,7 @@ class Core(Tk):
                 if len(data_user) == type_search:
                     multi_player.append(player)
 
-            return multi_player
+        return multi_player
 
     @staticmethod
     def debug():
@@ -143,7 +145,7 @@ class Core(Tk):
     def listing_canvas(curent_frame, rw, bg_color, dimension):
 
         dimension_x = int(dimension[0] - 60)
-        dimension_y = int((dimension[1] - 20))
+        dimension_y = int((dimension[1] - 30))
 
         canvas = Canvas(curent_frame)
         frame_list = Frame(canvas, bg=bg_color, pady=40)
@@ -174,7 +176,7 @@ class Core(Tk):
 
         canvas.update()
         canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", lambda e: new_scroll(view_x, view_y), add=True)
+        frame.bind("<Configure>", lambda event: new_scroll(view_x, view_y), add=True)
         canvas.bind('<MouseWheel>', lambda event: roll_wheel(event), add=True)
         canvas.bind('<Button-4>', lambda event: roll_wheel(event), add=True)
         canvas.bind('<Button-5>', lambda event: roll_wheel(event), add=True)

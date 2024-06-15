@@ -5,6 +5,13 @@ class ExtendViews:
     def __init__(self, frame: any):
         self.frame = frame
 
+        self.new_r = font.Font(family='Times New Roman', size=15, weight="bold", slant="roman")
+        self.new_r_mini = font.Font(family='Times New Roman', size=10, weight="bold", slant="roman")
+
+        self.lc_cal = font.Font(family='Lucida Calligraphy', size=20, weight="bold", slant="italic", underline=True)
+        self.lc_cal_mini = font.Font(family='Lucida Calligraphy', size=15, weight="bold", slant="italic",
+                                     underline=True)
+
     @staticmethod
     def adjust_x(parent, child) -> list:
         screen_width = parent.winfo_width()
