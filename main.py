@@ -21,4 +21,4 @@ def cmd():
 
 if __name__ == '__main__':
     # cmd()
-    rotation('j')
+    rotation('t')
