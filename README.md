@@ -96,16 +96,16 @@ _Clone du projet_ :
 _Taper une commande puis valider avec entrée et ainsi de suite_
 
 >- cd < Le nom du dossier >  
->- python -m venv env 
+>- python -m venv venv 
 
 >_(pour la ligne de commande qui suit, selon votre système)_
-> 1. env\Scripts\activate.bat   
-> 2. source env/Scripts/Activate
-> 3. source env/bin/activate  
+> 1. venv\Scripts\activate.bat   
+> 2. source venv/Scripts/Activate
+> 3. source venv/bin/activate  
 >_(Vous trouverez plus d'informations sur le site de [Stackoverflow](https://stackoverflow.com/questions/18713086/virtualenv-wont-activate-on-windows/18713789#18713789))_  
 ####
 _(Résultat)_  
->- (env) doit apparaitre avant le chemin spécifié dans l'invité de commande
+>- (venv) doit apparaitre avant le chemin spécifié dans l'invité de commande
 >- Tapper la commande " _pip freeze_ " , pip doit ètre vide
 ###
 ### Installation des modules complémentaires >>>
@@ -118,11 +118,11 @@ _(Résultat)_
 
 (N’oubliez pas que pour les utilisateurs POSIX (comme Mac OS X et Linux), il est recommandé d’utiliser un environnement virtuel pour gérer vos projets Python.)  
 #
-## _Ouverture du logiciel_ ( Fichier main.py )
+## _Ouverture du logiciel_ (Fichier main.py)
 _Toujours sur votre invité de commande : Mettez-vous dans le dossier du "Project" puis tapper_ :
 > python main.py
  
-### _A vous de jouer_
+### _À vous de jouer_
 ___
 ### 🔗 Links 
  

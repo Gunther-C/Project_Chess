@@ -53,8 +53,11 @@ class TournamentsViews(extend_view.ExtendViews):
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
 
         data_tournament: dict = {}
+        data_player = []
+        new_list_players = self.se.instance_player()
 
-        data_player = self.se.instance_player()
+        if new_list_players:
+            data_player = new_list_players
 
         select_players = [BooleanVar() for _ in data_player]
 
@@ -74,9 +77,9 @@ class TournamentsViews(extend_view.ExtendViews):
                 infos_plr = [{'identity': ctrl_result[0], 'last_name': ctrl_result[1], 'first_name': ctrl_result[2],
                               'point': ctrl_result[3]}]
                 _data_player = self.se.instance_player(infos_plr)
-
-                self.se.new_all_players.append(_data_player[0])
-                all_player_submit('player')
+                if _data_player:
+                    self.se.new_all_players.append(_data_player[0])
+                    all_player_submit('player')
 
         def all_player_submit(submit_type):
             if submit_type == 'list':
@@ -139,6 +142,7 @@ class TournamentsViews(extend_view.ExtendViews):
         data_tournament['players'] = []
 
         def new_list():
+
             view_list = self.list_players(data_player, select_players, 'Sélection des joueurs')
             self.new_window = view_list[0]
 
@@ -188,8 +192,6 @@ class TournamentsViews(extend_view.ExtendViews):
                        justify=None, text="", row=13, cols=6, colspan=None, sticky=None)
 
     def detail_tournament(self, tournament: object, result_round=None):
-
-        print(f"detail_tournament => {tournament}")
 
         last_rd = tournament.rounds[-1]
         last_finish = last_rd.finish
@@ -270,7 +272,8 @@ class TournamentsViews(extend_view.ExtendViews):
 
     def list_players(self, data_player, select_players, title):
 
-        data_player.sort(key=lambda x: x.point, reverse=True)
+        if len(data_player) > 0:
+            data_player.sort(key=lambda x: x.point, reverse=True)
 
         if self.new_window:
             self.new_window[0].destroy()
@@ -323,44 +326,31 @@ class TournamentsViews(extend_view.ExtendViews):
             Label(frame, bg="#ffffff", height=1, underline=1).grid(row=next_line, columnspan=6, sticky="w", pady=20)
             next_line += 1
 
-        for i, dt_player in enumerate(data_player):
-            # "equal = None" évite le doublon quand le tournoi est créé avec un joueur dans la fenêtre joueur
-            equal = None
-            if select_players:
-                for sup_id in player_supp:
-                    if sup_id == dt_player.identity:
-                        equal = True
-
-            if not equal:
-                identity = Label(frame, bg="#ffffff", justify="center", text=dt_player.identity)
-                identity.grid(row=next_line, column=1, padx=30)
-                last_name = Label(frame, bg="#ffffff", justify="center", text=dt_player.last_name)
-                last_name.grid(row=next_line, column=2, padx=30)
-                first_name = Label(frame, bg="#ffffff", justify="center", text=dt_player.first_name)
-                first_name.grid(row=next_line, column=3, padx=30)
-                score = Label(frame, bg="#ffffff", justify="center", text=dt_player.point)
-                score.grid(row=next_line, column=4, padx=30)
+        if len(data_player) > 0:
+            for i, dt_player in enumerate(data_player):
+                # "equal = None" évite le doublon quand le tournoi est créé avec un joueur dans la fenêtre joueur
+                equal = None
                 if select_players:
-                    check = Checkbutton(frame, variable=select_players[i], onvalue=1, offvalue=0, bg="#ffffff",
-                                        offrelief="flat", overrelief="ridge", indicatoron=True)
-                    check.grid(row=next_line, column=5, padx=15)
-                next_line += 1
+                    for sup_id in player_supp:
+                        if sup_id == dt_player.identity:
+                            equal = True
+
+                if not equal:
+                    identity = Label(frame, bg="#ffffff", justify="center", text=dt_player.identity)
+                    identity.grid(row=next_line, column=1, padx=30)
+                    last_name = Label(frame, bg="#ffffff", justify="center", text=dt_player.last_name)
+                    last_name.grid(row=next_line, column=2, padx=30)
+                    first_name = Label(frame, bg="#ffffff", justify="center", text=dt_player.first_name)
+                    first_name.grid(row=next_line, column=3, padx=30)
+                    score = Label(frame, bg="#ffffff", justify="center", text=dt_player.point)
+                    score.grid(row=next_line, column=4, padx=30)
+                    if select_players:
+                        check = Checkbutton(frame, variable=select_players[i], onvalue=1, offvalue=0, bg="#ffffff",
+                                            offrelief="flat", overrelief="ridge", indicatoron=True)
+                        check.grid(row=next_line, column=5, padx=15)
+                    next_line += 1
 
         self.se.canvas_roll(canvas, frame, view_x, view_y)
-        # self.se.canvas_roll(canvas, frame, view_x, view_y)
-        """def roll_wheel(event):
-            direction = 0
-            if event.num == 5 or event.delta == -120:
-                direction = 1
-            if event.num == 4 or event.delta == 120:
-                direction = -1
-            event.widget.yview_scroll(direction, UNITS)
-        canvas.update()
-        canvas.create_window((0, 0), window=frame)
-        frame.bind("<Configure>", canvas.configure(scrollregion=canvas.bbox("all"), width=view_x, height=view_y))
-        canvas.bind('<MouseWheel>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-4>', lambda event: roll_wheel(event))
-        canvas.bind('<Button-5>', lambda event: roll_wheel(event))"""
 
         frame.update()
         col0_x = self.adjust_x(canvas, frame)

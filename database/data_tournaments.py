@@ -53,21 +53,20 @@ class TournamentData:
                     json.dump(current_file, file, indent=4)
                     return self.data
 
-                except json.JSONEncodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                except json.JSONEncodeError:
+                    """print(f"Erreur lors de l'écriture des données JSON : {e}")"""
                     return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            """print("Erreur lors de l'ouverture du fichier :", er)"""
             return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            """print("Erreur D'encodage :", err)"""
             return False
 
     @staticmethod
-    def update_scores(new_scores):
+    def update_scores(new_scores) -> False:
         nw_sc = new_scores
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
@@ -99,19 +98,18 @@ class TournamentData:
 
                     file.seek(0)
                     json.dump(new_file, file, indent=4)
-
+                    return True
                 except json.JSONDecodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                    return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            return False
 
     @staticmethod
-    def update_date(data_date):
+    def update_date(data_date) -> False:
 
         to_day = date_fr.FrenchDate().date_hour_fr
         try:
@@ -139,15 +137,14 @@ class TournamentData:
 
                     return to_day
 
-                except json.JSONDecodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                except json.JSONDecodeError:
+                    return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            return False
 
     @staticmethod
     def update_comment(new_tournament):

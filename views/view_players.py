@@ -14,6 +14,9 @@ class PlayersViews(extend_view.ExtendViews):
         super().__init__(self.frame)
 
     def new_menu(self):
+        """
+        :return: Menu principale
+        """
         self.se.menu_players = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
         self.se.menu.add_cascade(label="Joueurs", menu=self.se.menu_players)
         self.se.menu.add_command(label="Debug", command=lambda: self.se.debug())
@@ -21,6 +24,9 @@ class PlayersViews(extend_view.ExtendViews):
         self.se.config(menu=self.se.menu)
 
     def menu_choice(self):
+        """
+        :return: Menu secondaire
+        """
         if not self.se.widjets_menu1:
             self.se.menu_searching = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_search())
             self.se.menu_listing = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_list())
@@ -30,6 +36,9 @@ class PlayersViews(extend_view.ExtendViews):
             self.se.widjets_menu1 = True
 
     def menu_list(self):
+        """
+        :return: Menu du style de listes de joueurs
+        """
         if not self.se.widjets_menu2:
             self.se.menu_listing.add_command(label="Ordre alphabétique", command=lambda: self.se.recover_list('name'))
             self.se.menu_listing.add_command(label="Odre d'inscription",
@@ -38,12 +47,18 @@ class PlayersViews(extend_view.ExtendViews):
             self.se.widjets_menu2 = True
 
     def menu_search(self):
+        """
+        :return: Menu du style de recherche
+        """
         if not self.se.widjets_menu3:
             self.se.menu_searching.add_command(label="Nom", command=lambda: self.search_player('last_name'))
             self.se.menu_searching.add_command(label="Identifiant", command=lambda: self.search_player('identity'))
             self.se.widjets_menu3 = True
 
     def create_player(self):
+        """
+        :return: Création d'un joueur
+        """
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
@@ -87,7 +102,10 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=13, cols=6, colspan=None, sticky=None)
 
     def insert_player(self, dt_player: object):
-
+        """
+        :param dt_player:
+        :return: Résultat de l'ajout d'un joueur
+        """
         def click(type_choice):
             if type_choice == 'save':
                 self.se.save_or_tournament('save', dt_player)
@@ -135,7 +153,10 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
     def search_player(self, choice_type):
-
+        """
+        :param choice_type:
+        :return: Recherche par nom ou numéro d'identité national
+        """
         self.se.background['image'] = ""
         self.se.clear_frame(self.frame)
         view_master = self.se.master_window(50, 60)
@@ -160,8 +181,10 @@ class PlayersViews(extend_view.ExtendViews):
          .grid(row=4, columnspan=3, pady=20))
 
     def matching_multi_players(self, multi_players: list):
-        print(f"matching_multi_players => {multi_players}")
-
+        """
+        :param multi_players:
+        :return: Plusieurs résultats trouvés lors d'une recherche par nom
+        """
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
@@ -197,9 +220,10 @@ class PlayersViews(extend_view.ExtendViews):
         Label(frame, bg="#FEF9E7").grid(row=0, column=0, ipadx=col0_x[2] // 2)
 
     def matching_player(self, dt_player: object):
-
-        print(f"matching_player => {dt_player}")
-
+        """
+        :param dt_player:
+        :return: Résultat de la recherche d'un joueur
+        """
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
@@ -237,8 +261,11 @@ class PlayersViews(extend_view.ExtendViews):
                    justify=None, text="", row=1, cols=4, colspan=None, sticky=None)
 
     def list_players(self, title: str, data_players: list):
-        print(f"list_players => {data_players}")
-
+        """
+        :param title:
+        :param data_players:
+        :return: Liste des joueurs en bdd
+        """
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(60, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
@@ -250,12 +277,6 @@ class PlayersViews(extend_view.ExtendViews):
 
         cols_x = int(master_geometrie[0] - 200) // 6
         content_y = int(master_geometrie[1] / 3) // 12
-
-        """data_tournament = []
-        for x in range(10):
-            for tournament in data_tour:
-                data_tournament.append(tournament)"""
-
         columns: tuple = (1, 2, 3, 4, 5, 6)
         header: tuple = ('Ordre d\'inscription', ' Identité', 'Nom', 'Prénom', 'Date de naissance', 'Point(s)')
 
@@ -299,6 +320,10 @@ class PlayersViews(extend_view.ExtendViews):
         scrollbar.grid(row=1, column=1, sticky='ns')
 
     def message(self, **kwargs: any) -> any:
+        """
+        :param kwargs:
+        :return: Message d'alerte
+        """
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
                             slant=kwargs['slant'], underline=kwargs['underline'])
         label = Label(self.frame, bg=kwargs['bg'], font=lb_font, name=kwargs['name'], fg=kwargs['fg'],

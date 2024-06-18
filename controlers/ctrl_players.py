@@ -18,11 +18,12 @@ class PlayersCtrl(core.Core):
         self.vue.new_menu()
         self.vue.menu_choice()
 
-        """if data_transfer:
-            self.new_player = data_transfer
-            self.vue.new_player()"""
-
     def player_ctrl(self, new_frame, data_player):
+        """
+        :param new_frame:
+        :param data_player:
+        :return: Contrôle enregistrement d'un joueur
+        """
         errors_dict = {}
         identity = data_player['identity'].get()
         last_name = data_player['last_name'].get()
@@ -84,6 +85,11 @@ class PlayersCtrl(core.Core):
             pass
 
     def save_or_tournament(self, result, data_player):
+        """
+        :param result:
+        :param data_player:
+        :return: Enregistrement du joueur en base de donnée ou création d'un tournoi
+        """
         match result:
             case 'save':
                 if PlayersData(data_player):
@@ -103,6 +109,11 @@ class PlayersCtrl(core.Core):
                 pass
 
     def search_menu(self, new_frame, result):
+        """
+        :param new_frame:
+        :param result:
+        :return: Type de recherche du joueur identité ou nom
+        """
 
         if 'last_name' in result:
             self.search_ctrl_name(new_frame, result)
@@ -114,7 +125,11 @@ class PlayersCtrl(core.Core):
             pass
 
     def search_ctrl_name(self, new_frame, result=None):
-
+        """
+        :param new_frame:
+        :param result:
+        :return: Contrôle du nom lors d'une recherche
+        """
         if result:
             errors_dict = {}
 
@@ -130,7 +145,7 @@ class PlayersCtrl(core.Core):
                     self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False,
                                      bg="#FEF9E7", name=er[0], fg="red", pady=None, text=er[1])
             else:
-
+                file_players = self.players_list()
                 new_search = self.searching(search_type="searching", last_name=last_name)
 
                 if len(new_search) > 1:
@@ -148,6 +163,10 @@ class PlayersCtrl(core.Core):
                                                            new_plr['first_name'], new_plr['birth'], new_plr['point'])
                     self.vue.matching_player(self.new_player)
 
+                elif not file_players:
+                    self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
+                                     bg="#FEF9E7", name="error1", fg="red", pady=10,
+                                     text="Il semblerait que la liste des joueurs est vide")
                 else:
                     self.vue.message(family=None, size=10, weight="normal", slant="roman", underline=False,
                                      bg="#FEF9E7", name="error1", fg="red", pady=10, text="Ce joueur n'éxiste pas")
@@ -155,6 +174,11 @@ class PlayersCtrl(core.Core):
             pass
 
     def search_ctrl_identity(self, new_frame, result=None):
+        """
+        :param new_frame:
+        :param result:
+        :return: Contrôle numéro d'identité national lors d'une recherche
+        """
 
         if result:
             identity = result['identity'].get()
@@ -184,26 +208,30 @@ class PlayersCtrl(core.Core):
             pass
 
     def recover_list(self, type_list=None):
-
+        """
+        :param type_list:
+        :return: liste ordonnée
+        """
         file_players = self.players_list()
         title = ""
         listing = []
         ordered = None
 
-        match type_list:
-            case 'name':
-                ordered = sorted(file_players, key=lambda x: x['last_name'])
-                title = " Liste par ordre alphabétique "
+        if file_players:
 
-            case 'registration':
-                ordered = sorted(file_players, key=lambda x: x['id'])
-                title = " Liste par odre d'inscription "
+            match type_list:
+                case 'name':
+                    ordered = sorted(file_players, key=lambda x: x['last_name'])
+                    title = " Liste par ordre alphabétique "
 
-            case 'score':
-                ordered = sorted(file_players, key=lambda x: x['point'], reverse=True)
-                title = " Liste par ordre de point "
+                case 'registration':
+                    ordered = sorted(file_players, key=lambda x: x['id'])
+                    title = " Liste par odre d'inscription "
 
-        if ordered:
+                case 'score':
+                    ordered = sorted(file_players, key=lambda x: x['point'], reverse=True)
+                    title = " Liste par ordre de point "
+
             for player in ordered:
                 new_player = self.instance_player(player['id'], player['identity'], player['last_name'],
                                                   player['first_name'], player['birth'], player['point'])
@@ -211,8 +239,18 @@ class PlayersCtrl(core.Core):
 
             self.vue.list_players(title, listing)
 
+        else:
+            self.vue.message(family=None, size=9, weight="normal", slant="roman", underline=False, bg="#FEF9E7",
+                             name="error1", fg="red", pady=None,
+                             text="Il semblerait que la liste des joueurs est vide")
+
     @staticmethod
     def create_new_tournament(player_tournament):
+        """
+        :param player_tournament:
+        :return: fermeture fenêtre joueur, ouverture fenêtre tournoi
+        création d'un tournoi avec un joueur
+        """
         rotation('t', player_tournament)
 
     @staticmethod

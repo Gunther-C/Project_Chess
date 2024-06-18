@@ -25,6 +25,9 @@ class PlayersData:
             self.insert_player()
 
     def insert_player(self) -> False:
+        """
+        :return: Insertion d'un joueur en bdd
+        """
 
         current_file = []
 
@@ -42,18 +45,23 @@ class PlayersData:
                 try:
                     json.dump(current_file, file, indent=4)
                     return True
-                except json.JSONEncodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                except json.JSONEncodeError:
+                    """print(f"Erreur lors de l'écriture des données JSON : {e}")"""
+                    pass
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            """print("Erreur lors de l'ouverture du fichier :", er)"""
+            pass
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            """print("Erreur D'encodage :", err)"""
+            pass
 
     @staticmethod
-    def load_players_file():
+    def load_players_file() -> False:
+        """
+        :return: Lecture du fichier json joueurs
+        """
         try:
             with open("database/data_players.json", encoding="utf-8-sig", newline="") as file:
 
@@ -61,18 +69,24 @@ class PlayersData:
                     new_file = json.load(file)
                     return new_file
 
-                except json.JSONDecodeError as e:
-                    print(f"Erreur lors de la lecture des données JSON : {e}")
+                except json.JSONDecodeError:
+                    """print(f"Erreur lors de la lecture des données JSON : {e}")"""
+                    pass
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            """print("Erreur lors de l'ouverture du fichier :", er)"""
+            pass
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            """print("Erreur D'encodage :", err)"""
+            pass
 
     @staticmethod
     def update_score(data_players):
+        """
+        :param data_players:
+        :return: Modification du score d'un match en temps réel
+        """
         try:
             with open("database/data_players.json", "r+", encoding="utf-8-sig", newline="") as file:
                 try:
@@ -87,15 +101,11 @@ class PlayersData:
 
                     return True
 
-                except json.JSONDecodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                except json.JSONDecodeError:
                     return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
             return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
             return False

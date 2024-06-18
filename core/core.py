@@ -14,7 +14,6 @@ class Core(Tk):
         super().__init__()
 
         self.master_id = self.winfo_id()
-        print(self.master_id)
 
         self.data_transfer = None
 
@@ -45,7 +44,9 @@ class Core(Tk):
 
     def master_window(self, child_width, child_height):
         """
-        Placement / dimension fenêtre principale
+        :param child_width:
+        :param child_height:
+        :return: Placement / dimension fenêtre principale
         """
         view_x: list = self.window_x(self.winfo_screenwidth(), child_width)
         view_y: list = self.window_y(self.winfo_screenheight(), child_height)
@@ -53,11 +54,20 @@ class Core(Tk):
 
         return [view_x[0], view_y[0]]
 
-    def listing_window(self, percent_width, percent_height, placex, placey, title, bg):
+    def listing_window(self, percent_width, percent_height, place_x, place_y, title, bg):
+        """
+        :param percent_width:
+        :param percent_height:
+        :param place_x:
+        :param place_y:
+        :param title:
+        :param bg:
+        :return: Fenêtre supplémentaire
+        """
         new_window = Toplevel(self)
         view_x: list = self.window_x(self.winfo_screenwidth(), percent_width)
         view_y: list = self.window_y(self.winfo_screenheight(), percent_height)
-        new_window.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], placex, placey))
+        new_window.geometry('{}x{}+{}+{}'.format(view_x[0], view_y[0], place_x, place_y))
         new_window.minsize(width=view_x[0], height=view_y[0])
         new_window.title(title)
         new_window.config(bg=bg)
@@ -66,7 +76,8 @@ class Core(Tk):
 
     def searching(self, **kwargs: any) -> False:
         """
-            Recherchée correspondance
+        :param kwargs:
+        :return: Recherchée correspondance
             si le joueur est déja dans la bdd à l'inscription
             recherche si un joueur éxiste retourne ses infos en cas de success
             Si plusieurs joueurs ont le mème nom retourne une list des joueurs
@@ -126,7 +137,9 @@ class Core(Tk):
 
     @staticmethod
     def debug():
-
+        """
+        :return: Traitement flake8
+        """
         try:
             subprocess.run(["flake8", "--format=html", "--htmldir=flake8_rapport"])
 
@@ -143,7 +156,13 @@ class Core(Tk):
 
     @staticmethod
     def listing_canvas(curent_frame, rw, bg_color, dimension):
-
+        """
+        :param curent_frame:
+        :param rw:
+        :param bg_color:
+        :param dimension:
+        :return: Canvas avec scrollbar
+        """
         dimension_x = int(dimension[0] - 60)
         dimension_y = int((dimension[1] - 30))
 
@@ -163,6 +182,13 @@ class Core(Tk):
 
     @staticmethod
     def canvas_roll(canvas, frame, view_x, view_y):
+        """
+        :param canvas:
+        :param frame:
+        :param view_x:
+        :param view_y:
+        :return: Traitement scrollbar du canvas
+        """
         def roll_wheel(event):
             direction = 0
             if event.num == 5 or event.delta == -120:
@@ -182,21 +208,30 @@ class Core(Tk):
         canvas.bind('<Button-5>', lambda event: roll_wheel(event), add=True)
 
     @staticmethod
-    def players_list():
-        # fichier json des joueurs
+    def players_list() -> False:
+        """
+        :return: fichier json des joueurs
+        """
         file_players = PlayersData().load_players_file()
         if file_players:
             return file_players
 
     @staticmethod
-    def tournaments_list():
-        # fichier json des tournois
+    def tournaments_list() -> False:
+        """
+        :return: fichier json des tournois
+        """
         tournament = TournamentData().load_tournament_file()
         if tournament:
             return tournament
 
     @staticmethod
     def window_x(parent, child_width) -> list:
+        """
+        :param parent:
+        :param child_width:
+        :return: Ajuster la largeur de la fenêtre en pourcentage, centrer sur l'écran
+        """
         screen_width = parent
         unity = int(screen_width / 100)
         window_width = unity * int(child_width)
@@ -205,6 +240,11 @@ class Core(Tk):
 
     @staticmethod
     def window_y(parent, child_height) -> list:
+        """
+        :param parent:
+        :param child_height:
+        :return: Ajuster la hauteur de la fenêtre en pourcentage, centrer sur l'écran
+        """
         screen_height = parent
         unity = int(screen_height / 100)
         window_height = unity * int(child_height)
@@ -213,7 +253,11 @@ class Core(Tk):
 
     @staticmethod
     def number_verif(arg_type, number) -> False:
-
+        """
+        :param arg_type:
+        :param number:
+        :return: erreur ciblée si la saisie n'est pas un nombre entier
+        """
         number = number.replace(" ", "").strip()
         new_nbr = number.isdigit()
         if not new_nbr:
@@ -242,7 +286,11 @@ class Core(Tk):
 
     @staticmethod
     def number_float_verif(arg_type, number) -> False:
-
+        """
+        :param arg_type:
+        :param number:
+        :return: erreur ciblée si la saisie n'est pas zero ou cinq après la virgule
+        """
         result = False
         text = f"{arg_type} Uniquement des chiffres (seul un 5 est accepté après le point, exemple :0.5 ou 10 ou 10.5"
         number = number.replace(" ", "").strip()
@@ -269,14 +317,22 @@ class Core(Tk):
 
     @staticmethod
     def date_verif(*args) -> False:
+        """
+        :param args:
+        :return: La date de départ ne peut être antérieure à la date du jour !
+        """
         now = date.today()
-
         date_verif = date(int(args[0]), int(args[1]), int(args[2]))
         if date_verif < now:
             return "La date de départ ne peut être antérieure à la date du jour !"
 
     @staticmethod
     def string_verif(arg_type, text) -> False:
+        """
+        :param arg_type:
+        :param text:
+        :return: la saisie doit comporter uniquement du texte
+        """
         if text:
             text = text.replace(" ", "").strip()
             new_text = text.isalpha()
@@ -285,6 +341,13 @@ class Core(Tk):
 
     @staticmethod
     def long_string_verif(arg_type, min_txt, max_txt, text) -> False:
+        """
+        :param arg_type:
+        :param min_txt:
+        :param max_txt:
+        :param text:
+        :return: Longueur du texte saisie
+        """
         if text:
             text = text.replace(" ", "").strip()
             if len(text) < min_txt or len(text) > max_txt:
@@ -292,6 +355,10 @@ class Core(Tk):
 
     @staticmethod
     def identity_verif(text) -> False:
+        """
+        :param text:
+        :return: erreur Le numéro national d'identité n'est pas valide
+        """
         if text:
             text = text.replace(" ", "").strip()
             if not len(text) == 7 or not text[:2].isalpha() or not text[2:].isdigit():
@@ -299,12 +366,20 @@ class Core(Tk):
 
     @staticmethod
     def clear_frame(frame: any) -> None:
+        """
+        :param frame:
+        :return: Néttoyage de la frame tkinter en cours
+        """
         if frame:
             for widget in frame.winfo_children():
                 widget.destroy()
 
     @staticmethod
     def create_error(errors_dict):
+        """
+        :param errors_dict:
+        :return: Mise en liste des erreurs principalement de saisie
+        """
         ctrl_errors = []
         if len(errors_dict) > 0:
             number_error = 0
@@ -318,6 +393,11 @@ class Core(Tk):
 
     @staticmethod
     def destroy_error(frame, ctrl_number_error: int):
+        """
+        :param frame:
+        :param ctrl_number_error:
+        :return: suppréssion de la liste des erreurs principalement de saisie
+        """
         if frame:
             for child in frame.winfo_children():
                 name = f"error{ctrl_number_error}"
@@ -327,21 +407,12 @@ class Core(Tk):
 
     @staticmethod
     def search_name_widget(frame, name: str) -> False:
+        """
+        :param frame:
+        :param name:
+        :return: Recherche d'un widget par son nom dans une frame
+        """
         if frame:
             for child in frame.winfo_children():
                 if child.winfo_name() == name:
                     return True
-
-    @staticmethod
-    def format_player(data_player, key=None, value=None):
-        if key and value:
-            match key:
-                case 'identity':
-                    data_player[key] = value
-                case 'last_name':
-                    data_player[key] = value
-                case 'first_name':
-                    data_player[key] = value
-                case _:
-                    pass
-        return data_player

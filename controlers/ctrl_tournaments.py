@@ -17,8 +17,6 @@ class TournamentsCtrl(core.Core):
     def __init__(self, new_player=None):
         super().__init__()
 
-        print('TournamentsCtrl data_player', new_player)
-
         self.new_all_players: list = []
 
         self.vue = view.TournamentsViews(self)
@@ -182,19 +180,21 @@ class TournamentsCtrl(core.Core):
         else:
             pass
 
-    def instance_player(self, _players_list=None):
+    def instance_player(self, _players_list=None) -> None:
 
         data_players: list = []
         if not _players_list:
             file_players = self.players_list()
-            _players_list = sorted(file_players, key=lambda x: x['last_name'])
+            if file_players:
+                _players_list = sorted(file_players, key=lambda x: x['last_name'])
 
-        for player in _players_list:
-            instance = PlayersMdl(identity=player['identity'], last_name=player['last_name'],
-                                  first_name=player['first_name'], point=player['point'])
-            data_players.append(instance)
+        if _players_list:
+            for player in _players_list:
+                instance = PlayersMdl(identity=player['identity'], last_name=player['last_name'],
+                                      first_name=player['first_name'], point=player['point'])
+                data_players.append(instance)
 
-        return data_players
+            return data_players
 
     def round_treatment(self, tournament):
 
@@ -378,12 +378,19 @@ class TournamentsCtrl(core.Core):
         if len(new_matchs_list) > 0:
             self.refactor_tournament(tournament, _rounds, _players, new_matchs_list)
 
-    @staticmethod
-    def update_score(new_scores):
+    def update_score(self, new_scores):
         if TournamentData().update_scores(new_scores):
             pass
+        else:
+            self.vue.message(mst=new_frame, family=None, size=10, weight="normal", slant="roman", underline=False,
+                             bg="#FEF9E7", name="error1", fg="red", pady=10,
+                             text="Erreur lors de l'écriture des données")
 
-    @staticmethod
-    def update_date(data_date):
+    def update_date(self, data_date) -> False:
         new_date = TournamentData().update_date(data_date)
-        return new_date
+        if new_date:
+            return new_date
+        else:
+            self.vue.message(mst=new_frame, family=None, size=10, weight="normal", slant="roman", underline=False,
+                             bg="#FEF9E7", name="error1", fg="red", pady=10,
+                             text="Erreur lors de l'écriture des données")
