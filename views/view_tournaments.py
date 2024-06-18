@@ -556,8 +556,8 @@ class TournamentsViews(extend_view.ExtendViews):
             plr1_ = Label(parent, width=15, bg="#ffffff", highlightbackground="black", highlightthickness=1,
                           font=self.new_r, foreground=color, text=_match.name_plr1, name=f"id-{_match.identity_plr1}")
             plr1_.bind("<Button-1>", lambda e: self.schema_round_action('player1', type_round, tournament,
-                                                                        new_round, start, _match, parent, frames_list),
-                       add=True)
+                                                                        new_round, start, _match, parent,
+                                                                        frames_list,), add=True)
             plr1_.grid(row=0, padx=10)
 
         def view_player2(_match, parent, frames_list, color):
@@ -642,7 +642,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
             # Lancement du round
             if not new_round.start:
-                new_round.start = self.se.update_date(('start', tournament.id_tour))
+                new_round.start = self.se.update_date(('start', tournament.id_tour), self.new_frame)
                 start.config(text=f"Ouverture du round le : {new_round.start}")
                 for _frame in frames_lists:
                     key_frames = _frame.winfo_name()
@@ -698,7 +698,7 @@ class TournamentsViews(extend_view.ExtendViews):
 
             if results:
                 data_match = (tournament.id_tour, match_key, results)
-                self.se.update_score(data_match)
+                self.se.update_score(data_match, self.new_frame)
         else:
             pass
 

@@ -99,7 +99,7 @@ class TournamentData:
                     file.seek(0)
                     json.dump(new_file, file, indent=4)
                     return True
-                except json.JSONDecodeError as e:
+                except json.JSONDecodeError:
                     return False
 
         except IOError:

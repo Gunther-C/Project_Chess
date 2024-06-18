@@ -87,7 +87,6 @@ _Clone du projet_ :
 ```bash
   git clone https://github.com/Gunther-C/Project_Chess.git
 ```
-
 ### Installer l'environement virtuel >>>
 - Décompresser le dossier sur votre bureau
 - Ensuite, ouvrez votre terminal  
@@ -96,12 +95,12 @@ _Clone du projet_ :
 _Taper une commande puis valider avec entrée et ainsi de suite_
 
 >- cd < Le nom du dossier >  
->- python -m venv venv 
+>- python -m venv .venv 
 
 >_(pour la ligne de commande qui suit, selon votre système)_
-> 1. venv\Scripts\activate.bat   
-> 2. source venv/Scripts/Activate
-> 3. source venv/bin/activate  
+> 1. .venv\Scripts\activate.bat   
+> 2. source .venv/Scripts/Activate
+> 3. source .venv/bin/activate  
 >_(Vous trouverez plus d'informations sur le site de [Stackoverflow](https://stackoverflow.com/questions/18713086/virtualenv-wont-activate-on-windows/18713789#18713789))_  
 ####
 _(Résultat)_  

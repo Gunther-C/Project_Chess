@@ -378,7 +378,7 @@ class TournamentsCtrl(core.Core):
         if len(new_matchs_list) > 0:
             self.refactor_tournament(tournament, _rounds, _players, new_matchs_list)
 
-    def update_score(self, new_scores):
+    def update_score(self, new_scores, new_frame):
         if TournamentData().update_scores(new_scores):
             pass
         else:
@@ -386,7 +386,7 @@ class TournamentsCtrl(core.Core):
                              bg="#FEF9E7", name="error1", fg="red", pady=10,
                              text="Erreur lors de l'écriture des données")
 
-    def update_date(self, data_date) -> False:
+    def update_date(self, data_date, new_frame) -> False:
         new_date = TournamentData().update_date(data_date)
         if new_date:
             return new_date
