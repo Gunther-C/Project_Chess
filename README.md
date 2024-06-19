@@ -95,7 +95,8 @@ _Clone du projet_ :
 _Taper une commande puis valider avec entrée et ainsi de suite_
 
 >- cd < Le nom du dossier >  
->- python -m venv .venv 
+>- python -m venv .venv  
+_(Avec un '.' au deuxième .venv)_
 
 >_(pour la ligne de commande qui suit, selon votre système)_
 > 1. .venv\Scripts\activate.bat   
@@ -104,8 +105,8 @@ _Taper une commande puis valider avec entrée et ainsi de suite_
 >_(Vous trouverez plus d'informations sur le site de [Stackoverflow](https://stackoverflow.com/questions/18713086/virtualenv-wont-activate-on-windows/18713789#18713789))_  
 ####
 _(Résultat)_  
->- (venv) doit apparaitre avant le chemin spécifié dans l'invité de commande
->- Tapper la commande " _pip freeze_ " , pip doit ètre vide
+>- (.venv) doit apparaitre avant le chemin spécifié dans l'invité de commande
+>- taper la commande " _pip freeze_ " , pip doit ètre vide
 ###
 ### Installation des modules complémentaires >>>
 ####
@@ -115,10 +116,10 @@ _(Résultat)_
 > **_Installer les modules nécessaires :_**  
 > pip install -r requirements.txt (Vérifiez avec "pip freeze")
 
-(N’oubliez pas que pour les utilisateurs POSIX (comme Mac OS X et Linux), il est recommandé d’utiliser un environnement virtuel pour gérer vos projets Python.)  
+**_(N’oubliez pas que pour les utilisateurs POSIX (comme Mac OS X et Linux), il est recommandé d’utiliser un environnement virtuel pour gérer vos projets Python)._**  
 #
 ## _Ouverture du logiciel_ (Fichier main.py)
-_Toujours sur votre invité de commande : Mettez-vous dans le dossier du "Project" puis tapper_ :
+_Toujours sur votre invité de commande : Mettez-vous dans le dossier du "Projet" si vous n'y êtes pas déjà, puis taper ce qui suit ci-dessous, puis validé avec la touche entrée._ :
 > python main.py
  
 ### _À vous de jouer_

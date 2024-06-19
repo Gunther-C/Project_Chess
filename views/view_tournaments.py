@@ -25,28 +25,53 @@ class TournamentsViews(extend_view.ExtendViews):
             print(family)"""
 
     def new_menu(self):
+        """
+        :return: Menu Tournoi
+        """
+        self.se.menu_param = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_parameter())
         self.se.menu_tour = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
-        self.se.menu.add_cascade(label="Tournois", menu=self.se.menu_tour)
-        self.se.menu.add_command(label="Debug", command=lambda: self.se.debug())
-        self.se.menu.add_command(label="Quitter", command=self.se.destroy)
+        self.se.menu.add_cascade(label="Menu Tournois", menu=self.se.menu_tour)
+        self.se.menu.add_cascade(label="Options", menu=self.se.menu_param)
         self.se.config(menu=self.se.menu)
 
+    def menu_parameter(self):
+        """
+        :return: Menu principale, fermer l'application
+        """
+        if not self.se.widjets_menu4:
+            def w_master():
+                self.se.destroy()
+                self.se.windows_master()
+
+            self.se.menu_param.add_command(label="Menu principal", command=lambda: w_master())
+            self.se.menu_param.add_command(label="Quitter", command=self.se.destroy)
+            self.se.widjets_menu4 = True
+
     def menu_choice(self):
+        """
+        :return: Menu secondaire
+        """
         if not self.se.widjets_menu1:
             self.se.menu_listing = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_list())
-            self.se.menu_tour.add_command(label="Ajouter un tournoi", command=lambda: self.se.result_menu('create'))
+            self.se.menu_tour.add_command(label="Ajouter un tournoi", command=lambda: self.new_tournament())
             self.se.menu_tour.add_cascade(label="Liste des tournois par:", menu=self.se.menu_listing)
             self.se.widjets_menu1 = True
 
     def menu_list(self):
+        """
+        :return: Menu du style de listes des tournois
+        """
         if not self.se.widjets_menu2:
             self.se.menu_listing.add_command(label="Dates croissantes",
-                                             command=lambda: self.se.tournament_lists('first'))
+                                             command=lambda: self.se.tournament_lists('first', self.frame))
             self.se.menu_listing.add_command(label="Dates décroissantes",
-                                             command=lambda: self.se.tournament_lists('last'))
+                                             command=lambda: self.se.tournament_lists('last', self.frame))
             self.se.widjets_menu2 = True
 
     def new_tournament(self):
+        """
+        :return: Vue création nouveau tournoi
+        """
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(55, 70)
         self.se.minsize(width=int(master_geometrie[0] * 0.70), height=int(master_geometrie[1]))
@@ -71,16 +96,6 @@ class TournamentsViews(extend_view.ExtendViews):
             self.new_window[0].destroy()
             self.se.tournament_ctrl(self.frame, dt_tournament)
 
-        def unity_player_submit(plr_data):
-            ctrl_result = self.se.tournament_ctrl_player(self.new_frame, plr_data)
-            if ctrl_result:
-                infos_plr = [{'identity': ctrl_result[0], 'last_name': ctrl_result[1], 'first_name': ctrl_result[2],
-                              'point': ctrl_result[3]}]
-                _data_player = self.se.instance_player(infos_plr)
-                if _data_player:
-                    self.se.new_all_players.append(_data_player[0])
-                    all_player_submit('player')
-
         def all_player_submit(submit_type):
             if submit_type == 'list':
                 data_tournament['players'] = \
@@ -95,9 +110,8 @@ class TournamentsViews(extend_view.ExtendViews):
                                         command=lambda: tournament_submit(data_tournament))
                     submit.grid(columnspan=7, pady=30, ipadx=5)
 
-        title = self.title(family="Lucida Handwriting", size=20, weight="bold", slant="italic", underline=True,
-                           mst=self.frame, bg="#FEF9E7", justify=None, text="Nouveau Tournoi : ", width=None, row=0,
-                           cols=None, colspan=7, sticky=None, padx=None, pady=None)
+        Label(self.frame, bg="#FEF9E7", font=self.lc_cal, text="Nouveau Tournoi : ").grid(row=0, columnspan=7, pady=18)
+
         name = self.input_text(mst=self.frame, lb_row=2, ip_row=3, cols=1, colspan=6, bg="#FEF9E7", text="Nom : ",
                                ip_wh=20)
         address = self.input_text(mst=self.frame, lb_row=5, ip_row=6, cols=1, colspan=6, bg="#FEF9E7",
@@ -108,32 +122,20 @@ class TournamentsViews(extend_view.ExtendViews):
                                        text="Choisissez un nombre de tour", ip_wh=10)
         number_turns.insert(0, '4')
 
-        self.label(mst=self.frame, width=None, height=None, bg="#FEF9E7", ipadx=None, ipady=None,
-                   justify=None, text="Sélection des joueurs", row=14, cols=1, colspan=6, sticky='w')
+        Label(self.frame, bg="#FEF9E7", font=self.new_r,
+              text="Sélection des joueurs").grid(row=14, column=3, columnspan=4, sticky="w", pady=9)
 
-        plr_create = ttk.Button(self.frame, text="Créer", command=lambda: new_player())
-        plr_create.grid(row=15, column=1, columnspan=3, pady=5)
-
-        plr_list = ttk.Button(self.frame, text="Rechercher", command=lambda: new_list())
-        plr_list.grid(row=15, column=4, columnspan=3, pady=5)
-
-        title.update()
-        address.update()
-        name.update()
-        space_x_date: list = self.adjust_x(address, name)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=(space_x_date[2]), ipady=None,
-                   justify=None, text="", row=9, cols=6, colspan=None, sticky=None)
-        space_xx: list = self.adjust_x(address, title)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=(space_xx[2]), ipady=None,
-                   justify=None, text="", row=0, cols=0, colspan=None, sticky=None)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=None, ipady=None,
-                   justify=None, text="", row=4, cols=0, colspan=None, sticky=None)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=None, ipady=None,
-                   justify=None, text="", row=7, cols=0, colspan=None, sticky=None)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=None, ipady=None,
-                   justify=None, text="", row=10, cols=0, colspan=None, sticky=None)
-        self.label(mst=self.frame, width=None, height=-1, bg="#FEF9E7", ipadx=None, ipady=None,
-                   justify=None, text="", row=13, cols=0, colspan=None, sticky=None)
+        ttk.Button(self.frame, text="Créer", command=lambda: new_player()).grid(row=15, column=1, columnspan=3, pady=5)
+        ttk.Button(self.frame, text="Rechercher", command=lambda: new_list()).grid(row=15, column=4, columnspan=3,
+                                                                                   pady=5)
+        address.update(), name.update()
+        col0_x: list = self.adjust_x(address, name)
+        Label(self.frame, bg="#FEF9E7").grid(row=0, column=0, ipadx=int(col0_x[2] / 2) - 20)
+        Label(self.frame, bg="#FEF9E7").grid(row=9, column=6, ipadx=col0_x[2])
+        Label(self.frame, bg="#FEF9E7").grid(row=4, column=1, columnspan=5)
+        Label(self.frame, bg="#FEF9E7").grid(row=7, column=1, columnspan=5)
+        Label(self.frame, bg="#FEF9E7").grid(row=10, column=1, columnspan=5)
+        Label(self.frame, bg="#FEF9E7").grid(row=13, column=1, columnspan=5)
 
         data_tournament['name'] = name
         data_tournament['address'] = address
@@ -150,49 +152,80 @@ class TournamentsViews(extend_view.ExtendViews):
             submit_list.grid(column=0, columnspan=2, pady=20, ipadx=20)
 
         def new_player():
-            if self.new_window:
+            _data = self.create_player()
+
+            def cr_player(plr_data):
+                ctrl_result = self.se.tournament_ctrl_player(self.new_frame, plr_data)
+                if ctrl_result:
+                    infos_plr = [{'identity': ctrl_result[0], 'last_name': ctrl_result[1],
+                                  'first_name': ctrl_result[2], 'point': ctrl_result[3]}]
+                    _data_player = self.se.instance_player(infos_plr)
+                    if _data_player:
+                        self.se.new_all_players.append(_data_player[0])
+                        all_player_submit('player')
+
                 self.new_window[0].destroy()
-            self.new_window = self.se.listing_window(40, 50, 40, 40, 'Ajouter un joueur', '#FEF9E7')
 
-            self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
-            self.new_frame.grid()
-            self.new_frame.place(relx=0.5, rely=0.4, anchor='center')
+            ttk.Button(self.new_frame, text="  Valider  ",
+                       command=lambda: cr_player(_data)).grid(row=13, columnspan=3, pady=15)
 
-            plr_title = self.title(family="Lucida Calligraphy", size=20, weight="bold", slant="italic", underline=True,
-                                   mst=self.new_frame, bg="#FEF9E7", justify=None, text="Nouveau joueur : ",
-                                   width=None, row=0, cols=None, colspan=7, sticky=None, padx=None, pady=None)
+    # fonction attachée a la fonction new_tournament
+    def create_player(self):
+        """
+        :return: Sous fonction de la fonction new_tournament()
+         Valeur de saisie création d'un joueur tournoi
+        """
+        if self.new_window:
+            self.new_window[0].destroy()
+        self.new_window = self.se.listing_window(40, 50, 40, 40, 'Ajouter un joueur', '#FEF9E7')
 
-            identity = self.input_text(mst=self.new_frame, lb_row=2, ip_row=3, cols=1, colspan=5, bg="#FEF9E7",
-                                       text="Identifiant : ", ip_wh=20)
-            last_name = self.input_text(mst=self.new_frame, lb_row=5, ip_row=6, cols=1, colspan=5, bg="#FEF9E7",
-                                        text="Nom : ", ip_wh=20)
-            first_name = self.input_text(mst=self.new_frame, lb_row=8, ip_row=9, cols=1, colspan=5, bg="#FEF9E7",
-                                         text="Prénom : ", ip_wh=20)
-            point = self.input_text(mst=self.new_frame, lb_row=11, ip_row=12, cols=1, colspan=5, bg="#FEF9E7",
-                                    text="Point(s) : ", ip_wh=10)
-            point.insert(0, "0.0")
+        self.new_frame = Frame(self.new_window[0], bg="#FEF9E7", padx=15, pady=10)
+        self.new_frame.grid()
+        self.new_frame.place(relx=0.5, rely=0.4, anchor='center')
 
-            plr_data = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'point': point}
+        plr_title = Label(self.new_frame, bg="#FEF9E7", font=self.lc_cal, text="Nouveau joueur tournoi : ")
+        plr_title.grid(row=0, column=0, columnspan=3, sticky="w", pady=3)
 
-            submit_players = ttk.Button(self.new_frame, text="  Valider  ",
-                                        command=lambda: unity_player_submit(plr_data))
-            submit_players.grid(columnspan=7, pady=20)
+        identity = self.input_text(mst=self.new_frame, lb_row=2, ip_row=3, cols=1, colspan=None, bg="#FEF9E7",
+                                   text="Identifiant : ", ip_wh=20)
+        last_name = self.input_text(mst=self.new_frame, lb_row=5, ip_row=6, cols=1, colspan=None, bg="#FEF9E7",
+                                    text="Nom : ", ip_wh=20)
+        first_name = self.input_text(mst=self.new_frame, lb_row=8, ip_row=9, cols=1, colspan=None, bg="#FEF9E7",
+                                     text="Prénom : ", ip_wh=20)
+        point = self.input_text(mst=self.new_frame, lb_row=11, ip_row=12, cols=1, colspan=None, bg="#FEF9E7",
+                                text="Point(s) : ", ip_wh=10)
+        point.insert(0, "0.0")
 
-            space_x: list = self.adjust_x(plr_title, last_name)
-            self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                       justify=None, text="", row=1, cols=0, colspan=None, sticky=None)
-            self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                       justify=None, text="", row=4, cols=0, colspan=None, sticky=None)
-            self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                       justify=None, text="", row=7, cols=0, colspan=None, sticky=None)
-            self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                       justify=None, text="", row=10, cols=6, colspan=None, sticky=None)
+        _data = {'identity': identity, 'last_name': last_name, 'first_name': first_name, 'point': point}
 
-            self.label(mst=self.new_frame, width=None, height=-1, bg="#FEF9E7", ipadx=space_x[2] // 2, ipady=None,
-                       justify=None, text="", row=13, cols=6, colspan=None, sticky=None)
+        """ttk.Button(self.new_frame, text="  Valider  ",
+                   command=lambda: cr_player(_data)).grid(row=13, columnspan=3, pady=15)"""
+
+        plr_title.update(), last_name.update()
+        col_x: list = self.adjust_x(plr_title, last_name)
+        Label(self.new_frame, bg="#FEF9E7").grid(row=1, column=0, ipadx=int(col_x[2] / 4))
+
+        Label(self.new_frame, bg="#FEF9E7").grid(row=4, column=1)
+        Label(self.new_frame, bg="#FEF9E7").grid(row=7, column=1)
+        Label(self.new_frame, bg="#FEF9E7").grid(row=10, column=1)
+
+        """def cr_player(plr_data):
+            ctrl_result = self.se.tournament_ctrl_player(self.new_frame, plr_data)
+            if ctrl_result:
+                infos_plr = [{'identity': ctrl_result[0], 'last_name': ctrl_result[1], 'first_name': ctrl_result[2],
+                              'point': ctrl_result[3]}]
+                _data_player = self.se.instance_player(infos_plr)
+                if _data_player:
+                    self.se.new_all_players.append(_data_player[0])"""
+
+        return _data
 
     def detail_tournament(self, tournament: object, result_round=None):
-
+        """
+        :param tournament:
+        :param result_round:
+        :return: Vue en détaille d'un tournoi
+        """
         last_rd = tournament.rounds[-1]
         last_finish = last_rd.finish
 
@@ -271,7 +304,12 @@ class TournamentsViews(extend_view.ExtendViews):
             self.list_rounds(tournament, tournament.rounds)
 
     def list_players(self, data_player, select_players, title):
-
+        """
+        :param data_player:
+        :param select_players:
+        :param title:
+        :return: Vue liste des joueurs
+        """
         if len(data_player) > 0:
             data_player.sort(key=lambda x: x.point, reverse=True)
 
@@ -359,7 +397,11 @@ class TournamentsViews(extend_view.ExtendViews):
         return self.new_window, self.new_frame
 
     def list_rounds(self, tournament: object, data_rounds: list):
-
+        """
+        :param tournament:
+        :param data_rounds:
+        :return: Vue liste des rounds
+        """
         if self.new_window:
             self.new_window[0].destroy()
         self.new_window = self.se.listing_window(50, 60, 30, 40, 'Liste des rounds', '#FEF9E7')
@@ -442,7 +484,11 @@ class TournamentsViews(extend_view.ExtendViews):
         close_list.grid(row=2, column=0, columnspan=2, pady=20, ipadx=20)
 
     def list_tournament(self, title: str, data_tournament: list):
-
+        """
+        :param title:
+        :param data_tournament:
+        :return: Vue liste des tournois
+        """
         self.se.clear_frame(self.frame)
         master_geometrie = self.se.master_window(70, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
@@ -516,6 +562,12 @@ class TournamentsViews(extend_view.ExtendViews):
         scrollbar.grid(row=1, column=1, sticky='ns')
 
     def schema_round(self, type_round, tournament: object, new_round: object):
+        """
+        :param type_round:
+        :param tournament:
+        :param new_round:
+        :return: Vu déroulement des matchs d'un round
+        """
         text_start = "Ce round n'est pas encore lancé"
         text_finish = 'En attente'
         if new_round.start:
@@ -633,7 +685,17 @@ class TournamentsViews(extend_view.ExtendViews):
 
     # fonction attachée a la fonction schema_round
     def schema_round_action(self, action_type, type_round, tournament, new_round, start, match, parent, frames_lists):
-
+        """
+        :param action_type:
+        :param type_round:
+        :param tournament:
+        :param new_round:
+        :param start:
+        :param match:
+        :param parent:
+        :param frames_lists:
+        :return: Sous fonction de la fonction schema_round()
+        """
         if not new_round.finish and type_round == 'round_start':
             match_key = parent.winfo_name()
             widget_player1 = None
@@ -704,6 +766,13 @@ class TournamentsViews(extend_view.ExtendViews):
 
     # fonction attachée a la fonction schema_round
     def submit_l(self, new_round, frame_list, type_round, tournament):
+        """
+        :param new_round:
+        :param frame_list:
+        :param type_round:
+        :param tournament:
+        :return: Sous fonction de la fonction schema_round()
+        """
         not_submit = False
         text_list = ['En cours', 'Non lancé']
 
@@ -731,6 +800,10 @@ class TournamentsViews(extend_view.ExtendViews):
 
     @staticmethod
     def message(**kwargs: any) -> any:
+        """
+        :param kwargs:
+        :return: Message d'alerte
+        """
         lb_font = font.Font(family=kwargs['family'], size=kwargs['size'], weight=kwargs['weight'],
                             slant=kwargs['slant'], underline=kwargs['underline'])
         label = Label(kwargs['mst'], bg=kwargs['bg'], font=lb_font, name=kwargs['name'], fg=kwargs['fg'],

@@ -147,7 +147,7 @@ class TournamentData:
             return False
 
     @staticmethod
-    def update_comment(new_tournament):
+    def update_comment(new_tournament) -> False:
         try:
             with open("database/data_tournaments.json", "r", encoding="utf-8-sig", newline="") as file:
 
@@ -156,25 +156,26 @@ class TournamentData:
                     for tournament in new_file:
                         if tournament['id'] == new_tournament.id_tour:
                             tournament['Commentaires'] = new_tournament.comment
-                except json.JSONDecodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+
+                except json.JSONDecodeError:
+                    return False
 
             with open("database/data_tournaments.json", "w", encoding="utf-8-sig", newline="") as fl:
 
                 try:
                     json.dump(new_file, fl, indent=4)
-                except json.JSONEncodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                    return True
+                except json.JSONEncodeError:
+                    return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            return False
 
     @staticmethod
-    def treatment_round(new_tournament):
+    def treatment_round(new_tournament) -> False:
         try:
             with open("database/data_tournaments.json", "r+", encoding="utf-8-sig", newline="") as file:
 
@@ -189,19 +190,19 @@ class TournamentData:
 
                     file.seek(0)
                     json.dump(new_file, file, indent=4)
+                    return True
 
-                except json.JSONDecodeError as e:
-                    print(f"Erreur lors de l'écriture des données JSON : {e}")
+                except json.JSONDecodeError:
+                    return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            return False
 
     @staticmethod
-    def load_tournament_file():
+    def load_tournament_file() -> False:
         try:
             with open("database/data_tournaments.json", encoding="utf-8-sig", newline="") as file:
 
@@ -209,12 +210,11 @@ class TournamentData:
                     new_file = json.load(file)
                     return new_file
 
-                except json.JSONDecodeError as e:
-                    print(f"Erreur lors de la lecture des données JSON : {e}")
+                except json.JSONDecodeError:
+                    return False
 
-        except IOError as er:
-            print("Erreur lors de l'ouverture du fichier :", er)
-            print("En cas de première insertion, une erreur (no such file) peut apparaître.")
+        except IOError:
+            return False
 
-        except UnicodeEncodeError as err:
-            print("Erreur D'encodage :", err)
+        except UnicodeEncodeError:
+            return False

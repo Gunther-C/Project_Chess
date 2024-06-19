@@ -15,13 +15,26 @@ class PlayersViews(extend_view.ExtendViews):
 
     def new_menu(self):
         """
-        :return: Menu principale
+        :return: Menu Joueurs
         """
+        self.se.menu_param = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_parameter())
         self.se.menu_players = Menu(self.se.menu, tearoff=0, postcommand=lambda: self.menu_choice())
-        self.se.menu.add_cascade(label="Joueurs", menu=self.se.menu_players)
-        self.se.menu.add_command(label="Debug", command=lambda: self.se.debug())
-        self.se.menu.add_command(label="Quitter", command=self.se.destroy)
+        self.se.menu.add_cascade(label="Menu Joueurs", menu=self.se.menu_players)
+        self.se.menu.add_cascade(label="Options", menu=self.se.menu_param)
         self.se.config(menu=self.se.menu)
+
+    def menu_parameter(self):
+        """
+        :return: Menu principale, fermer l'application
+        """
+        if not self.se.widjets_menu4:
+            def w_master():
+                self.se.destroy()
+                self.se.windows_master()
+
+            self.se.menu_param.add_command(label="Menu principal", command=lambda: w_master())
+            self.se.menu_param.add_command(label="Quitter", command=self.se.destroy)
+            self.se.widjets_menu4 = True
 
     def menu_choice(self):
         """
@@ -37,7 +50,7 @@ class PlayersViews(extend_view.ExtendViews):
 
     def menu_list(self):
         """
-        :return: Menu du style de listes de joueurs
+        :return: Menu du style de listes des joueurs
         """
         if not self.se.widjets_menu2:
             self.se.menu_listing.add_command(label="Ordre alphabétique", command=lambda: self.se.recover_list('name'))

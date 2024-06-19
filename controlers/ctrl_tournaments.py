@@ -1,10 +1,10 @@
-import random
-
 from core import core
 from core import french_date as date_fr
+import random
 
 from database.data_tournaments import TournamentData
 from database.data_players import PlayersData
+from rotate import rotation
 
 from models.mdl_tournament import TournamentMdl
 from models.mdl_round import RoundMdl
@@ -27,17 +27,14 @@ class TournamentsCtrl(core.Core):
             self.new_all_players.append(new_player)
             self.vue.new_tournament()
 
-    def result_menu(self, result: str | None = None):
-        match result:
-            case 'create':
-                self.vue.new_tournament()
-            case 'search':
-                self.vue.search_tournament()
-            case _:
-                pass
-
     def tournament_ctrl(self, new_frame, data_tournament):
-
+        """
+        :param new_frame:
+        :param data_tournament:
+        :return: Contrôle des saisies utilisateurs,
+        si erreur renvoi le message d'erreur approprié
+        si ok lancement de la fonction tournament_treatment() pour insertion bdd et instance du tournoi
+        """
         errors_dict = {}
         name = data_tournament['name'].get()
         address = data_tournament['address'].get()
@@ -85,6 +82,11 @@ class TournamentsCtrl(core.Core):
             pass
 
     def tournament_ctrl_player(self, new_frame, data_player) -> False:
+        """
+        :param new_frame:
+        :param data_player:
+        :return: Contrôle de l'insertion des joueurs spécialement créés pour le tournoi
+        """
         errors_dict = {}
         last_name = data_player['last_name'].get()
         first_name = data_player['first_name'].get()
@@ -135,6 +137,10 @@ class TournamentsCtrl(core.Core):
             pass
 
     def tournament_comment(self, comment):
+        """
+        :param comment:
+        :return: Modifier en temps réel les commentaires d'un tournoi
+        """
 
         self.new_tournament.comment = comment
 
@@ -143,6 +149,20 @@ class TournamentsCtrl(core.Core):
 
     def tournament_treatment(self, treatment, new_frame, id_tour, name, address, birth, number_turns, rounds, players,
                              comment):
+        """
+        :param treatment:
+        :param new_frame:
+        :param id_tour:
+        :param name:
+        :param address:
+        :param birth:
+        :param number_turns:
+        :param rounds:
+        :param players:
+        :param comment:
+        :return: Création d'une instance de tournoi (Mise en bdd si c'est une création de tournoi),
+        Paramètres pour vue en détail d'un tournoi
+        """
         # instance tournoi
         self.new_tournament = TournamentMdl(id_tour=id_tour, name=name, address=address, birth=birth,
                                             number_turns=number_turns, rounds=rounds, players=players,
@@ -163,11 +183,16 @@ class TournamentsCtrl(core.Core):
         elif treatment == 'data':
             self.vue.detail_tournament(self.new_tournament)
 
-    def tournament_lists(self, list_type):
+    def tournament_lists(self, list_type, new_frame):
+        """
+        :param list_type:
+        :param new_frame:
+        :return: Affichage liste ordonnée des tournois
+        """
         tournaments = self.tournaments_list()
         title = None
         ordered = None
-        if len(tournaments) > 0:
+        if tournaments:
             if list_type == 'first':
                 ordered = sorted(tournaments, key=lambda x: x['Date'])
                 title = 'Liste par dates croissantes'
@@ -177,10 +202,17 @@ class TournamentsCtrl(core.Core):
 
             if ordered:
                 self.vue.list_tournament(title, ordered)
+
         else:
-            pass
+            self.vue.message(mst=new_frame, family=None, size=10, weight="normal", slant="roman", underline=False,
+                             bg="#FEF9E7", name="error1", fg="red", pady=10,
+                             text="il semble qu'aucun tournoi ne soit enregistré")
 
     def instance_player(self, _players_list=None) -> None:
+        """
+        :param _players_list:
+        :return: Créer une instance d'un joueur
+        """
 
         data_players: list = []
         if not _players_list:
@@ -197,6 +229,14 @@ class TournamentsCtrl(core.Core):
             return data_players
 
     def round_treatment(self, tournament):
+        """
+        :param tournament:
+        :return: Traitement des rounds, terminer le round en cours, création du nouveau round et de ses matchs
+        (instance et enregistrement bdd), les joueurs avec le plus de points s'affrontent sans qu'ils puissent
+        se rencontrer deux fois de suite sauf si le nombre de rounds est égal ou supérieur au nombre de joueurs,
+        dans ce cas relance aléatoire du choix des joueurs pour la création des nouveaux matchs.
+        Mise à jour des point des joueurs, si c'est le dernier round mise à jour aussi dans la bdd joueurs
+        """
 
         if tournament:
 
@@ -248,6 +288,13 @@ class TournamentsCtrl(core.Core):
 
     # refactor_tournament(), new_round(), restart(), attachées a la fonction round_treatment()
     def refactor_tournament(self, tournament, _rounds, _players, new_mt_list=None):
+        """
+        :param tournament:
+        :param _rounds:
+        :param _players:
+        :param new_mt_list:
+        :return: Sous-fonction de round_treatment
+        """
 
         current_round: dict = _rounds[-1]
         id_new_round = int(current_round.id_round + 1)
@@ -293,6 +340,16 @@ class TournamentsCtrl(core.Core):
             self.vue.detail_tournament(self.new_tournament, error_players)
 
     def new_round(self, _turn, players_lists, match_lists, adversary, tournament, _rounds, _players):
+        """
+        :param _turn:
+        :param players_lists:
+        :param match_lists:
+        :param adversary:
+        :param tournament:
+        :param _rounds:
+        :param _players:
+        :return: Sous-fonction de round_treatment
+        """
         new_matchs_list = []
         copy_list = players_lists.copy()
 
@@ -364,6 +421,13 @@ class TournamentsCtrl(core.Core):
             self.refactor_tournament(tournament, _rounds, _players, new_matchs_list)
 
     def restart(self, players_lists, tournament, _rounds, _players):
+        """
+        :param players_lists:
+        :param tournament:
+        :param _rounds:
+        :param _players:
+        :return: Sous-fonction de round_treatment
+        """
         new_matchs_list = []
         for _player in players_lists:
             _player[2] = 0.0
@@ -379,6 +443,11 @@ class TournamentsCtrl(core.Core):
             self.refactor_tournament(tournament, _rounds, _players, new_matchs_list)
 
     def update_score(self, new_scores, new_frame):
+        """
+        :param new_scores:
+        :param new_frame:
+        :return: Modifier le score d'un match en temps réel
+        """
         if TournamentData().update_scores(new_scores):
             pass
         else:
@@ -387,6 +456,11 @@ class TournamentsCtrl(core.Core):
                              text="Erreur lors de l'écriture des données")
 
     def update_date(self, data_date, new_frame) -> False:
+        """
+        :param data_date:
+        :param new_frame:
+        :return: Modifier la date d'un round dès le premier match validé
+        """
         new_date = TournamentData().update_date(data_date)
         if new_date:
             return new_date
@@ -394,3 +468,10 @@ class TournamentsCtrl(core.Core):
             self.vue.message(mst=new_frame, family=None, size=10, weight="normal", slant="roman", underline=False,
                              bg="#FEF9E7", name="error1", fg="red", pady=10,
                              text="Erreur lors de l'écriture des données")
+
+    @staticmethod
+    def windows_master():
+        """
+        :return: Retour au menu principal
+        """
+        rotation('m')

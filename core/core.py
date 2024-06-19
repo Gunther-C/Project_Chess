@@ -17,15 +17,22 @@ class Core(Tk):
 
         self.data_transfer = None
 
+        self.menu_options = None
+        self.menu_players = None
+        self.menu_tour = None
+
         self.new_player = None
         self.new_tournament = None
 
         self.menu_listing = None
         self.frame = None
         self.frame_list = None
+
+        self.widjets_menu = False
         self.widjets_menu1 = False
         self.widjets_menu2 = False
         self.widjets_menu3 = False
+        self.widjets_menu4 = False
 
         view_master = self.master_window(50, 60)
         self.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
@@ -231,6 +238,9 @@ class Core(Tk):
         :param parent:
         :param child_width:
         :return: Ajuster la largeur de la fenêtre en pourcentage, centrer sur l'écran
+        valeur1 = Largeur de la fenêtre
+        valeur2 = Différence entre la largeur de la fenêtre et celle de l'écran
+                  (diviser par deux pour les marges gauche et droite de la fenêtre)
         """
         screen_width = parent
         unity = int(screen_width / 100)
@@ -244,6 +254,9 @@ class Core(Tk):
         :param parent:
         :param child_height:
         :return: Ajuster la hauteur de la fenêtre en pourcentage, centrer sur l'écran
+        valeur1 = hauteur de la fenêtre
+        valeur2 = Différence entre la hauteur de la fenêtre et celle de l'écran
+                  (diviser par deux pour les marges haut et bas de la fenêtre)
         """
         screen_height = parent
         unity = int(screen_height / 100)

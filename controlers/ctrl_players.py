@@ -254,6 +254,13 @@ class PlayersCtrl(core.Core):
         rotation('t', player_tournament)
 
     @staticmethod
+    def windows_master():
+        """
+        :return: Retour au menu principal
+        """
+        rotation('m')
+
+    @staticmethod
     def instance_player(id_player, identity, last_name, first_name, birth, point):
         instance = PlayersMdl(id_player=id_player, identity=identity, last_name=last_name, first_name=first_name,
                               birth=birth, point=point)
