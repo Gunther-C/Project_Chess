@@ -164,7 +164,7 @@ class TournamentsViews(extend_view.ExtendViews):
                         self.se.new_all_players.append(_data_player[0])
                         all_player_submit('player')
 
-                self.new_window[0].destroy()
+                    self.new_window[0].destroy()
 
             ttk.Button(self.new_frame, text="  Valider  ",
                        command=lambda: cr_player(_data)).grid(row=13, columnspan=3, pady=15)

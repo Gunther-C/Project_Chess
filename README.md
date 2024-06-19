@@ -50,6 +50,13 @@ afin de vous assister dans vos actions, voici trois exemples :
 ### **_Debug :_**
 - **Rapport d'évaluation du système**   
 > Analyse en temps réel du système, recherche et indexation des erreurs potentielles
+### **_Raccourci bureau :_**
+- **Fichier "Project_Chess.bat"**   
+> Faite les installations requises ci-dessous. Ensuite,  
+> Allez dans le dossier Project_Chess et clique droite sur le fichier "Project_Chess.bat" pour créer un raccourci bureau.  
+> Vous n'aurez plus besoin de l'invité de commande pour ouvrir l'application.
+> 
+> **_(Ce raccourci peut ne pas fonctionner sous linux ou os)_**
 #
 ___
 ___
@@ -119,9 +126,15 @@ _(Résultat)_
 **_(N’oubliez pas que pour les utilisateurs POSIX (comme Mac OS X et Linux), il est recommandé d’utiliser un environnement virtuel pour gérer vos projets Python)._**  
 #
 ## _Ouverture du logiciel_ (Fichier main.py)
-_Toujours sur votre invité de commande : Mettez-vous dans le dossier du "Projet" si vous n'y êtes pas déjà, puis taper ce qui suit ci-dessous, puis validé avec la touche entrée._ :
-> python main.py
- 
+_Toujours sur votre invité de commande : Mettez-vous dans le dossier du "Projet" si vous n'y êtes pas déjà, puis taper ce qui suit ci-dessous, ensuite validé avec la touche entrée._ :
+> python main.py 
+
+**_ou ,_**
+> _(Si votre système d'exploitation le permet),_   
+> 
+> Vous pouvez créer un raccourci bureau. Voyer la rubrique  
+> **_" Options supplémentaires du logiciel "_**  
+
 ### _À vous de jouer_
 ___
 ### 🔗 Links 
