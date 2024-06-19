@@ -92,12 +92,12 @@ _Clone du projet_ :
 ```bash
   git clone https://github.com/Gunther-C/Project_Chess.git
 ```
+###
 ### Installer l'environement virtuel >>>
-- Décompresser le dossier sur votre bureau
-- Ensuite, ouvrez votre terminal  
 
-**_Voici les commandes à taper l'une après l'autre :_**  
-_Taper une commande puis valider avec entrée et ainsi de suite_
+_(Si vous avez fait le choix de télécharger le Dossier zip Décompresser ce dernier sur votre bureau)_
+
+_Ouvrez votre terminal, Taper une commande puis valider avec entrée et ainsi de suite_
 
 >        cd < Le nom du dossier >  
 
