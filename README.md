@@ -138,7 +138,7 @@ _Puis taper ce qui suit ci-dessous, ensuite validé avec la touche entrée._
 > _(Si votre système d'exploitation le permet),_   
 > 
 >       Vous pouvez créer un raccourci bureau.  
->       Voyer la rubrique " Options supplémentaires du logiciel "
+>       Voyez la rubrique " Options supplémentaires du logiciel "
 
 ### _À vous de jouer_
 ___
