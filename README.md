@@ -64,8 +64,6 @@ ___
 ## Installation  
 ___
 ####
-**_Sous Windows (option bas de page)_** :
-####
 ### Python 3.12.2 >>>
 ####
 _Téléchargement de Python_ :  
