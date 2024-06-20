@@ -38,7 +38,7 @@ class Core(Tk):
         self.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.title(" Echec")
         self.config(bg="#FEF9E7")
-        self.iconbitmap("views/pictures/horse.ico")
+        self.iconphoto(False, PhotoImage(file='views/pictures/horse.png'))
 
         self.background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40),
                                 height=int(view_master[1] * 0.50))
