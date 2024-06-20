@@ -6,7 +6,8 @@ class ExtendViews:
         self.frame = frame
 
         self.new_r = font.Font(family='Times New Roman', size=15, weight="bold", slant="roman")
-        self.new_r_mini = font.Font(family='Times New Roman', size=10, weight="bold", slant="roman")
+        self.new_r_medium = font.Font(family='Times New Roman', size=12, weight="bold", slant="roman")
+        self.new_r_mini = font.Font(family='Times New Roman', size=10, weight="normal", slant="roman")
 
         self.lc_cal = font.Font(family='Lucida Calligraphy', size=20, weight="bold", slant="italic", underline=True)
         self.lc_cal_mini = font.Font(family='Lucida Calligraphy', size=15, weight="bold", slant="italic",

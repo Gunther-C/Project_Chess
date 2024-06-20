@@ -72,7 +72,7 @@ class PlayersViews(extend_view.ExtendViews):
         """
         :return: Création d'un joueur
         """
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -126,7 +126,7 @@ class PlayersViews(extend_view.ExtendViews):
             else:
                 self.se.save_or_tournament('tournament', dt_player)
 
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -153,7 +153,7 @@ class PlayersViews(extend_view.ExtendViews):
         create = ttk.Button(self.frame, text=" Créer un tournoi avec ce joueur ", command=lambda: click('tournament'))
         create.grid(row=(next_line + 1), columnspan=5, pady=20)
 
-        annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
+        annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame('destroy', self.frame))
         annule.grid(row=(next_line + 3), columnspan=5, pady=20)
 
         insert.update()
@@ -170,8 +170,7 @@ class PlayersViews(extend_view.ExtendViews):
         :param choice_type:
         :return: Recherche par nom ou numéro d'identité national
         """
-        self.se.background['image'] = ""
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         view_master = self.se.master_window(50, 60)
         self.se.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.3, anchor='center')
@@ -198,7 +197,7 @@ class PlayersViews(extend_view.ExtendViews):
         :param multi_players:
         :return: Plusieurs résultats trouvés lors d'une recherche par nom
         """
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0, anchor='n')
@@ -223,7 +222,7 @@ class PlayersViews(extend_view.ExtendViews):
             player_button(player, next_line)
             next_line += 1
 
-        annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
+        annule = ttk.Button(frame, text=" Annuler ", command=lambda: self.se.clear_frame('destroy', self.frame))
         annule.grid(row=next_line, column=1, columnspan=2, pady=30)
 
         self.se.canvas_roll(canvas, frame, view_x, view_y)
@@ -237,7 +236,7 @@ class PlayersViews(extend_view.ExtendViews):
         :param dt_player:
         :return: Résultat de la recherche d'un joueur
         """
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(50, 60)
         self.se.minsize(width=int(master_geometrie[0] * 0.60), height=int(master_geometrie[1] * 0.90))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -261,7 +260,7 @@ class PlayersViews(extend_view.ExtendViews):
                                 command=lambda: self.se.save_or_tournament('tournament', dt_player))
         create_trt.grid(row=(next_line + 1), columnspan=5, pady=20)
 
-        annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame(self.frame))
+        annule = ttk.Button(self.frame, text=" Annuler ", command=lambda: self.se.clear_frame('destroy', self.frame))
         annule.grid(row=(next_line + 2), columnspan=5, pady=20)
 
         create_trt.update()
@@ -279,7 +278,7 @@ class PlayersViews(extend_view.ExtendViews):
         :param data_players:
         :return: Liste des joueurs en bdd
         """
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(60, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
         self.frame.place(relx=0.5, rely=0.1, anchor='n')

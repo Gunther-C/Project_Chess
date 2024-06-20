@@ -34,14 +34,14 @@ class Core(Tk):
         self.widjets_menu3 = False
         self.widjets_menu4 = False
 
-        view_master = self.master_window(50, 60)
-        self.minsize(width=int(view_master[0] * 0.60), height=int(view_master[1] * 0.90))
+        self.view_master = self.master_window(50, 60)
+        self.minsize(width=int(self.view_master[0] * 0.60), height=int(self.view_master[1] * 0.90))
         self.title(" Echec")
         self.config(bg="#FEF9E7")
-        self.iconphoto(False, PhotoImage(file='views/pictures/horse.png'))
+        # self.iconphoto(False, PhotoImage(file='views/pictures/horse.png'))
 
-        self.background = Label(self, bg="#FEF9E7", width=int(view_master[0] * 0.40),
-                                height=int(view_master[1] * 0.50))
+        self.background = Label(self, bg="#FEF9E7", width=int(self.view_master[0] * 0.40),
+                                height=int(self.view_master[1] * 0.50))
         self.background.image = PhotoImage(file="views/pictures/Chess_mini.png")
         self.background['image'] = self.background.image
         self.background.grid()
@@ -78,7 +78,6 @@ class Core(Tk):
         new_window.minsize(width=view_x[0], height=view_y[0])
         new_window.title(title)
         new_window.config(bg=bg)
-        new_window.iconbitmap("views/pictures/horse.ico")
         return new_window, view_x[0], view_y[0]
 
     def searching(self, **kwargs: any) -> False:
@@ -141,6 +140,26 @@ class Core(Tk):
                     multi_player.append(player)
 
         return multi_player
+
+    def clear_frame(self, clear_type: str, frame: any) -> None:
+        """
+        :param clear_type:
+        :param frame:
+        :return: Néttoyage de la frame tkinter en cours
+        """
+        if frame:
+            for widget in frame.winfo_children():
+                widget.destroy()
+
+        if clear_type == 'continu':
+            self.background.destroy()
+        else:
+            self.background = Label(self, bg="#FEF9E7", width=int(self.view_master[0] * 0.40),
+                                    height=int(self.view_master[1] * 0.50))
+            self.background.image = PhotoImage(file="views/pictures/Chess_mini.png")
+            self.background['image'] = self.background.image
+            self.background.grid()
+            self.background.place(relx=0.5, rely=0.5, anchor='center')
 
     @staticmethod
     def debug():
@@ -344,13 +363,13 @@ class Core(Tk):
         """
         :param arg_type:
         :param text:
-        :return: la saisie doit comporter uniquement du texte
+        :return: la saisie doit comporter du texte et Certains caractères spéciaux
         """
         if text:
             text = text.replace(" ", "").strip()
-            new_text = text.isalpha()
-            if not new_text:
-                return f"{arg_type} doit comporter uniquement du texte"
+            verif_text = re.search("[^a-zA-Z0-9-'_]+", text)
+            if verif_text:
+                return f"{arg_type} doit comporter du texte, \n Certains caractères spéciaux ne sont pas autorisés"
 
     @staticmethod
     def long_string_verif(arg_type, min_txt, max_txt, text) -> False:
@@ -376,16 +395,6 @@ class Core(Tk):
             text = text.replace(" ", "").strip()
             if not len(text) == 7 or not text[:2].isalpha() or not text[2:].isdigit():
                 return f"Le numéro national d'identité '{text}' n'est pas valide"
-
-    @staticmethod
-    def clear_frame(frame: any) -> None:
-        """
-        :param frame:
-        :return: Néttoyage de la frame tkinter en cours
-        """
-        if frame:
-            for widget in frame.winfo_children():
-                widget.destroy()
 
     @staticmethod
     def create_error(errors_dict):

@@ -47,9 +47,11 @@ class TournamentsCtrl(core.Core):
         ctrl_number_players = len(players)
 
         if name:
-            errors_dict['ctrl_lst_1'] = self.long_string_verif("Le Nom", 2, 40, name)
+            errors_dict['ctrl_name_1'] = self.long_string_verif("Le Nom", 2, 40, name)
+            errors_dict['ctrl_name_2'] = self.string_verif("Le Nom", name)
         if address:
-            errors_dict['ctrl_fst_1'] = self.long_string_verif("L'adresse'", 2, 100, address)
+            errors_dict['ctrl_adr_1'] = self.long_string_verif("L'adresse'", 2, 100, address)
+            errors_dict['ctrl_adr_2'] = self.string_verif("L'adresse'", name)
         if day:
             errors_dict['ctrl_day'] = self.number_verif("Le jour", day)
         if month:

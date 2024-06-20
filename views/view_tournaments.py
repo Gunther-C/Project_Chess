@@ -72,7 +72,7 @@ class TournamentsViews(extend_view.ExtendViews):
         """
         :return: Vue création nouveau tournoi
         """
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(55, 70)
         self.se.minsize(width=int(master_geometrie[0] * 0.70), height=int(master_geometrie[1]))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -237,7 +237,7 @@ class TournamentsViews(extend_view.ExtendViews):
         if len(self.se.new_all_players) > 0:
             self.se.new_all_players.clear()
 
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(60, 85)
         self.se.minsize(width=(master_geometrie[0] - 100), height=(master_geometrie[1] - 100))
         self.frame.place(relx=0.5, rely=0.5, anchor='center')
@@ -252,37 +252,39 @@ class TournamentsViews(extend_view.ExtendViews):
 
         self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
                    bg="#FEF9E7", justify=None, text=f"A : {tournament.address}", width=None, row=2, cols=1,
-                   colspan=3, sticky="w", padx=None, pady=10)
+                   colspan=3, sticky="w", padx=None, pady=None)
 
         self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
                    bg="#FEF9E7", justify=None, text=f"En : {tournament.number_turns} manche(s)", width=None, row=3,
-                   cols=1, colspan=3, sticky="w", padx=None, pady=10)
+                   cols=1, colspan=3, sticky="w", padx=None, pady=20)
 
         self.title(family="Times New Roman", size=14, weight="bold", slant="roman", underline=False, mst=self.frame,
-                   bg="#FEF9E7", justify=None, text="Commentaire :", width=None, row=4, cols=1, colspan=3, sticky="w",
-                   padx=None, pady=10)
+                   bg="#FEF9E7", justify=None, text="Commentaire : ", width=None, row=4, cols=1, colspan=3, sticky="w",
+                   padx=None, pady=None)
+        Label(self.frame, text="(Vous devez laisser un commentaire avant la validation du dernier round.)",
+              bg="#FEF9E7", font=self.new_r_mini).grid(row=5, column=1, columnspan=3, sticky='w')
 
-        lb_font = font.Font(family='Times New Roman', size=12)
-        _comment = ScrolledText(self.frame, height=10, highlightbackground="black", highlightthickness=1, font=lb_font)
-        _comment.grid(column=1, columnspan=3, row=5, sticky="w")
+        _comment = ScrolledText(self.frame, height=10, highlightbackground="black", highlightthickness=1,
+                                font=self.new_r_medium)
+        _comment.grid(column=1, columnspan=3, row=6, sticky="w")
         _comment.insert(INSERT, tournament.comment)
         _comment.bind("<KeyRelease>", lambda e: comment(), add=True)
         if last_finish:
             _comment.config(state="disabled")
 
-        Label(self.frame, bg="#FEF9E7").grid(row=10, column=0, ipady=10)
+        Label(self.frame, bg="#FEF9E7").grid(row=7, column=0, ipady=15)
 
         plr_create = ttk.Button(self.frame, text="Liste des joueurs", command=lambda: players_list())
-        plr_create.grid(row=11, column=1, ipadx=20, ipady=5)
+        plr_create.grid(row=8, column=1, ipadx=20, ipady=5)
 
-        Label(self.frame, bg="#FEF9E7").grid(row=11, column=2, ipadx=20)
+        Label(self.frame, bg="#FEF9E7").grid(row=8, column=2, ipadx=20)
 
         plr_list = ttk.Button(self.frame, text="Liste des tours", command=lambda: round_list())
-        plr_list.grid(row=11, column=3, ipadx=20, ipady=5)
+        plr_list.grid(row=8, column=3, ipadx=20, ipady=5)
 
         if not last_finish:
             plr_list = ttk.Button(self.frame, text="<= Lancer le tour =>", command=lambda: round_start())
-            plr_list.grid(row=12, columnspan=4, pady=40, ipadx=30, ipady=10)
+            plr_list.grid(row=9, columnspan=4, pady=40, ipadx=30, ipady=10)
 
         if result_round:
             self.message(mst=self.frame, family=None, size=12, weight="normal", slant="roman", underline=False,
@@ -489,7 +491,7 @@ class TournamentsViews(extend_view.ExtendViews):
         :param data_tournament:
         :return: Vue liste des tournois
         """
-        self.se.clear_frame(self.frame)
+        self.se.clear_frame('continu', self.frame)
         master_geometrie = self.se.master_window(70, 70)
         self.se.minsize(width=master_geometrie[0], height=master_geometrie[1])
         self.frame.place(relx=0.5, rely=0.1, anchor='n')
